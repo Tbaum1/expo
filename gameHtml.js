@@ -40,7 +40,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   .chip.coins .val{color:var(--gold);} .chip.spins .val{color:var(--teal);} .chip.shield .val{color:var(--rose);}
   .chip .val.bump{transform:scale(1.25);}
 
-  .machine{flex:0 0 auto;margin:4px 0 4px;background:linear-gradient(180deg,#4a2585 0%,#321963 55%,#20104a 100%);border:3px solid #ffce4d;border-radius:24px;box-shadow:inset 0 2px 0 rgba(255,255,255,.3),inset 0 0 26px rgba(0,0,0,.45),0 10px 0 #160a32,0 16px 28px rgba(0,0,0,.5);padding:10px 16px 8px;position:relative;z-index:2;overflow:visible;}
+  .machine{flex:0 0 auto;margin:20px 0 6px;background:linear-gradient(180deg,#4a2585 0%,#321963 55%,#20104a 100%);border:3px solid #ffce4d;border-radius:24px;box-shadow:inset 0 2px 0 rgba(255,255,255,.3),inset 0 0 26px rgba(0,0,0,.45),0 10px 0 #160a32,0 16px 28px rgba(0,0,0,.5);padding:10px 16px 8px;position:relative;z-index:2;overflow:visible;}
   .machine .mrac{position:absolute;bottom:-18px;left:-26px;width:74px;height:auto;z-index:3;pointer-events:none;filter:drop-shadow(0 5px 5px rgba(0,0,0,.45));animation:mracBob 2.8s ease-in-out infinite;}
   .machine .mfoe{position:absolute;bottom:-26px;right:-26px;width:74px;height:auto;z-index:3;pointer-events:none;transform:scaleX(-1);filter:drop-shadow(0 5px 5px rgba(0,0,0,.45));animation:mfoeBob 3.1s ease-in-out infinite;}
   @keyframes mfoeBob{0%,100%{transform:scaleX(-1) translateY(0) rotate(2deg);}50%{transform:scaleX(-1) translateY(-5px) rotate(-2deg);}}
@@ -114,7 +114,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   .piggy.full{animation:pigGlow 1.2s ease-in-out infinite;}
   @keyframes pigGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,107,157,0)}50%{box-shadow:0 0 16px 2px rgba(255,107,157,.55)}}
 
-  .build{z-index:2;position:relative;background:linear-gradient(180deg,rgba(46,26,82,.8),rgba(18,9,38,.86));border:2px solid rgba(255,213,110,.42);border-radius:16px;padding:5px 9px;flex:1;display:flex;flex-direction:column;min-height:0;justify-content:flex-start;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 4px 11px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+  .build{z-index:2;position:relative;background:linear-gradient(180deg,rgba(46,26,82,.8),rgba(18,9,38,.86));border:2px solid rgba(255,213,110,.42);border-radius:16px;padding:5px 9px;margin:0 0 10px;flex:1;display:flex;flex-direction:column;min-height:0;justify-content:flex-start;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 4px 11px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
   .build h3{font-family:'Lilita One';font-size:14px;color:var(--teal);}
   .build .sub{font-size:10px;opacity:.7;margin:1px 0 5px;}
   .stage{font-size:24px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));}
