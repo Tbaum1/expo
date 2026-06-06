@@ -1,0 +1,27 @@
+# dependencies (EAS reinstalls these in the cloud — never commit them)
+node_modules/
+
+# Expo / build artifacts
+.expo/
+dist/
+web-build/
+*.tsbuildinfo
+
+# native
+android/
+ios/
+
+# logs & misc
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.DS_Store
+
+# secrets / keys
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+google-services.json
