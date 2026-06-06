@@ -21,7 +21,7 @@
     },
     "android": {
       "package": "com.luckylair.app",
-      "versionCode": 6,
+      "versionCode": 7,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#150a26"
