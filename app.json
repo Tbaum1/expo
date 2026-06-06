@@ -21,7 +21,7 @@
     },
     "android": {
       "package": "com.luckylair.app",
-      "versionCode": 2,
+      "versionCode": 6,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#150a26"
@@ -44,6 +44,11 @@
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "51aeadeb-73c5-4d81-b95d-7e7762257e0c"
+      }
+    }
   }
 }
