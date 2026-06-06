@@ -1,4 +1,4 @@
-# Lucky Lair — Android app (test on phone + ship to Google Play)
+# Loot Hollow — Android app (test on phone + ship to Google Play)
 
 This folder wraps the game (`../game/lucky-lair.html`) in a tiny native Android app
 using **Expo + react-native-webview**. The whole game is embedded inside the app
@@ -98,7 +98,7 @@ Bump both numbers in `app.json` every release: `expo.version` (e.g. `1.0.1`) and
 ## Important policy notes for a slot/spin game
 
 - **Keep it play-money.** Google Play allows *simulated gambling* / social-casino games, but
-  the app must never offer **real-money** wagering or real prizes. Lucky Lair is play-money/demo,
+  the app must never offer **real-money** wagering or real prizes. Loot Hollow is play-money/demo,
   which is fine — just declare "simulated gambling" honestly in the **content rating** questionnaire.
 - **The spin packs and the "bank" are demo only** (no real charges) — keep them that way unless you
   add real in-app purchases through Google Play Billing (which has its own setup + policy).

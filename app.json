@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Lucky Lair",
+    "name": "Loot Hollow",
     "slug": "lucky-lair",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,11 +17,11 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.luckylair.app"
+      "bundleIdentifier": "com.loothollow.app"
     },
     "android": {
-      "package": "com.luckylair.app",
-      "versionCode": 9,
+      "package": "com.loothollow.app",
+      "versionCode": 10,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#150a26"
