@@ -42,7 +42,7 @@ export const GAME_HTML = `<!DOCTYPE html>
 
   .machine{flex:0 0 auto;margin:4px 0 4px;background:linear-gradient(180deg,#4a2585 0%,#321963 55%,#20104a 100%);border:3px solid #ffce4d;border-radius:24px;box-shadow:inset 0 2px 0 rgba(255,255,255,.3),inset 0 0 26px rgba(0,0,0,.45),0 10px 0 #160a32,0 16px 28px rgba(0,0,0,.5);padding:10px 16px 8px;position:relative;z-index:2;overflow:visible;}
   .machine .mrac{position:absolute;bottom:-18px;left:-26px;width:74px;height:auto;z-index:3;pointer-events:none;filter:drop-shadow(0 5px 5px rgba(0,0,0,.45));animation:mracBob 2.8s ease-in-out infinite;}
-  .machine .mfoe{position:absolute;bottom:-18px;right:-26px;width:74px;height:auto;z-index:3;pointer-events:none;transform:scaleX(-1);filter:drop-shadow(0 5px 5px rgba(0,0,0,.45));animation:mfoeBob 3.1s ease-in-out infinite;}
+  .machine .mfoe{position:absolute;bottom:-26px;right:-26px;width:74px;height:auto;z-index:3;pointer-events:none;transform:scaleX(-1);filter:drop-shadow(0 5px 5px rgba(0,0,0,.45));animation:mfoeBob 3.1s ease-in-out infinite;}
   @keyframes mfoeBob{0%,100%{transform:scaleX(-1) translateY(0) rotate(2deg);}50%{transform:scaleX(-1) translateY(-5px) rotate(-2deg);}}
   @keyframes mracBob{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-5px) rotate(2deg);}}
   .machine .mcrown{position:absolute;top:-15px;left:50%;transform:translateX(-50%);width:52px;height:25px;background:linear-gradient(180deg,#fff0b0,#ffce4d 55%,#d98f12);border:2px solid #fff6d8;border-radius:34px 34px 5px 5px;box-shadow:0 3px 0 #a86a0c;display:flex;align-items:flex-start;justify-content:center;padding-top:5px;font-size:14px;z-index:5;}
@@ -390,6 +390,9 @@ export const GAME_HTML = `<!DOCTYPE html>
   .railbtn.freebtn .rl{opacity:1;color:#e6ffed;font-weight:800;}
   @keyframes freePulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
   .railbtn .rl{max-width:46px;white-space:nowrap;overflow:hidden;text-overflow:clip;}
+
+  .railbtn.nembtn{background:radial-gradient(circle at 50% 30%,#ff5c8a,#7a1438);border-color:#ffaecb;box-shadow:0 0 14px rgba(255,92,138,.7),0 3px 8px rgba(0,0,0,.5);animation:freePulse 1.3s ease-in-out infinite;}
+  .railbtn.nembtn .rl{color:#ffd9e6;font-weight:800;}
 </style>
 </head>
 <body>
@@ -448,6 +451,7 @@ export const GAME_HTML = `<!DOCTYPE html>
     <button class="railbtn" data-open="rosterModal" data-fn="renderRoster"><span class="ri">👥</span><span class="rl">Rivals</span><i class="rdot" data-k="roster"></i></button>
     <button class="railbtn" data-open="defModal" data-fn="renderDef"><span class="ri">🧱</span><span class="rl">Defense</span><i class="rdot" data-k="def"></i></button>
     <button class="railbtn" data-open="mapModal" data-fn="renderMap"><span class="ri">🗺️</span><span class="rl">Map</span></button>
+    <button class="railbtn nembtn" id="nemRail" data-open="rosterModal" data-fn="renderRoster" style="display:none"><span class="ri">🦝</span><span class="rl">Foe</span><i class="rdot on" data-k="roster"></i></button>
   </div>
 
   <div class="machine">
@@ -1078,9 +1082,7 @@ export const GAME_HTML = `<!DOCTYPE html>
       const el=document.createElement('div');el.className='rival '+(isNem?'nem':(owed>0?'revenge':'safe'));
       let tag;if(isNem)tag='<div class="stg">🔥 NEMESIS · '+duelName(duelStage(s.g))+'</div>';else if(owed>0)tag='<div class="tag" style="color:var(--rose)">😤 owes you '+owed.toLocaleString()+'</div>';else tag='<div class="tag" style="opacity:.5">grudge '+s.g+'</div>';
       el.innerHTML='<div class="face">'+r.f+'</div><div class="rbody"><div class="rn">'+r.n+'</div>'+tag+'<div class="hpwrap"><i style="width:'+(s.hp/25*100)+'%"></i></div></div>';box.appendChild(el);});}
-  function renderNemesis(){const host=$('nemHost');const nem=nemesisRival();if(!nem){host.innerHTML='';return;}const s=rs(nem.n);const st=duelStage(s.g);const owed=revenge.filter(v=>v.n===nem.n).reduce((a,v)=>a+v.amt,0);
-      host.innerHTML='<div class="nembar"><div class="nf">'+nem.f+'</div><div class="nbody"><div class="nn">🔥 Nemesis: <b>'+nem.n+'</b> · '+duelName(st)+'</div><div class="ns">'+(owed>0?('Owes you '+owed.toLocaleString()+' — ⚒️⚒️⚒️ for revenge. '):'')+'Topple their lair (⚒️) to win the duel.</div><div class="hpwrap"><i style="width:'+(s.hp/25*100)+'%"></i></div></div></div>';
-      host.querySelector('.nembar').onclick=()=>openModal('rosterModal',renderRoster);}
+  function renderNemesis(){const host=$('nemHost');if(host)host.innerHTML='';const nem=nemesisRival();const rb=$('nemRail');if(!rb)return;if(!nem){rb.style.display='none';return;}rb.style.display='';const ic=rb.querySelector('.ri');if(ic)ic.textContent=nem.f;}
   function renderDef(){const slotBox=$('defSlots');slotBox.innerHTML='';defense.forEach(d=>{const el=document.createElement('div');el.className='slot'+(d?' filled':'');const t=d?DEFENSE_TYPES.find(x=>x.key===d):null;el.textContent=t?t.icon:'＋';slotBox.appendChild(el);});
       const shop=$('defShop');shop.innerHTML='';DEFENSE_TYPES.forEach(t=>{const have=defCount(t.key);const el=document.createElement('div');el.className='defcard';
         el.innerHTML='<div class="di">'+t.icon+'</div><div class="dinfo"><div class="dn">'+t.name+(have?' <span class="dq">x'+have+'</span>':'')+'</div><div class="dd">'+t.desc+'</div></div>';
