@@ -826,16 +826,20 @@ export const GAME_HTML = `<!DOCTYPE html>
   function _noise(dur){const a=audio();if(!a)return null;const len=Math.max(1,Math.floor(a.sampleRate*dur));const buf=a.createBuffer(1,len,a.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;const s=a.createBufferSource();s.buffer=buf;return s;}
   function _tone(f,dur,type,vol,when,end){if(muted)return;const a=audio();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,a.currentTime+(when||0));if(end)o.frequency.exponentialRampToValueAtTime(end,a.currentTime+(when||0)+dur);o.connect(g);g.connect(a.destination);const t=a.currentTime+(when||0);g.gain.setValueAtTime(0.0008,t);g.gain.exponentialRampToValueAtTime(vol,t+0.01);g.gain.exponentialRampToValueAtTime(0.0008,t+dur);o.start(t);o.stop(t+dur+0.03);}
   function _click(when,vol,f){if(muted)return;const a=audio();if(!a)return;const s=_noise(0.04);if(!s)return;const g=a.createGain(),bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f||1600;bp.Q.value=1.4;s.connect(bp);bp.connect(g);g.connect(a.destination);const t=a.currentTime+(when||0);g.gain.setValueAtTime(vol||0.18,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.04);s.start(t);s.stop(t+0.06);}
-  function sSpin(){if(muted)return;_tone(300,0.5,'triangle',0.05,0,560);_tone(150,0.42,'sine',0.03,0.04,300);}
-  function sStop(){_click(0,0.2,820);_tone(140,0.13,'sine',0.2,0,65);}
+  var SCALES={maj:[0,2,4,5,7,9,11,12],pent:[0,2,4,7,9,12,14,16],min:[0,2,3,5,7,8,10,12],pdom:[0,1,4,5,7,8,10,12],whole:[0,2,4,6,8,10,12,14],lyd:[0,2,4,6,7,9,11,12]};
+  var SOUND_THEMES={forest:{root:440,scale:'pent',osc:'triangle',sub:'sine',sp0:300,sp1:540,coinT:'triangle',stopF:150,clickF:900,br:0.9},water:{root:523,scale:'pent',osc:'sine',sub:'sine',sp0:360,sp1:760,coinT:'sine',stopF:240,clickF:1500,br:1.2},cave:{root:330,scale:'min',osc:'triangle',sub:'sine',sp0:180,sp1:360,coinT:'sine',stopF:110,clickF:600,br:0.8},city:{root:494,scale:'maj',osc:'square',sub:'sawtooth',sp0:320,sp1:660,coinT:'square',stopF:200,clickF:1700,br:1.0},desert:{root:466,scale:'pdom',osc:'sawtooth',sub:'triangle',sp0:280,sp1:520,coinT:'triangle',stopF:170,clickF:1100,br:0.95},snow:{root:659,scale:'maj',osc:'sine',sub:'triangle',sp0:440,sp1:900,coinT:'sine',stopF:300,clickF:2300,br:1.3},space:{root:392,scale:'whole',osc:'sawtooth',sub:'square',sp0:200,sp1:920,coinT:'square',stopF:140,clickF:1800,br:1.1},myth:{root:523,scale:'lyd',osc:'sawtooth',sub:'triangle',sp0:330,sp1:680,coinT:'triangle',stopF:160,clickF:1300,br:1.05}};
+  function ST(){return SOUND_THEMES[worldRule().set]||SOUND_THEMES.forest;}
+  function sc(){var th=ST(),sm=SCALES[th.scale]||SCALES.maj;return sm.map(function(x){return th.root*Math.pow(2,x/12);});}
+  function sSpin(){if(muted)return;var TH=ST();_tone(TH.sp0,0.5,'triangle',0.05,0,TH.sp1);_tone(TH.sp0/2,0.42,TH.sub,0.03,0.04,TH.sp1/2);}
+  function sStop(){var TH=ST();_click(0,0.2,TH.clickF);_tone(TH.stopF,0.13,'sine',0.2,0,TH.stopF*0.46);}
   function sTick(){_click(0,0.12,2200);}
-  function sWin(){[660,880,1180].forEach((f,i)=>_tone(f,0.34,'triangle',0.16,i*0.07));[990,1320,1760,2200].forEach((f,i)=>_tone(f,0.5,'sine',0.06,0.18+i*0.05));}
-  function sBig(){[523,659,784,1047,1319,1568].forEach((f,i)=>_tone(f,0.4,'triangle',0.14,i*0.075));[1047,1319,1568,2093].forEach((f,i)=>_tone(f,0.6,'sine',0.08,0.3+i*0.045));}
-  function sCoin(){for(let i=0;i<6;i++){const t=i*0.06;_tone(1250+Math.random()*450,0.08,'square',0.08,t);_tone(2500+Math.random()*500,0.06,'sine',0.05,t+0.012);}}
+  function sWin(){var TH=ST(),f=sc();[f[2],f[4],f[6]].forEach((x,i)=>_tone(x,0.34,TH.osc,0.16,i*0.07));[f[4],f[5],f[6],f[7]].forEach((x,i)=>_tone(x*1.5,0.5,'sine',0.06*TH.br,0.18+i*0.05));}
+  function sBig(){var TH=ST(),f=sc();[f[0],f[2],f[4],f[5],f[6],f[7]].forEach((x,i)=>_tone(x,0.4,TH.osc,0.14,i*0.075));[f[5],f[6],f[7]].forEach((x,i)=>_tone(x*2,0.6,'sine',0.08*TH.br,0.3+i*0.045));}
+  function sCoin(){var TH=ST();for(let i=0;i<6;i++){const t=i*0.06;_tone(1250+Math.random()*450,0.08,TH.coinT,0.08,t);_tone(2500+Math.random()*500,0.06,'sine',0.05,t+0.012);}}
   function sHit(){_tone(120,0.36,'sawtooth',0.2,0,52);_click(0,0.24,300);}
-  function sPop(){_tone(520,0.13,'triangle',0.12,0,780);}
+  function sPop(){var TH=ST();_tone(TH.root,0.13,'triangle',0.12,0,TH.root*1.5);}
   function sTap(){_click(0,0.1,1500);}
-  function sFanfare(){[523,659,784,1047,1319,1568,2093].forEach((f,i)=>_tone(f,0.3,'triangle',0.14,i*0.08));[784,1047,1319].forEach((f,i)=>_tone(f,0.7,'sine',0.1,0.5+i*0.05));}
+  function sFanfare(){var TH=ST(),f=sc();[f[0],f[2],f[4],f[5],f[6],f[7],f[7]*2].forEach((x,i)=>_tone(x,0.3,TH.osc,0.14,i*0.08));[f[5],f[6],f[7]].forEach((x,i)=>_tone(x*1.5,0.7,'sine',0.1,0.5+i*0.05));}
   function haptic(p){if(typeof navigator!=='undefined'&&navigator.vibrate){try{navigator.vibrate(p);}catch(e){}}}
 
   function coinRain(n){const c=$('rain');for(let i=0;i<n;i++){const d=document.createElement('div');d.className='c';d.textContent='🪙';d.style.left=Math.random()*100+'%';d.style.animationDelay=(Math.random()*0.4)+'s';d.style.fontSize=(18+Math.random()*18)+'px';c.appendChild(d);setTimeout(()=>d.remove(),1700);}}
