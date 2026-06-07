@@ -1,0 +1,23 @@
+workflows:
+  android-apk:
+    name: Loot Hollow Android APK
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      node: v22.13.1
+    scripts:
+      - name: Install npm dependencies
+        script: |
+          npm install
+      - name: Generate Android project
+        script: |
+          npx expo prebuild --platform android
+      - name: Set Android SDK location
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Build Android APK (release)
+        script: |
+          cd android
+          ./gradlew assembleRelease
+    artifacts:
+      - android/app/build/outputs/**/*.apk
