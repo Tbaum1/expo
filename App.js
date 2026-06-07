@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, StatusBar, Platform } from 'react-native';
+import { StyleSheet, View, StatusBar } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { GAME_HTML } from './gameHtml';
 
@@ -30,8 +30,8 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: '#150a26',
-    // leave room for the status bar on Android (iOS uses the WebView's own safe-area meta)
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    // SDK 52 lays content out below the status bar already; no manual pad needed
+    // (avoids a redundant gap above the header).
   },
   web: { flex: 1, backgroundColor: '#150a26' },
 });
