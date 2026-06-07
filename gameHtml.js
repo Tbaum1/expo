@@ -17,12 +17,12 @@ export const GAME_HTML = `<!DOCTYPE html>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
   html,body{height:100%;}
   body{font-family:'Fredoka',system-ui,sans-serif;background:radial-gradient(120% 80% at 50% -10%, #3a1d63 0%, var(--bg-1) 40%, var(--bg-0) 100%);color:var(--cream);display:flex;justify-content:center;align-items:stretch;overflow:hidden;user-select:none;}
-  .app{width:100%;max-width:440px;height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom);position:relative;}
+  .app{width:100%;max-width:440px;height:100dvh;display:flex;flex-direction:column;padding:var(--sbtop,env(safe-area-inset-top)) 12px env(safe-area-inset-bottom);position:relative;}
   .specks{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
   .speck{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.5;filter:blur(.5px);animation:float 7s ease-in-out infinite;}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-22px)}}
 
-  header{position:relative;z-index:2;padding-top:6px;}
+  header{position:relative;z-index:2;padding-top:2px;}
   .topbar{display:flex;align-items:center;justify-content:space-between;}
   .title{font-family:'Lilita One',cursive;font-size:24px;letter-spacing:.5px;color:var(--gold);text-shadow:0 3px 0 #b9760c,0 0 22px rgba(255,206,77,.35);}
   .title span{color:var(--teal);text-shadow:0 3px 0 #137c72;}

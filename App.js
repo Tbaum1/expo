@@ -21,6 +21,9 @@ export default function App() {
         // keep the dark game background while it loads
         containerStyle={styles.web}
         androidLayerType="hardware"
+        // Feed the game the EXACT status-bar height so it insets by that, not the
+        // larger env(safe-area-inset-top) Android reports (which left a big top gap).
+        injectedJavaScript={`(function(){try{document.documentElement.style.setProperty('--sbtop',(${StatusBar.currentHeight || 0})+'px');}catch(e){}})();true;`}
       />
     </View>
   );
