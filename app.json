@@ -44,7 +44,8 @@
           }
         }
       ],
-      "./plugins/withEdgeToEdgeOptOut"
+      "./plugins/withEdgeToEdgeOptOut",
+      "./plugins/withSuppressCompileSdk"
     ],
     "extra": {
       "eas": {
