@@ -354,7 +354,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   .unlockfs-bg{position:absolute;inset:0;background-size:cover;background-position:center;animation:bgZoom 7s ease-out both;}
   @keyframes bgZoom{0%{transform:scale(1.12);}100%{transform:scale(1);}}
   .unlockfs-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,5,22,.38) 0%,rgba(10,5,22,.12) 32%,rgba(10,5,22,.82) 100%);}
-  .unlockfs-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;width:100%;padding:0 22px 9%;text-align:center;}
+  .unlockfs-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;width:100%;padding:0 22px 17%;text-align:center;}
   .ribbon{position:absolute;top:11%;left:50%;transform:translateX(-50%);background:linear-gradient(180deg,#ff7a6b,#d8392f);color:#fff;font-family:'Lilita One';font-size:21px;padding:9px 28px;border-radius:13px;border:2px solid #fff;box-shadow:0 5px 0 #9c1f17,0 8px 16px rgba(0,0,0,.5);white-space:nowrap;letter-spacing:.5px;text-shadow:0 2px 0 rgba(0,0,0,.3);animation:ribbonDrop .5s cubic-bezier(.3,1.5,.5,1) both;}
   @keyframes ribbonDrop{0%{transform:translateX(-50%) translateY(-60px);opacity:0;}100%{transform:translateX(-50%) translateY(0);opacity:1;}}
   .ustage-wrap{position:relative;display:flex;align-items:center;justify-content:center;height:130px;margin-bottom:6px;animation:floaty 2.6s ease-in-out infinite;}
