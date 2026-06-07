@@ -7,6 +7,7 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#150a26",
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "cover",
@@ -43,9 +44,7 @@
             "buildToolsVersion": "35.0.0"
           }
         }
-      ],
-      "./plugins/withEdgeToEdgeOptOut",
-      "./plugins/withSuppressCompileSdk"
+      ]
     ],
     "extra": {
       "eas": {
