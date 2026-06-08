@@ -62,6 +62,23 @@ async function bundleBackgrounds() {
 }
 
 await bundleBackgrounds();
+
+// 3) inline the 25 village-piece images as data URIs (needs pieces-data.mjs,
+//    produced once from game/assets/pieces/*.png). Without it, village art
+//    falls back to emoji on the packaged build.
+async function bundlePieces() {
+  const marker = 'var PIECE_DATA={};/*__PIECE_DATA__*/';
+  if (!html.includes(marker)) { console.warn('WARN: PIECE_DATA marker not found - skipping piece bundling.'); return; }
+  const pf = new URL('./pieces-data.mjs', import.meta.url);
+  if (!fs.existsSync(pf)) { console.warn('WARN: pieces-data.mjs not found - village art falls back to emoji.'); return; }
+  const mod = await import(pf.href + '?t=' + Date.now());
+  const data = mod.PIECE_DATA || {};
+  const keys = Object.keys(data);
+  const lit = keys.map(k => "'" + k + "':'" + data[k] + "'").join(',');
+  html = html.split(marker).join('var PIECE_DATA={' + lit + '};');
+  console.log('  pieces: ' + keys.length + ' inlined offline');
+}
+await bundlePieces();
 checkBanned(html, 'embed after inlining');
 
 const TICK = String.fromCharCode(96);
