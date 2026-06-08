@@ -5,6 +5,7 @@ on:
   push:
     branches: [ master, main ]
   workflow_dispatch:
+  
 
 # Needed so the Action can publish the APK to a GitHub Release (the shareable link).
 permissions:
