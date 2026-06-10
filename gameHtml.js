@@ -715,17 +715,18 @@ export const GAME_HTML = `<!DOCTYPE html>
     <p class="lead">A quick guide to Loot Hollow.</p>
     <div class="faq">
       <div class="faqq">🎯 The goal</div><div class="faqa">Spin the slot to win coins, use them to build your village up to 5 ★ on every item, then move on to the next of 250 worlds. Everything grows as you go.</div>
-      <div class="faqq">🎰 Spinning</div><div class="faqa">Tap SPIN to play one spin — each spin costs from your 🎰 spin balance. BET (×1, ×2, …) raises both the cost and the payout. AUTO keeps spinning hands-free until you stop it or run low.</div>
+      <div class="faqq">🎰 Spinning</div><div class="faqa">Tap SPIN to play one spin — each spin costs from your 🎰 spin balance. BET (×1, ×2, …) raises both the cost and the payout. AUTO keeps spinning hands-free until you stop it, run low, or your village hits 5★ and is ready to move on.</div>
       <div class="faqq">🎡 The reels</div><div class="faqa">Match three symbols for a win. ⭐ stars pay out free spins, the 🔨 hammer lets you build your village, and raid and attack symbols let you take coins from rival lairs.</div>
       <div class="faqq">⚡ Charge and 🔥 Frenzy</div><div class="faqa">Every spin fills the Charge bar above SPIN. When it is full, Frenzy kicks in and multiplies your wins for a streak of spins.</div>
       <div class="faqq">🏗️ Village and ★ stars</div><div class="faqa">Open the Village Shop to spend coins upgrading each of the 5 items, up to 5 ★ each. More stars means a higher payout multiplier. Fill all 25 stars to complete the village and unlock the next world.</div>
       <div class="faqq">⭐ Fortune Score</div><div class="faqa">The star at the top center is your overall progress score, earned from worlds reached, village stars, relic sets, and pets. Tap it any time to see it. It is your bragging number — the higher, the further you have come.</div>
       <div class="faqq">💰 Currencies</div><div class="faqa">🪙 Coins build your village. 🎰 Spins play the slot. 💎 Gems are premium currency for spins, shields, and chests. 🛡️ Shields each block one incoming rival attack.</div>
-      <div class="faqq">🃏 Cards and sets</div><div class="faqa">Collect relic cards from chests and spins. Complete a full set for a big reward and to unlock a Pet. ✨ Gold cards complete gold sets for even bigger rewards.</div>
-      <div class="faqq">🐾 Pets</div><div class="faqa">Unlocked by completing card sets. Feed a pet 🦴 Treats to keep it awake — an awake pet gives a steady bonus such as extra coins or spins.</div>
-      <div class="faqq">👥 Rivals and 🔥 Nemesis</div><div class="faqa">Rival lairs can be raided and attacked for coins. Hit a rival enough and they become your Nemesis — beat them in a duel for a big reward. They can strike back at your lair too.</div>
+      <div class="faqq">🃏 Cards, sets & ✨ gold</div><div class="faqa">Collect relic cards by opening chests. Complete a full set for a big reward (and to unlock a Pet). Chests now favour cards you don't own yet, and only sell when they can still give you something new. ✨ GOLD cards are rare drops from Golden, Magical, and Gem chests — collect the gold version of every card in a set to claim its Gold reward (double spins & coins). Reach new worlds to unlock more sets.</div>
+      <div class="faqq">🐾 Pets & 🦴 treats</div><div class="faqa">Unlocked by completing card sets. Feed a pet 🦴 Treats to keep it awake — an awake pet gives a steady bonus such as extra coins. Energy tops up to 12 hours; when it's full the Feed button locks so you never waste treats.</div>
+      <div class="faqq">👥 Rivals and 🔥 Nemesis</div><div class="faqa">Open the Rivals list and STRIKE or RAID any rival for coins (costs spins). Keep hitting one to topple their lair for a spin reward; the toughest becomes your Nemesis — beat them in a duel for a Joker 🃏 and more. Rivals strike back, so keep Shields and Defenses up.</div>
       <div class="faqq">🧱 Defenses</div><div class="faqa">Place defenses on your lair to reduce or block incoming raids and attacks. Manage them from the Defenses menu.</div>
-      <div class="faqq">📺 Free spins, 🎁 Daily, 📅 Events</div><div class="faqa">Keep your spins topped up: watch free-spin offers, claim a daily reward that grows each day you return, and finish limited-time events.</div>
+      <div class="faqq">🎰 Spins refill over time</div><div class="faqa">Your spins slowly refill on their own — even while the game is closed — up to a cap, so there are always some waiting when you come back.</div>
+      <div class="faqq">📺 Free spins, 🎁 Daily, 🎡 Wheel, 📅 Events</div><div class="faqa">Top up faster: watch free-spin offers, claim a daily reward that grows each day, spin the daily Fortune Wheel for coins/spins/gems, and finish limited-time events for big payouts.</div>
       <div class="faqq">🗺️ Worlds</div><div class="faqa">250 unique worlds across 8 regions, each with its own look, sounds, and a special rule — tap the world name on the reel to read it.</div>
     </div>
   </div></div>
@@ -796,7 +797,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   let gems=store.get('ll_gems',0),firstBuy=store.get('ll_firstbuy',true);
   let wheelDay=store.get('ll_wheelday',''),wheelExtra=store.get('ll_wheelextra',0);var wheelRot=0,wheelSpinning=false;
   const WHEEL_EXTRA_MAX=3,WHEEL_EXTRA_BASE=20;
-  const WHEEL=[{k:'coins',i:'🪙',base:500,w:22,c:'#6a2fae'},{k:'spins',i:'🎰',n:15,w:18,c:'#2f9f93'},{k:'gems',i:'💎',n:8,w:12,c:'#c98f2a'},{k:'coins',i:'🪙',base:1800,w:13,c:'#7b3fb0'},{k:'shield',i:'🛡️',n:2,w:12,c:'#3aa0a0'},{k:'treats',i:'🦴',n:3,w:11,c:'#b07d2a'},{k:'spins',i:'🎰',n:50,w:7,c:'#8a3a6a'},{k:'jackpot',i:'🌟',w:5,c:'#d4452e'}];
+  const WHEEL=[{k:'coins',i:'🪙',base:1500,w:22,c:'#6a2fae'},{k:'spins',i:'🎰',n:25,w:18,c:'#2f9f93'},{k:'gems',i:'💎',n:15,w:12,c:'#c98f2a'},{k:'coins',i:'🪙',base:6000,w:13,c:'#7b3fb0'},{k:'shield',i:'🛡️',n:3,w:12,c:'#3aa0a0'},{k:'treats',i:'🦴',n:2,w:11,c:'#b07d2a'},{k:'spins',i:'🎰',n:90,w:7,c:'#8a3a6a'},{k:'jackpot',i:'🌟',w:5,c:'#d4452e'}];
   let charge=store.get('ll_charge',0),frenzy=store.get('ll_frenzy',0);
   let regenAnchor=store.get('ll_regenAnchor',Date.now());
   let adWatches=store.get('ll_adW',0),adDay=store.get('ll_adDay','');
@@ -817,8 +818,8 @@ export const GAME_HTML = `<!DOCTYPE html>
   const TIERS=6,BUILDS_PER_TIER=3,ITEMS=5,STARS=5,SPIN_CAP=100,SPIN_REGEN_MS=120000;
   const BET_LEVELS=[1,2,3,5,10,25,50,100];
   const RIVALS=[{n:'Foxglove',f:'🦊'},{n:'Bram',f:'🐻'},{n:'Mossy Pete',f:'🐸'},{n:'Vex',f:'🦝'},{n:'Ottoline',f:'🦉'},{n:'Grit',f:'🐗'},{n:'Juniper',f:'🦡'},{n:'Sable',f:'🐺'}];
-  const DAILY=[{i:'🪙',r:'200',f:()=>coins+=200},{i:'🎰',r:'5 spins',f:()=>spins+=5},{i:'🛡️',r:'2 shields',f:()=>shields+=2},{i:'🪙',r:'400',f:()=>coins+=400},{i:'🎰',r:'10 spins',f:()=>spins+=10},{i:'🛡️',r:'3 shields',f:()=>shields+=3},{i:'💎',r:'1000c +10💎',f:()=>{coins+=1000;gems+=10;}}];
-  const EVENT={name:'Treasure Hunt',icon:'🗺️',dur:24*3600*1000,miles:[{p:25,i:'🪙',t:'300 coins',f:()=>coins+=300},{p:60,i:'🎰',t:'10 spins',f:()=>spins+=10},{p:120,i:'🛡️',t:'3 shields',f:()=>shields+=3},{p:200,i:'💎',t:'1500 coins',f:()=>coins+=1500}]};
+  const DAILY=[{i:'🪙',r:'400',f:()=>coins+=bonus(400)},{i:'🎰',r:'8 spins',f:()=>spins+=8},{i:'🛡️',r:'3 shields',f:()=>shields+=3},{i:'🪙',r:'1,000',f:()=>coins+=bonus(1000)},{i:'🎰',r:'15 spins',f:()=>spins+=15},{i:'🛡️',r:'4 shields',f:()=>shields+=4},{i:'💎',r:'3K c +20💎',f:()=>{coins+=bonus(3000);gems+=20;}}];
+  const EVENT={name:'Treasure Hunt',icon:'🗺️',dur:24*3600*1000,miles:[{p:25,i:'🪙',t:'800 coins',f:()=>coins+=bonus(800)},{p:60,i:'🎰',t:'15 spins',f:()=>spins+=15},{p:120,i:'🦴',t:'2 treats',f:()=>grantTreat(2)},{p:200,i:'💎',t:'4K coins +10💎',f:()=>{coins+=bonus(4000);gems+=10;}}]};
   const PETS={magpie:{name:'Pip the Magpie',icon:'🐦‍⬛',desc:'+25% coins from raids (⚒️)'},tortoise:{name:'Shelby the Tortoise',icon:'🐢',desc:'30% chance to block a raid for free'},mole:{name:'Digby the Mole',icon:'🦫',desc:'+15% on all coin wins'}};
   const SETS=[
     {key:'woodland',name:'Woodland Relics',icon:'🌿',unlock:0,cards:[['🌰',1],['🍄',1],['🪶',2],['🦌',2],['🍯',3],['🦔',4]],reward:{spins:30,coins:1000,gems:3},pet:'magpie'},
@@ -840,6 +841,12 @@ export const GAME_HTML = `<!DOCTYPE html>
   function chestCost(ch){return Math.round(ch.base*Math.pow(ECON_BASE,totBuild));}
   function chestPool(ch){var cap=Math.min(ch.maxR,worldMaxR()),pool=[];SETS.forEach(function(s){if(world<s.unlock)return;s.cards.forEach(function(c){if(c[1]<=cap)pool.push(c);});});return pool;}
   function weightedCard(pool){var tot=0,i;for(i=0;i<pool.length;i++)tot+=(6-pool[i][1]);var r=Math.random()*tot;for(i=0;i<pool.length;i++){r-=(6-pool[i][1]);if(r<=0)return pool[i];}return pool[pool.length-1];}
+  // Owner-aware draw: heavily favours relics you DON'T own yet, so chests actually fill sets.
+  function drawCard(pool){var w=[],tot=0,i;for(i=0;i<pool.length;i++){var rar=pool[i][1],owned=(relicsOwned[pool[i][0]]||0)>0;var ww=(6-rar)*(owned?1:5);w.push(ww);tot+=ww;}var r=Math.random()*tot;for(i=0;i<pool.length;i++){r-=w[i];if(r<=0)return pool[i];}return pool[pool.length-1];}
+  // Can this chest still give something new (an un-owned normal or gold relic in its pool)?
+  function chestNewNormal(ch){var p=chestPool(ch),n=0;p.forEach(function(c){if((relicsOwned[c[0]]||0)===0)n++;});return n;}
+  function chestNewGold(ch){if(!(ch.gold>0))return 0;var p=chestPool(ch),n=0;p.forEach(function(c){if((goldOwned[c[0]]||0)===0)n++;});return n;}
+  function chestUseful(ch){return chestNewNormal(ch)>0||chestNewGold(ch)>0;}
   const RELIC_POOL=SETS.reduce(function(a,s){return a.concat(s.cards);},[]);
   function _vs(c){return [0x26FA,0x26F5,0x26CF,0x2699,0x2744,0x26C8,0x2601,0x1F3D4,0x1F3DC,0x1F3DD,0x1F3DA,0x1F3D7,0x1F3D9,0x1F3DB,0x1F6E5,0x1F6F0,0x1F5FC,0x1F5FB,0x1F6D5].indexOf(c)>=0;}
   function _i(c){return String.fromCodePoint(c)+(_vs(c)?String.fromCodePoint(0xFE0F):"");}
@@ -904,23 +911,23 @@ export const GAME_HTML = `<!DOCTYPE html>
   const JOKER_TTL=48*3600*1000;
   const EVENT_TYPES={
     treasure:{name:'Treasure Hunt',icon:'🗺️',kind:'progress',metric:'points',blurb:'Earn points every spin (triples count more).',
-      rungs:[{at:25,i:'🪙',t:'300 coins',f:()=>awardCoins(300)},{at:60,i:'🎰',t:'10 spins',f:()=>spins+=10},{at:120,i:'🛡️',t:'3 shields',f:()=>shields+=3},{at:200,i:'💎',t:'1500 coins',f:()=>awardCoins(1500)}]},
+      rungs:[{at:25,i:'🪙',t:'1,000 coins',f:()=>awardCoins(bonus(1000))},{at:60,i:'🎰',t:'15 spins',f:()=>spins+=15},{at:120,i:'🛡️',t:'4 shields',f:()=>shields+=4},{at:200,i:'💎',t:'5K coins +8💎',f:()=>{awardCoins(bonus(5000));gems+=8;}}]},
     attackMad:{name:'Attack Madness',icon:'⚔️',kind:'progress',metric:'attacks',blurb:'Land ⚒️⚒️⚒️ attacks to climb the ladder.',
-      rungs:[{at:3,i:'🪙',t:'500 coins',f:()=>awardCoins(500)},{at:7,i:'🎰',t:'15 spins',f:()=>spins+=15},{at:12,i:'🦴',t:'2 treats',f:()=>grantTreat(2)},{at:20,i:'💎',t:'3000 coins',f:()=>awardCoins(3000)}]},
+      rungs:[{at:3,i:'🪙',t:'1,500 coins',f:()=>awardCoins(bonus(1500))},{at:7,i:'🎰',t:'20 spins',f:()=>spins+=20},{at:12,i:'🦴',t:'2 treats',f:()=>grantTreat(2)},{at:20,i:'💎',t:'8K coins +10💎',f:()=>{awardCoins(bonus(8000));gems+=10;}}]},
     raidMad:{name:'Raid Madness',icon:'🪏',kind:'progress',metric:'raids',blurb:'Land 🪏🪏🪏 raids to climb the ladder.',
-      rungs:[{at:2,i:'🪙',t:'600 coins',f:()=>awardCoins(600)},{at:5,i:'🎰',t:'15 spins',f:()=>spins+=15},{at:9,i:'🃏',t:'1 Joker',f:()=>grantJoker(1)},{at:15,i:'💎',t:'4000 coins',f:()=>awardCoins(4000)}]},
+      rungs:[{at:2,i:'🪙',t:'1,800 coins',f:()=>awardCoins(bonus(1800))},{at:5,i:'🎰',t:'20 spins',f:()=>spins+=20},{at:9,i:'🃏',t:'1 Joker',f:()=>grantJoker(1)},{at:15,i:'💎',t:'10K coins +12💎',f:()=>{awardCoins(bonus(10000));gems+=12;}}]},
     cardsBoom:{name:'Cards Boom',icon:'🎴',kind:'modifier',blurb:'Chests drop 50% more relics while active.'},
     villageMania:{name:'Village Mania',icon:'🏗️',kind:'modifier',blurb:'Build costs cut by 50% while active.'},
     vikingQuest:{name:'Viking Quest',icon:'🛡️',kind:'progress',metric:'quest',blurb:'Earn quest marks from attacks, raids & builds.',
-      rungs:[{at:2,i:'🪙',t:'400 coins',f:()=>awardCoins(400)},{at:5,i:'🦴',t:'2 treats',f:()=>grantTreat(2)},{at:9,i:'🎰',t:'12 spins',f:()=>spins+=12},{at:14,i:'🃏',t:'1 Joker',f:()=>grantJoker(1)},{at:20,i:'🌟',t:'Gold relic +50 spins',f:()=>{grantGold(1);spins+=50;}}]}
+      rungs:[{at:2,i:'🪙',t:'1,500 coins',f:()=>awardCoins(bonus(1500))},{at:5,i:'🦴',t:'2 treats',f:()=>grantTreat(2)},{at:9,i:'🎰',t:'18 spins',f:()=>spins+=18},{at:14,i:'🃏',t:'1 Joker',f:()=>grantJoker(1)},{at:20,i:'🌟',t:'Gold relic +80 spins',f:()=>{grantGold(1);spins+=80;}}]}
   };
 
   function wEmojis(){return WORLD_DATA[world%WORLD_DATA.length].em;}
   const SPW_BASE=1.30,SPW_STEP=0.20,SPW_BAND=25;
-  // Build-cost base. Raised 160->384 (x2.4) to slow village build-out: a 1200
-  // spin pack now clears ~5 worlds instead of ~12. Tune this single number to
-  // adjust pacing (higher = slower progress, more grind/monetization pressure).
-  const BUILD_BASE=384;
+  // Build-cost base. 160 cleared ~12 worlds/1200-pack (too fast), 384 ~5 (too grindy).
+  // 256 is the middle ground: ~7-8 worlds per pack — progress feels steady, not strict.
+  // Tune this single number for pacing (higher = slower).
+  const BUILD_BASE=256;
   function worldCostMult(){return SPW_BASE*Math.pow(1+SPW_STEP,Math.floor(world/SPW_BAND));}
   function buildCost(){return Math.round(BUILD_BASE*Math.pow(ECON_BASE,totBuild)*buildMult()*worldCostMult());}
   function villageSum(){return village.reduce((a,b)=>a+b,0);}
@@ -977,7 +984,8 @@ export const GAME_HTML = `<!DOCTYPE html>
   function petPow(){var lv=activePet?(petLvl[activePet]||1):1;return (petAwakeActive()?1:0.4)*(1+0.08*(lv-1))*(specialWorld?1.2:1);}
   function petAwakeActive(){return petAwake>Date.now();}
   function grantTreat(n){treats+=n;}
-  function feedPet(){if(treats<=0||!activePet)return;treats--;petAwake=Math.max(petAwake,Date.now())+4*3600*1000;var k=activePet;petXP[k]=(petXP[k]||0)+1;var need=(petLvl[k]||1)*5;if(petXP[k]>=need){petXP[k]=0;petLvl[k]=(petLvl[k]||1)+1;sBig();confetti(16);popup(PETS[k].icon,PETS[k].name+' — Level '+petLvl[k]+'!','Its bonus is stronger now.');}else{sPop();}renderPets();save();render();}
+  const PET_MAX_AWAKE=12*3600*1000;
+  function feedPet(){if(treats<=0||!activePet)return;if(petAwake-Date.now()>=PET_MAX_AWAKE){popup(PETS[activePet].icon,PETS[activePet].name+' is full','Its energy is topped up (max 12h). Come back when it runs lower to feed again — no treats wasted.','Got it');return;}treats--;petAwake=Math.min(Date.now()+PET_MAX_AWAKE,Math.max(petAwake,Date.now())+4*3600*1000);var k=activePet;petXP[k]=(petXP[k]||0)+1;var need=(petLvl[k]||1)*5;if(petXP[k]>=need){petXP[k]=0;petLvl[k]=(petLvl[k]||1)+1;sBig();confetti(16);popup(PETS[k].icon,PETS[k].name+' — Level '+petLvl[k]+'!','Its bonus is stronger now.');}else{sPop();}renderPets();save();render();}
 
   function grantJoker(n){for(let i=0;i<n;i++)jokers.push({exp:Date.now()+JOKER_TTL});}
   function pruneJokers(){const before=jokers.length;jokers=jokers.filter(j=>j.exp>Date.now());if(jokers.length!==before)save();}
@@ -1056,8 +1064,9 @@ export const GAME_HTML = `<!DOCTYPE html>
       if(left<=0){clearInterval(adTimer);adTimer=null;$('adCount').textContent='Ad complete!';$('adFill').style.width='100%';claim.disabled=false;claim.textContent='Claim +'+o.reward+' spins';claim.onclick=()=>finishAd(idx);}
       else $('adCount').textContent='Reward in '+left+'s';},1000);}
   function finishAd(idx){if(idx!==adWatches)return;const o=AD_OFFERS[idx];spins+=o.reward;adWatches=idx+1;$('adPlayer').classList.remove('show');sBig();coinRain(16);confetti(14);popup('🎬','Ad Reward!','+'+o.reward+' spins for watching. ('+adsRemaining()+' left today)');save();render();}
-  function renderMap(){const box=$('mapList');box.innerHTML='';const start=Math.max(0,world-2);for(let w=start;w<world+5;w++){const r=WORLD_DATA[w%WORLD_DATA.length];const st=w<world?'done':(w===world?'cur':'lock');const el=document.createElement('div');el.className='maprow '+st;
-    el.innerHTML='<div class="mi">'+(st==='lock'?'🔒':r.icon)+'</div><div class="mb"><div class="mn">World '+(w+1)+(st==='cur'?' · You are here':'')+'</div><div class="md">'+(st==='lock'?'Locked':r.name)+'</div></div><div class="ms">'+(st==='done'?'✓':(st==='cur'?'★':''))+'</div>';box.appendChild(el);}}
+  function renderMap(){const box=$('mapList');box.innerHTML='';box.style.maxHeight='62vh';box.style.overflowY='auto';const end=world+5;for(let w=0;w<end;w++){const r=WORLD_DATA[w%WORLD_DATA.length];const st=w<world?'done':(w===world?'cur':'lock');const el=document.createElement('div');el.className='maprow '+st;if(st==='cur')el.id='mapCur';
+    el.innerHTML='<div class="mi">'+(st==='lock'?'🔒':r.icon)+'</div><div class="mb"><div class="mn">World '+(w+1)+(st==='cur'?' · You are here':'')+'</div><div class="md">'+(st==='lock'?'Locked':r.name)+'</div></div><div class="ms">'+(st==='done'?'✓':(st==='cur'?'★':''))+'</div>';box.appendChild(el);}
+    var cur=$('mapCur');if(cur)setTimeout(function(){try{cur.scrollIntoView({block:'center'});}catch(e){}},30);}
   function setCoins(){const el=$('coins'),target=coins;cancelAnimationFrame(coinRAF);if(target>shownCoins){el.classList.add('bump');setTimeout(()=>el.classList.remove('bump'),150);}const start=shownCoins,t0=performance.now(),dur=450;(function step(t){const k=Math.min(1,(t-t0)/dur);shownCoins=Math.round(start+(target-start)*k);el.textContent=fmt(shownCoins);if(k<1)coinRAF=requestAnimationFrame(step);else shownCoins=target;})(t0);}
 
   function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_world:world,ll_tier:tier,ll_prog:progress,ll_tb:totBuild,ll_tt:totTier,ll_pig:pig,ll_last:lastClaim,ll_streak:streak,ll_evtS:evtStart,ll_evtP:evtPoints,ll_evtC:evtClaimed,ll_rev:revenge,ll_mute:muted,ll_bet:betIdx,ll_relics:relicsOwned,ll_sets:setsDone,ll_pets:petsOwned,ll_active:activePet,ll_rivals2:rivalState,ll_nem:nemesisId,ll_def:defense,ll_aev:activeEvents,ll_gold:goldOwned,ll_goldsets:goldSetsDone,ll_jok:jokers,ll_treats:treats,ll_awake:petAwake,ll_special:specialWorld,ll_gems:gems,ll_firstbuy:firstBuy,ll_charge:charge,ll_frenzy:frenzy,ll_regenAnchor:regenAnchor,ll_village:village,ll_adW:adWatches,ll_adDay:adDay,ll_wheelday:wheelDay,ll_wheelextra:wheelExtra};for(const k in m)store.set(k,m[k]);}
@@ -1252,10 +1261,10 @@ export const GAME_HTML = `<!DOCTYPE html>
       box.appendChild(card);});
     const fcd=box.querySelector('.evtcard.focus');if(fcd)setTimeout(function(){fcd.scrollIntoView({behavior:'smooth',block:'center'});},60);}
 
-  function grantChest(ch){var pool=chestPool(ch);if(!pool.length)pool=SETS[0].cards;var n=Math.round(ch.n*chestMult());var got=[];for(var i=0;i<n;i++){var c=weightedCard(pool),em=c[0];if(ch.gold>0&&Math.random()<ch.gold){goldOwned[em]=(goldOwned[em]||0)+1;got.push('✨'+em);}else{relicsOwned[em]=(relicsOwned[em]||0)+1;got.push(em);}}
-    if(Math.random()<0.4){grantTreat(1);got.push('🦴');}
+  function grantChest(ch){var pool=chestPool(ch);if(!pool.length)pool=SETS[0].cards;var n=Math.round(ch.n*chestMult());var got=[];for(var i=0;i<n;i++){var c=drawCard(pool),em=c[0];if(ch.gold>0&&Math.random()<ch.gold){goldOwned[em]=(goldOwned[em]||0)+1;got.push('✨'+em);}else{relicsOwned[em]=(relicsOwned[em]||0)+1;got.push(em);}}
+    if(Math.random()<0.15){grantTreat(1);got.push('🦴');}
     sBig();coinRain(10);confetti(14);popup(ch.icon,ch.name+' Chest!'+(chestMult()>1?' · Cards Boom!':''),'You found: '+got.join(' '));renderRelics();}
-  function openChest(idx){const ch=CHESTS[idx];const c=chestCost(ch);if(coins<c)return;coins-=c;grantChest(ch);save();render();}
+  function openChest(idx){const ch=CHESTS[idx];if(!chestUseful(ch)){popup(ch.icon,'Nothing new in here','You already own every relic this chest can offer. Reach a new world to unlock more sets'+(ch.gold>0?'':' — or open a Golden/Magical chest to chase the ✨ gold versions')+'.','Got it');return;}const c=chestCost(ch);if(coins<c)return;coins-=c;grantChest(ch);save();render();}
   function openGemChest(){if(gems<GEM_CHEST.cost)return;gems-=GEM_CHEST.cost;grantChest(GEM_CHEST);save();render();}
   function renderShop(){const p=$('shopPacks');p.innerHTML='';
     SPIN_PACKS.forEach(pk=>{const bonus=firstBuy,total=bonus?pk.spins*2:pk.spins;const el=document.createElement('div');el.className='shopcard';
@@ -1288,7 +1297,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   function renderPets(){const box=$('petList');box.innerHTML='';
       const awake=petAwakeActive(),mins=Math.max(0,Math.round((petAwake-Date.now())/60000)),ah=Math.floor(mins/60),am=mins%60;
       const up=document.createElement('div');up.className='upkeep';up.innerHTML='<div class="upi">'+(awake&&activePet?'😺':'😴')+'</div><div class="upinfo"><div class="upn">🦴 Treats: '+treats+'</div><div class="upd">'+(activePet?(awake?('Awake '+ah+'h '+am+'m — full bonus.'):'Asleep — bonus at half. Feed to wake.'):'Activate a pet, then feed it treats to keep its bonus.')+'</div></div>';
-      const fb=document.createElement('button');fb.textContent='Feed 🦴 (+4h · +XP)';fb.disabled=treats<=0||!activePet;fb.onclick=feedPet;up.appendChild(fb);box.appendChild(up);
+      const fb=document.createElement('button');var petFull=!!activePet&&(petAwake-Date.now()>=12*3600*1000);fb.textContent=petFull?'Energy Full 🦴':'Feed 🦴 (+4h · +XP)';fb.disabled=treats<=0||!activePet||petFull;fb.onclick=feedPet;up.appendChild(fb);box.appendChild(up);
       Object.keys(PETS).forEach(key=>{const p=PETS[key],owned=petsOwned.includes(key),active=activePet===key;var lvl=petLvl[key]||1,xp=petXP[key]||0,nd=lvl*5;const el=document.createElement('div');el.className='petcard'+(active?' active':'')+(owned?'':' locked');el.innerHTML='<div class="pi2">'+p.icon+'</div><div class="pinfo"><div class="pn">'+p.name+(owned?' · Lv '+lvl:'')+(active&&!awake?' 😴':'')+'</div><div class="pd">'+p.desc+(owned&&lvl>1?(' · +'+Math.round(8*(lvl-1))+'% from levels'):'')+'</div>'+(owned?('<div class="pxp"><i style="width:'+Math.round(100*xp/nd)+'%"></i></div>'):'')+'</div>';const bn=document.createElement('button');
         if(!owned){bn.textContent='Locked';bn.disabled=true;}else if(active){bn.textContent='Active';bn.disabled=true;}else{bn.textContent='Set Active';bn.onclick=()=>{activePet=key;sPop();renderPets();save();render();};}
         el.appendChild(bn);box.appendChild(el);});
@@ -1296,10 +1305,12 @@ export const GAME_HTML = `<!DOCTYPE html>
   function renderRoster(){const box=$('rosterList');box.innerHTML='';RIVALS.forEach(r=>{const s=rs(r.n);const owed=revenge.filter(v=>v.n===r.n).reduce((a,v)=>a+v.amt,0);const isNem=nemesisId===r.n;
       const el=document.createElement('div');el.className='rival '+(isNem?'nem':(owed>0?'revenge':'safe'));
       let tag;if(isNem)tag='<div class="stg">🔥 NEMESIS · '+duelName(duelStage(s.g))+'</div>';else if(owed>0)tag='<div class="tag" style="color:var(--rose)">😤 owes you '+owed.toLocaleString()+'</div>';else tag='<div class="tag" style="opacity:.5">grudge '+s.g+'</div>';
-      el.innerHTML='<div class="face">'+r.f+'</div><div class="rbody"><div class="rn">'+r.n+'</div>'+tag+'<div class="hpwrap"><i style="width:'+(s.hp/25*100)+'%"></i></div></div>';box.appendChild(el);});}
+      el.innerHTML='<div class="face">'+r.f+'</div><div class="rbody"><div class="rn">'+r.n+'</div>'+tag+'<div class="hpwrap"><i style="width:'+(s.hp/25*100)+'%"></i></div></div>';
+      var bn=document.createElement('button');bn.className='nstk';var feud=isNem||owed>0||s.g>0;bn.innerHTML=(feud?'STRIKE':'RAID')+'<small>-'+bet()+' sp</small>';bn.disabled=spins<bet();bn.onclick=function(){nemStrike(r);if($('rosterList'))renderRoster();};el.appendChild(bn);
+      box.appendChild(el);});}
   function nemFoe(){let foe=nemesisRival();if(!foe){let bg=-1;RIVALS.forEach(r=>{const s=rs(r.n);if(s.g>bg){bg=s.g;foe=r;}});}return foe||RIVALS[0];}
   function renderNemesis(){const host=$('nemHost');if(!host)return;const foe=nemFoe();const s=rs(foe.n);const isNem=nemesisId===foe.n;const st=duelStage(s.g);const owed=revenge.filter(v=>v.n===foe.n).reduce((a,v)=>a+v.amt,0);const label=isNem?('🔥 NEMESIS · '+duelName(st)):'Rival';const sub=(owed>0?('Owes you '+fmt(owed)+' · '):'')+'Grudge '+s.g+'/10 · STRIKE to duel';host.innerHTML='<div class="nembar"><span class="nf">'+foe.f+'</span><div class="nbody"><div class="nn">'+foe.n+' <b>'+label+'</b></div><div class="ns">'+sub+'</div><div class="hpwrap"><i style="width:'+(s.hp/25*100)+'%"></i></div></div><button class="nstk" id="nemStrikeBtn">STRIKE<small>-'+bet()+' spins</small></button></div>';const btn=$('nemStrikeBtn');if(btn)btn.onclick=nemStrike;const rb=$('nemRail');if(rb){rb.style.display=isNem?'':'none';const ic=rb.querySelector('.ri');if(ic&&isNem)ic.textContent=foe.f;}}
-  function nemStrike(){if(overlayOpen())return;const foe=nemFoe();var _s=rs(foe.n),_ow=revenge.filter(v=>v.n===foe.n).reduce((a,v)=>a+v.amt,0);if(nemesisId!==foe.n&&_s.g<=0&&_ow<=0){popup('🤝','No feud yet',foe.n+' has not raided you, so there is nothing to take back. Get raided or build a grudge first — then STRIKE reclaims your coins and works toward a duel.','Got it');return;}const be=bet();if(spins<be){popup('🎰','Need spins','A strike costs '+be+' spins (one bet). Win some, then come back.','OK');return;}spins-=be;sSpin();haptic(15);const s=rs(foe.n);const isNem=nemesisId===foe.n;const st=duelStage(s.g);let reclaimed=0;for(let i=revenge.length-1;i>=0;i--){if(revenge[i].n===foe.n){reclaimed+=revenge[i].amt;revenge.splice(i,1);}}if(reclaimed>0)awardCoins(reclaimed);gainCoins(12*be);const dmg=1+(be>=3?1:0)+(st>=3?1:0);s.hp=Math.max(0,s.hp-dmg);flashWin();coinRain(8);if(s.hp<=0){s.hp=25;const sp=8*st;spins+=sp;var jt='';if(isNem&&typeof grantJoker==='function'){grantJoker(1);jt=' · +1 Joker 🃏';}addGrudge(foe.n,-99);sBig();coinRain(18);stagePop();bigPop('🏆',isNem?('Duel Won — '+duelName(st)+'!'):'Rival Toppled!','You crushed '+foe.n+"'s lair! +"+sp+' spins'+(reclaimed>0?(' · reclaimed '+fmt(reclaimed)+' coins'):'')+jt);}else{addGrudge(foe.n,1);popup('⚒️','Struck '+foe.n+'!','You hit their lair (-'+dmg+' HP)'+(reclaimed>0?(' and clawed back '+fmt(reclaimed)+' coins'):'')+'. '+s.hp+' HP left — keep hitting to win the duel.','Strike again');}save();render();}
+  function nemStrike(foeArg){if(overlayOpen())return;const foe=foeArg&&foeArg.n?foeArg:nemFoe();var _s=rs(foe.n),_ow=revenge.filter(v=>v.n===foe.n).reduce((a,v)=>a+v.amt,0);if(!(foeArg&&foeArg.n)&&nemesisId!==foe.n&&_s.g<=0&&_ow<=0){popup('🤝','No feud yet',foe.n+' has not raided you, so there is nothing to take back. Get raided or build a grudge first — then STRIKE reclaims your coins and works toward a duel.','Got it');return;}const be=bet();if(spins<be){popup('🎰','Need spins','A strike costs '+be+' spins (one bet). Win some, then come back.','OK');return;}spins-=be;sSpin();haptic(15);const s=rs(foe.n);const isNem=nemesisId===foe.n;const st=duelStage(s.g);let reclaimed=0;for(let i=revenge.length-1;i>=0;i--){if(revenge[i].n===foe.n){reclaimed+=revenge[i].amt;revenge.splice(i,1);}}if(reclaimed>0)awardCoins(reclaimed);gainCoins(12*be);const dmg=1+(be>=3?1:0)+(st>=3?1:0);s.hp=Math.max(0,s.hp-dmg);flashWin();coinRain(8);if(s.hp<=0){s.hp=25;const sp=8*st;spins+=sp;var jt='';if(isNem&&typeof grantJoker==='function'){grantJoker(1);jt=' · +1 Joker 🃏';}addGrudge(foe.n,-99);sBig();coinRain(18);stagePop();bigPop('🏆',isNem?('Duel Won — '+duelName(st)+'!'):'Rival Toppled!','You crushed '+foe.n+"'s lair! +"+sp+' spins'+(reclaimed>0?(' · reclaimed '+fmt(reclaimed)+' coins'):'')+jt);}else{addGrudge(foe.n,1);popup('⚒️','Struck '+foe.n+'!','You hit their lair (-'+dmg+' HP)'+(reclaimed>0?(' and clawed back '+fmt(reclaimed)+' coins'):'')+'. '+s.hp+' HP left — keep hitting to win the duel.','Strike again');}save();render();}
   function renderDef(){const slotBox=$('defSlots');slotBox.innerHTML='';defense.forEach(d=>{const el=document.createElement('div');el.className='slot'+(d?' filled':'');const t=d?DEFENSE_TYPES.find(x=>x.key===d):null;el.textContent=t?t.icon:'＋';slotBox.appendChild(el);});
       const shop=$('defShop');shop.innerHTML='';DEFENSE_TYPES.forEach(t=>{const have=defCount(t.key);const el=document.createElement('div');el.className='defcard';
         el.innerHTML='<div class="di">'+t.icon+'</div><div class="dinfo"><div class="dn">'+t.name+(have?' <span class="dq">x'+have+'</span>':'')+'</div><div class="dd">'+t.desc+'</div></div>';
@@ -1314,12 +1325,17 @@ export const GAME_HTML = `<!DOCTYPE html>
   function openModal(id,fn){fn&&fn();$(id).classList.add('show');}
   function toggleAuto(){if(overlayOpen())return;autoActive=!autoActive;if(autoActive){autoLoop();}else{$('spinBtn').classList.remove('auto');}render();}
   async function autoLoop(){if(autoRunning)return;autoRunning=true;$('spinBtn').classList.add('auto');render();
+    var wasMaxed=maxedWorld();
     while(autoActive){
       if($('digModal').classList.contains('show'))break;
       const b=bet();
       if(busy){await waitMs(80);continue;}
       if(spins<b)break;
       await spin();
+      // pause auto only at the MOMENT the village completes (so the 5-star popup isn't blown
+      // through). If you're already on a maxed world, auto keeps spinning so you can stay & farm.
+      if(maxedWorld()&&!wasMaxed){autoActive=false;$('spinBtn').classList.remove('auto');render();break;}
+      wasMaxed=maxedWorld();
       if($('pop').classList.contains('show')){await waitMs(3000);if(!autoActive)break;$('pop').classList.remove('show');const _c=document.querySelector('.pop .card');if(_c)_c.classList.remove('bigwin');render();}
       await waitMs(650);
     }
@@ -1350,10 +1366,10 @@ export const GAME_HTML = `<!DOCTYPE html>
     document.querySelectorAll('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('show');});});
     document.querySelectorAll('.railbtn').forEach(function(b){b.onclick=function(){openModal(b.getAttribute('data-open'),HUB_FN[b.getAttribute('data-fn')]);};});
     document.addEventListener('keydown',function(e){if(e.code==='Space'){e.preventDefault();spin();}});
-    var regenAcc=0;
-    setInterval(function(){regenAcc+=1000;if(typeof syncEvents==='function')syncEvents();if(regenAcc>=SPIN_REGEN_MS){regenAcc=0;if(spins<SPIN_CAP){spins++;save();}}render();},1000);
+    setInterval(function(){if(typeof syncEvents==='function')syncEvents();var before=spins;regenSpins();if(spins!==before)save();render();},1000);
+    document.addEventListener('visibilitychange',function(){if(!document.hidden){regenSpins();save();render();}});
     $('muteBtn').textContent=muted?'🔇':'🔊';
-    if(typeof syncEvents==='function')syncEvents();recomputeNemesis();render();
+    if(typeof syncEvents==='function')syncEvents();recomputeNemesis();regenSpins();save();render();
     function placeRails(){var a=document.querySelector('.app'),mc=document.querySelector('.evtrow'),rl=$('railL'),rr=$('railR');if(!a||!mc||!rl||!rr)return;var t=Math.max(0,mc.getBoundingClientRect().top-a.getBoundingClientRect().top);rl.style.top=t+'px';rr.style.top=t+'px';}
     placeRails();window.addEventListener('resize',placeRails);setTimeout(placeRails,400);setTimeout(placeRails,1200);
     if(dailyAvailable())openModal('dailyModal',renderDaily);
