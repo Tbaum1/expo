@@ -1,0 +1,68 @@
+name: Build Android APK
+
+# Runs when you push to master, OR on-demand from the Actions tab ("Run workflow").
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+  
+
+# Needed so the Action can publish the APK to a GitHub Release (the shareable link).
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Set up Java (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate native Android project (Expo prebuild)
+        run: npx expo prebuild --platform android --no-install
+
+      - name: Build release APK
+        run: |
+          chmod +x android/gradlew
+          cd android
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Rename APK to a stable filename
+        run: cp android/app/build/outputs/apk/release/*.apk loot-hollow.apk
+
+      - name: Upload APK artifact (login-only fallback)
+        uses: actions/upload-artifact@v4
+        with:
+          name: loot-hollow-apk
+          path: loot-hollow.apk
+          if-no-files-found: error
+
+      # Publishes loot-hollow.apk to a release tagged "latest" and marks it the
+      # latest release, so this URL ALWAYS serves the newest build:
+      #   https://github.com/Tbaum1/expo/releases/latest/download/loot-hollow.apk
+      - name: Publish to 'latest' release (permanent download link)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Loot Hollow — latest test build
+          body: Newest test build. Open this page on an Android phone and tap the .apk to install. Updated automatically on every push.
+          files: loot-hollow.apk
+          make_latest: true
