@@ -747,7 +747,7 @@ export const GAME_HTML = `<!DOCTYPE html>
       <div class="ribbon" id="unlockRibbon">New Lair Unlocked!</div>
       <div class="ustage-wrap"><span class="udust"></span><span class="ustage" id="unlockStage">🏕️</span></div>
       <div class="uname" id="unlockName">Whispering Wood</div>
-      <div class="udesc" id="unlockDesc">World 4 · +12 spins</div>
+      <div class="udesc" id="unlockDesc">World 4 · +7 spins</div>
       <div class="ubtns"><button class="bragbtn" id="bragBtn">📣 Brag</button><button class="bigbtn ubtn" id="unlockBtn">Enter →</button></div>
     </div>
   </div>
@@ -921,7 +921,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   };
 
   function wEmojis(){return WORLD_DATA[world%WORLD_DATA.length].em;}
-  const SPW_BASE=1.30,SPW_STEP=0.20,SPW_BAND=25;
+  const SPW_BASE=1.40,SPW_STEP=0.20,SPW_BAND=25;
   // Build-cost base. 160 cleared ~12 worlds/1200-pack (too fast), 384 ~5 (too grindy).
   // 256 is the middle ground: ~7-8 worlds per pack — progress feels steady, not strict.
   // Tune this single number for pacing (higher = slower).
@@ -1155,27 +1155,27 @@ export const GAME_HTML = `<!DOCTYPE html>
       else if(s==='🪏'){startRaid(be);return;}
       else if(s==='🛡️'){const g=Math.min(15,3*be);shields+=g;sWin();haptic(20);popup('🛡️','Shields Up!','+'+g+' shields. Each blocks a raid.');$('msg').textContent='+'+g+' shields';}
       else if(s==='🐷'){const w=gainCoins(400*be);coinRain(22);bigPop('🏦','Bank Break!','+'+fmt(w)+' coins.');$('msg').textContent='Bank! +'+fmt(w);}
-      else if(s==='⭐'){const g=Math.round(10*be*(specialWorld?1.5:1));spins+=g;sWin();popup('⭐','Free Spins!','+'+g+' spins.'+(specialWorld?' (Special +50%!)':''));$('msg').textContent='+'+g+' spins';}
+      else if(s==='⭐'){const g=Math.round(6*be*(specialWorld?1.5:1));spins+=g;sWin();popup('⭐','Free Spins!','+'+g+' spins.'+(specialWorld?' (Special +50%!)':''));$('msg').textContent='+'+g+' spins';}
       save();render();return;}
     let pair=null;if(a===b)pair=[0,1];else if(b===c)pair=[1,2];else if(a===c)pair=[0,2];
     if([a,b,c].filter(x=>x==='🪙').length>=2){const w=gainCoins(40*be);sCoin();$('msg').textContent='Two coins — +'+w;}
     else if(pair){pair.forEach(i=>$('r'+i).classList.add('near'));setTimeout(()=>pair.forEach(i=>$('r'+i).classList.remove('near')),700);sTick();$('msg').textContent='So close!';}
     else{$('msg').textContent='No match. Spin again!';}
-    const wr=worldRule(),incChance=0.20+(wr.incomingChance||0);
+    const wr=worldRule(),incChance=0.23+(wr.incomingChance||0);
     if(coins>100&&Math.random()<incChance){const nem=nemesisRival();const r=(nem&&Math.random()<0.5)?nem:pickRival();const isNem=nem&&r.n===nem.n;
       if(activePet==='tortoise'&&Math.random()<0.30*petPow()){sPop();$('msg').textContent=r.n+' tried to raid you — Shelby blocked it free!';}
       else if(snareBlocks()){sPop();$('msg').textContent=r.n+' hit your Snare Trap — raid blocked!';}
       else if(shields>0){shields--;sPop();$('msg').textContent=r.n+' raid BLOCKED! (−1 shield)';}
-      else{const stealable=coins-100,rate=0.20*(isNem?1.4:1);let loss=Math.min(stealable,Math.max(80,Math.round(coins*rate)));loss=applyBarricade(loss);coins-=loss;sHit();addGrudge(r.n,2);revenge.push({n:r.n,f:r.f,amt:loss});if(revenge.length>6)revenge.shift();
+      else{const stealable=coins-100,rate=0.28*(isNem?1.4:1);let loss=Math.min(stealable,Math.max(120,Math.round(coins*rate)));loss=applyBarricade(loss);coins-=loss;sHit();addGrudge(r.n,2);revenge.push({n:r.n,f:r.f,amt:loss});if(revenge.length>6)revenge.shift();
         let cb=watchCounter(loss),ctxt='';if(cb>0){awardCoins(cb);ctxt=' Your Watch-Beast clawed back '+cb.toLocaleString()+'!';}
         popup('💥',(isNem?'Nemesis ':'')+r.n+' Raided You!','They stole '+loss.toLocaleString()+' coins. Strike back with ⚒️⚒️⚒️!'+ctxt);$('msg').textContent=r.n+' stole '+loss+'!';}}
     save();render();
   }
 
-  function atkBase(be){const tiger=activePet==='magpie'?1+0.25*petPow():1;let m=payMult();if(activePet==='mole')m*=1+0.15*petPow();return Math.round(180*be*m*tiger);}
+  function atkBase(be){const tiger=activePet==='magpie'?1+0.25*petPow():1;let m=payMult();if(activePet==='mole')m*=1+0.15*petPow();return Math.round(130*be*m*tiger);}
 
   function attack(be){const wr=worldRule();const base=atkBase(be);addEvtProgress('attacks',1);addEvtProgress('quest',1);
-    if(revenge.length){const v=revenge.shift();const tot=base+v.amt;awardCoins(tot);addGrudge(v.n,1);const s=rs(v.n);s.hp=Math.max(0,s.hp-1);sBig();coinRain(16);
+    if(revenge.length){const v=revenge.shift();const tot=base+Math.round(v.amt*0.6);awardCoins(tot);addGrudge(v.n,1);const s=rs(v.n);s.hp=Math.max(0,s.hp-1);sBig();coinRain(16);
       popup('😤','Revenge Attack!','You smashed '+v.n+"'s lair and took back "+tot.toLocaleString()+' coins!');$('msg').textContent='Revenge on '+v.n+'!';save();render();return;}
     const nem=nemesisRival();const target=nem||pickRival();const isNem=nem&&target.n===nem.n;const s=rs(target.n);
     showFoe(target.f,target.n,be);
@@ -1207,7 +1207,7 @@ export const GAME_HTML = `<!DOCTYPE html>
     if(villageSum()>=ITEMS*STARS){sBig();coinRain(18);stagePop();bigPop('🏆','Village Completed!','Every item built! Move to a new lair for bigger payouts.');}
     else $('msg').textContent='Built! Village '+villageSum()+'/'+(ITEMS*STARS)+'.';
     save();render();}
-  function advanceWorld(){world++;village=[0,0,0,0,0];specialWorld=Math.random()<SPECIAL_CHANCE;spins+=12;gems+=(specialWorld?6:3);sBig();coinRain(specialWorld?22:12);stagePop();showUnlock();save();render();}
+  function advanceWorld(){world++;village=[0,0,0,0,0];specialWorld=Math.random()<SPECIAL_CHANCE;spins+=7;gems+=(specialWorld?6:3);sBig();coinRain(specialWorld?22:12);stagePop();showUnlock();save();render();}
   let buildT=null;
   function buildUpStage(){const it=worldItems(),ic=worldRule().icon,seq=it.map(x=>x.i).concat([ic]),el=$('unlockStage');let i=0;clearInterval(buildT);el.classList.remove('built');el.textContent=seq[0];
     buildT=setInterval(()=>{i++;if(i>=seq.length){clearInterval(buildT);el.textContent=ic;el.classList.add('built');confetti(22);haptic(40);return;}el.textContent=seq[i];sPop();},170);}
@@ -1216,7 +1216,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   function showUnlock(){const wr=worldRule();$('unlockRibbon').textContent=specialWorld?'✨ Special World! ✨':'New Lair Unlocked!';
     $('unlockScene').style.backgroundImage="url('"+WORLD_BG[bgIndex(world)]+"')";
     $('unlockName').textContent=wr.icon+' '+wr.name;
-    $('unlockDesc').textContent='World '+(world+1)+(specialWorld?' · 2× coins, +50% spins, boosted pets':' · new theme, bigger payouts, higher bets')+' · +12 spins';
+    $('unlockDesc').textContent='World '+(world+1)+(specialWorld?' · 2× coins, +50% spins, boosted pets':' · new theme, bigger payouts, higher bets')+' · +7 spins';
     $('unlockModal').classList.add('show');confetti(40);sFanfare();haptic([0,40,30,60]);buildUpStage();}
   function brag(){const txt='I just unlocked World '+(world+1)+' ('+worldRule().name+') in Loot Hollow! 🏰✨';if(typeof navigator!=='undefined'&&navigator.share){try{navigator.share({text:txt,title:'Loot Hollow'}).catch(()=>{});}catch(e){}}const b=$('bragBtn');if(b){const o=b.textContent;b.textContent='Shared! ✓';setTimeout(()=>{b.textContent=o;},1500);}sPop();}
 
@@ -1374,6 +1374,4 @@ export const GAME_HTML = `<!DOCTYPE html>
   })();
 })();
 </script>
-</body>
-</html>
-`;
+</b`;
