@@ -1135,7 +1135,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   function popup(icon,title,text,btn){$('popIcon').textContent=icon;$('popTitle').textContent=title;$('popText').textContent=text;$('popBtn').textContent=btn||'Collect';$('pop').classList.add('show');render();}
   function screenShake(){const a=document.querySelector('.app');if(!a)return;a.classList.remove('shake');void a.offsetWidth;a.classList.add('shake');setTimeout(()=>a.classList.remove('shake'),520);}
   function bigPop(icon,title,text){popup(icon,title,text);const card=document.querySelector('.pop .card');if(card)card.classList.add('bigwin');screenShake();confetti(28);sFanfare();haptic([0,40,30,60,30,90]);}
-  function overlayOpen(){return $('pop').classList.contains('show')||$('buyPop').classList.contains('show')||!!document.querySelector('.modal.show');}
+  function overlayOpen(){var ba=$('buildAnim'),vd=$('villageDone');return $('pop').classList.contains('show')||$('buyPop').classList.contains('show')||!!document.querySelector('.modal.show')||!!(ba&&ba.classList.contains('show'))||!!(vd&&vd.classList.contains('show'));}
   $('popBtn').onclick=()=>{$('pop').classList.remove('show');const card=document.querySelector('.pop .card');if(card)card.classList.remove('bigwin');render();};
   $('buyYes').onclick=()=>{if(pendingAction){var _f=pendingAction;pendingAction=null;$('buyPop').classList.remove('show');_f();}else{doBuyPack();}};
   $('buyNo').onclick=()=>{pendingBuy=null;pendingAction=null;$('buyPop').classList.remove('show');sTap();};
