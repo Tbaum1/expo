@@ -357,6 +357,8 @@ export const GAME_HTML = `<!DOCTYPE html>
   .vrow .vri{font-size:28px;width:36px;text-align:center;} .vrow .vrb{flex:1;} .vrow .vrn{font-size:13px;font-weight:700;} .vrow .vrs{font-size:13px;color:var(--gold);letter-spacing:1px;}
   .vrow button{border:0;cursor:pointer;font-family:'Fredoka';font-weight:700;font-size:12px;color:#063b1b;background:linear-gradient(180deg,#7cffb2,#2fbf57);padding:8px 12px;border-radius:10px;box-shadow:0 3px 0 #1c7a3a;white-space:nowrap;}
   .vrow button:disabled{filter:grayscale(.6) brightness(.85);box-shadow:0 3px 0 #2a4a3a;cursor:default;}
+  .vrow .vrbtns{display:flex;flex-direction:column;gap:6px;}
+  .vrow .vfull{background:linear-gradient(180deg,#ffe08a,#f0b429);color:#5a3a06;box-shadow:0 3px 0 #b07d12;}
 
   .app.shake{animation:appShake .5s ease;}
   @keyframes appShake{0%,100%{transform:translateX(0);}15%{transform:translateX(-7px);}30%{transform:translateX(7px);}45%{transform:translateX(-5px);}60%{transform:translateX(5px);}80%{transform:translateX(-3px);}}
@@ -1116,7 +1118,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   function renderVillageShop(){const box=$('villageList');if(!box)return;$('villageHead').textContent='🏗️ Village · '+villageSum()+'/'+(ITEMS*STARS);const items=worldItems();box.innerHTML='';
     items.forEach((it,i)=>{const lvl=village[i],maxed=lvl>=STARS,c=itemCost(i);const row=document.createElement('div');row.className='vrow'+(maxed?' max':'');
       row.innerHTML='<div class="vri">'+vpieceHTML(i,it.i)+'</div><div class="vrb"><div class="vrn">'+it.n+'</div><div class="vrs">'+stars(lvl)+'</div></div>';
-      const bn=document.createElement('button');if(maxed){bn.textContent='MAX';bn.disabled=true;}else{bn.textContent='BUY '+fmt(c);bn.disabled=coins<c;bn.onclick=()=>{buildItem(i);renderVillageShop();};}row.appendChild(bn);box.appendChild(row);});wirePcImgs(box);
+      const grp=document.createElement('div');grp.className='vrbtns';const bn=document.createElement('button');if(maxed){bn.textContent='MAX';bn.disabled=true;grp.appendChild(bn);}else{const rem=STARS-lvl;bn.textContent=(rem>1?'+1★ ':'Buy ')+fmt(c);bn.disabled=coins<c;bn.onclick=()=>{buildItem(i);renderVillageShop();};grp.appendChild(bn);if(rem>1){const fc=fullCost(i);const fb=document.createElement('button');fb.className='vfull';fb.textContent='Buy 5★ '+fmt(fc);fb.disabled=coins<fc;fb.onclick=()=>{buildItemFull(i);renderVillageShop();};grp.appendChild(fb);}}row.appendChild(grp);box.appendChild(row);});wirePcImgs(box);
     if(villageSum()>=ITEMS*STARS){const d=document.createElement('button');d.className='bigbtn';d.textContent='Village Complete — Move to New Lair →';d.onclick=()=>{$('villageModal').classList.remove('show');villageDoneAnim(advanceWorld);};box.appendChild(d);}}
   let foeT=null;
   function showFoe(face,name,mult){const b=$('foeBanner');if(!b)return;b.innerHTML='<span class="ff">'+face+'</span><span class="fn">'+name+'</span><span class="fw">WIN ×'+mult+'</span>';b.classList.add('show');clearTimeout(foeT);foeT=setTimeout(()=>b.classList.remove('show'),2600);}
@@ -1208,6 +1210,12 @@ export const GAME_HTML = `<!DOCTYPE html>
     const after=Math.floor(villageSum()/STARS);if(after>before){stagePop();confetti(14);}
     if(villageSum()>=ITEMS*STARS){sBig();coinRain(18);stagePop();bigPop('🏆','Village Completed!','Every item built! Move to a new lair for bigger payouts.');}
     else $('msg').textContent='Built! Village '+villageSum()+'/'+(ITEMS*STARS)+'.';
+    save();render();}
+  function fullCost(i){var base=BUILD_BASE*buildMult()*worldCostMult(),t=0,n=0;for(var k=village[i];k<STARS;k++){var bc=Math.round(base*Math.pow(ECON_BASE,totBuild+n));t+=Math.round(bc*(1+0.18*k));n++;}return t;}
+  function buildItemFull(i){if(village[i]>=STARS)return;var c=fullCost(i);if(coins<c)return;var before=Math.floor(villageSum()/STARS);var added=STARS-village[i];coins-=c;village[i]=STARS;totBuild+=added;addEvtProgress('quest',added);sPop();playBuildAnim(i);
+    var after=Math.floor(villageSum()/STARS);if(after>before){stagePop();confetti(14);}
+    if(villageSum()>=ITEMS*STARS){sBig();coinRain(18);stagePop();bigPop('🏆','Village Completed!','Every item built! Move to a new lair for bigger payouts.');}
+    else $('msg').textContent='Built to 5★! Village '+villageSum()+'/'+(ITEMS*STARS)+'.';
     save();render();}
   function advanceWorld(){world++;village=[0,0,0,0,0];specialWorld=Math.random()<SPECIAL_CHANCE;spins+=7;gems+=(specialWorld?6:3);sBig();coinRain(specialWorld?22:12);stagePop();showUnlock();save();render();}
   let buildT=null;
