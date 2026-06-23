@@ -1373,4 +1373,15 @@ export const GAME_HTML = `<!DOCTYPE html>
     document.querySelectorAll('.railbtn').forEach(function(b){b.onclick=function(){openModal(b.getAttribute('data-open'),HUB_FN[b.getAttribute('data-fn')]);};});
     document.addEventListener('keydown',function(e){if(e.code==='Space'){e.preventDefault();spin();}});
     setInterval(function(){if(typeof syncEvents==='function')syncEvents();var before=spins;regenSpins();if(spins!==before)save();render();},1000);
-    docume`;
+    document.addEventListener('visibilitychange',function(){if(!document.hidden){regenSpins();save();render();}});
+    $('muteBtn').textContent=muted?'🔇':'🔊';
+    if(typeof syncEvents==='function')syncEvents();recomputeNemesis();regenSpins();save();render();
+    function placeRails(){var a=document.querySelector('.app'),mc=document.querySelector('.evtrow'),rl=$('railL'),rr=$('railR');if(!a||!mc||!rl||!rr)return;var t=Math.max(0,mc.getBoundingClientRect().top-a.getBoundingClientRect().top);rl.style.top=t+'px';rr.style.top=t+'px';}
+    placeRails();window.addEventListener('resize',placeRails);setTimeout(placeRails,400);setTimeout(placeRails,1200);
+    if(dailyAvailable())openModal('dailyModal',renderDaily);
+  })();
+})();
+</script>
+</body>
+</html>
+`;

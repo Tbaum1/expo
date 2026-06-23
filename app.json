@@ -22,7 +22,7 @@
     },
     "android": {
       "package": "com.loothollow.app",
-      "versionCode": 13,
+      "versionCode": 14,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#150a26"

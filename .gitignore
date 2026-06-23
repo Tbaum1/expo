@@ -11,6 +11,10 @@ web-build/
 android/
 ios/
 
+# scratch / temp bake helpers
+sync-tmp.mjs
+.sync-tmp.bak
+
 # logs & misc
 *.log
 npm-debug.*
