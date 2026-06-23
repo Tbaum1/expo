@@ -816,11 +816,11 @@ export const GAME_HTML = `<!DOCTYPE html>
   const TIERS=6,BUILDS_PER_TIER=3,ITEMS=5,STARS=5,SPIN_CAP=100,SPIN_REGEN_MS=120000;
   const BET_LEVELS=[1,2,3,5,10,25,50,100];
   const RIVALS=[{n:'Foxglove',f:'🦊'},{n:'Bram',f:'🐻'},{n:'Mossy Pete',f:'🐸'},{n:'Vex',f:'🦝'},{n:'Ottoline',f:'🦉'},{n:'Grit',f:'🐗'},{n:'Juniper',f:'🦡'},{n:'Sable',f:'🐺'}];
-  const DAILY=[{i:'🪙',r:'400',f:()=>coins+=bonus(400)},{i:'🎰',r:'8 spins',f:()=>spins+=8},{i:'🛡️',r:'3 shields',f:()=>shields+=3},{i:'🪙',r:'1,000',f:()=>coins+=bonus(1000)},{i:'🎰',r:'15 spins',f:()=>spins+=15},{i:'🛡️',r:'4 shields',f:()=>shields+=4},{i:'💎',r:'3K c +20💎',f:()=>{coins+=bonus(3000);gems+=20;}}];
+  const DAILY=[{i:'🪙',r:'400',f:()=>coins+=bonus(400)},{i:'🎰',r:'8 spins',f:()=>spins+=8},{i:'🛡️',r:'3 shields',f:()=>addShields(3)},{i:'🪙',r:'1,000',f:()=>coins+=bonus(1000)},{i:'🎰',r:'15 spins',f:()=>spins+=15},{i:'🛡️',r:'4 shields',f:()=>addShields(4)},{i:'💎',r:'3K c +20💎',f:()=>{coins+=bonus(3000);gems+=20;}}];
   const EVENT={name:'Treasure Hunt',icon:'🗺️',dur:24*3600*1000,miles:[{p:25,i:'🪙',t:'800 coins',f:()=>coins+=bonus(800)},{p:60,i:'🎰',t:'15 spins',f:()=>spins+=15},{p:120,i:'🦴',t:'2 treats',f:()=>grantTreat(2)},{p:200,i:'💎',t:'4K coins +10💎',f:()=>{coins+=bonus(4000);gems+=10;}}]};
   const PETS={magpie:{name:'Pip the Magpie',icon:'🐦‍⬛',desc:'+25% coins from raids (⚒️)'},tortoise:{name:'Shelby the Tortoise',icon:'🐢',desc:'30% chance to block a raid for free'},mole:{name:'Digby the Mole',icon:'🦫',desc:'+15% on all coin wins'}};
   const SETS=[
-    {key:'woodland',name:'Woodland Relics',icon:'🌿',unlock:0,cards:[['🌰',1],['🍄',1],['🪶',2],['🦌',2],['🍯',3],['🦔',4]],reward:{spins:30,coins:1000,gems:3},pet:'magpie'},
+    {key:'woodland',name:'Woodland Relics',icon:'🌿',unlock:0,cards:[['🌰',1],['🍄',1],['🪶',1],['🦌',2],['🍯',2],['🦔',2]],reward:{spins:30,coins:1000,gems:3},pet:'magpie'},
     {key:'tides',name:'Tide Treasures',icon:'🌊',unlock:15,cards:[['🐚',1],['🦀',1],['🪸',2],['🐠',2],['⚓',3],['🦑',4]],reward:{spins:45,coins:3000,gems:4},pet:'tortoise'},
     {key:'cosmos',name:'Cosmic Curios',icon:'✨',unlock:32,cards:[['🪐',1],['☄️',1],['🛰️',2],['👾',2],['🌙',3],['🔭',4]],reward:{spins:60,coins:8000,gems:5},pet:'mole'},
     {key:'city',name:'City Lights',icon:'🏙️',unlock:52,cards:[['🚕',1],['🏬',1],['🎭',2],['🌆',2],['🎡',3],['🗽',4]],reward:{spins:75,coins:20000,gems:6}},
@@ -835,7 +835,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   const GEM_CHEST={key:'gem',name:'Gem Chest',icon:'💎',cost:28,n:6,maxR:5,gold:0.25};
   function setActive(s){return world>=s.unlock;}
   function cardEmojis(s){return s.cards.map(function(c){return c[0];});}
-  function worldMaxR(){return Math.min(5,2+Math.floor(world/40));}
+  function worldMaxR(){return Math.min(5,2+Math.floor(world/25));}
   function chestCost(ch){return Math.round(ch.base*Math.pow(ECON_BASE,totBuild));}
   function chestPool(ch){var cap=Math.min(ch.maxR,worldMaxR()),pool=[];SETS.forEach(function(s){if(world<s.unlock)return;s.cards.forEach(function(c){if(c[1]<=cap)pool.push(c);});});return pool;}
   function weightedCard(pool){var tot=0,i;for(i=0;i<pool.length;i++)tot+=(6-pool[i][1]);var r=Math.random()*tot;for(i=0;i<pool.length;i++){r-=(6-pool[i][1]);if(r<=0)return pool[i];}return pool[pool.length-1];}
@@ -909,7 +909,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   const JOKER_TTL=48*3600*1000;
   const EVENT_TYPES={
     treasure:{name:'Treasure Hunt',icon:'🗺️',kind:'progress',metric:'points',blurb:'Earn points every spin (triples count more).',
-      rungs:[{at:25,i:'🪙',t:'1,000 coins',f:()=>awardCoins(bonus(1000))},{at:60,i:'🎰',t:'15 spins',f:()=>spins+=15},{at:120,i:'🛡️',t:'4 shields',f:()=>shields+=4},{at:200,i:'💎',t:'5K coins +8💎',f:()=>{awardCoins(bonus(5000));gems+=8;}}]},
+      rungs:[{at:25,i:'🪙',t:'1,000 coins',f:()=>awardCoins(bonus(1000))},{at:60,i:'🎰',t:'15 spins',f:()=>spins+=15},{at:120,i:'🛡️',t:'4 shields',f:()=>addShields(4)},{at:200,i:'💎',t:'5K coins +8💎',f:()=>{awardCoins(bonus(5000));gems+=8;}}]},
     attackMad:{name:'Attack Madness',icon:'⚔️',kind:'progress',metric:'attacks',blurb:'Land ⚒️⚒️⚒️ attacks to climb the ladder.',
       rungs:[{at:3,i:'🪙',t:'1,500 coins',f:()=>awardCoins(bonus(1500))},{at:7,i:'🎰',t:'20 spins',f:()=>spins+=20},{at:12,i:'🦴',t:'2 treats',f:()=>grantTreat(2)},{at:20,i:'💎',t:'8K coins +10💎',f:()=>{awardCoins(bonus(8000));gems+=10;}}]},
     raidMad:{name:'Raid Madness',icon:'🪏',kind:'progress',metric:'raids',blurb:'Land 🪏🪏🪏 raids to climb the ladder.',
@@ -940,6 +940,8 @@ export const GAME_HTML = `<!DOCTYPE html>
   function feedBank(a){pig=Math.min(pigCap(),pig+Math.round(a*0.25));}
   function gainCoins(base){let m=payMult();if(activePet==='mole')m*=1+0.15*petPow();const w=Math.round(base*m);coins+=w;feedBank(w);return w;}
   function awardCoins(n){coins+=n;feedBank(n);return n;}
+  const SHIELD_MAX=8;
+  function addShields(n){shields=Math.min(SHIELD_MAX,shields+Math.max(0,n));}
   function pickRival(){return RIVALS[Math.floor(Math.random()*RIVALS.length)];}
   function todayStr(){return new Date().toDateString();}
   function yesterdayStr(){const d=new Date();d.setDate(d.getDate()-1);return d.toDateString();}
@@ -1153,7 +1155,7 @@ export const GAME_HTML = `<!DOCTYPE html>
       else if(s==='💎'){const w=gainCoins(600*be);const gg=2+(specialWorld?1:0);gems+=gg;coinRain(26);bigPop('💎','Mega Gems!','+'+fmt(w)+' coins, +'+gg+'💎!');$('msg').textContent='Triple gems! +'+fmt(w)+' +'+gg+'💎';}
       else if(s==='⚒️'){attack(be);return;}
       else if(s==='🪏'){startRaid(be);return;}
-      else if(s==='🛡️'){const g=Math.min(15,3*be);shields+=g;sWin();haptic(20);popup('🛡️','Shields Up!','+'+g+' shields. Each blocks a raid.');$('msg').textContent='+'+g+' shields';}
+      else if(s==='🛡️'){var before=shields;addShields(Math.min(3,be));var g=shields-before;sWin();haptic(20);popup('🛡️','Shields Up!',(g>0?('+'+g+' shields. Each blocks a raid (max '+SHIELD_MAX+').'):'Shields already full ('+SHIELD_MAX+').'));$('msg').textContent=(g>0?('+'+g+' shields'):'Shields full');}
       else if(s==='🐷'){const w=gainCoins(400*be);coinRain(22);bigPop('🏦','Bank Break!','+'+fmt(w)+' coins.');$('msg').textContent='Bank! +'+fmt(w);}
       else if(s==='⭐'){const g=Math.round(6*be*(specialWorld?1.5:1));spins+=g;sWin();popup('⭐','Free Spins!','+'+g+' spins.'+(specialWorld?' (Special +50%!)':''));$('msg').textContent='+'+g+' spins';}
       save();render();return;}
@@ -1172,10 +1174,10 @@ export const GAME_HTML = `<!DOCTYPE html>
     save();render();
   }
 
-  function atkBase(be){const tiger=activePet==='magpie'?1+0.25*petPow():1;let m=payMult();if(activePet==='mole')m*=1+0.15*petPow();return Math.round(130*be*m*tiger);}
+  function atkBase(be){const tiger=activePet==='magpie'?1+0.25*petPow():1;let m=payMult();if(activePet==='mole')m*=1+0.15*petPow();return Math.round(100*be*m*tiger);}
 
   function attack(be){const wr=worldRule();const base=atkBase(be);addEvtProgress('attacks',1);addEvtProgress('quest',1);
-    if(revenge.length){const v=revenge.shift();const tot=base+Math.round(v.amt*0.6);awardCoins(tot);addGrudge(v.n,1);const s=rs(v.n);s.hp=Math.max(0,s.hp-1);sBig();coinRain(16);
+    if(revenge.length){const v=revenge.shift();const tot=base+Math.round(v.amt*0.4);awardCoins(tot);addGrudge(v.n,1);const s=rs(v.n);s.hp=Math.max(0,s.hp-1);sBig();coinRain(16);
       popup('😤','Revenge Attack!','You smashed '+v.n+"'s lair and took back "+tot.toLocaleString()+' coins!');$('msg').textContent='Revenge on '+v.n+'!';save();render();return;}
     const nem=nemesisRival();const target=nem||pickRival();const isNem=nem&&target.n===nem.n;const s=rs(target.n);
     showFoe(target.f,target.n,be);
@@ -1238,7 +1240,7 @@ export const GAME_HTML = `<!DOCTYPE html>
     wheelSpinning=true;var b=$('wheelBtn');if(b){b.textContent='Spinning…';b.disabled=true;b.onclick=null;}var inf=$('wheelInfo');if(inf)inf.textContent='Good luck!';
     var idx=pickWheel();var seg=360/WHEEL.length;var base=Math.ceil((wheelRot+1)/360)*360;var target=(360-idx*seg)%360;wheelRot=base+360*5+target+(Math.random()*(seg*0.6)-seg*0.3);disc.style.transform='rotate('+wheelRot+'deg)';sPop();haptic(14);save();render();
     setTimeout(function(){wheelSpinning=false;var s=WHEEL[idx];var res=grantWheel(s);sBig();confetti(s.k==='jackpot'?42:18);coinRain(s.k==='jackpot'?22:8);haptic(s.k==='jackpot'?[0,40,30,60]:24);popup(res.i,s.k==='jackpot'?'JACKPOT!':'Fortune Wheel',res.t+'!');renderWheel();save();render();},3650);}
-  function grantWheel(s){if(s.k==='coins'){var c=bonus(s.base);awardCoins(c);return {i:s.i,t:'+'+fmt(c)+' coins'};}if(s.k==='spins'){spins+=s.n;return {i:s.i,t:'+'+s.n+' spins'};}if(s.k==='gems'){gems+=s.n;return {i:s.i,t:'+'+s.n+' gems'};}if(s.k==='shield'){shields+=s.n;return {i:s.i,t:'+'+s.n+' shields'};}if(s.k==='treats'){grantTreat(s.n);return {i:s.i,t:'+'+s.n+' treats'};}if(s.k==='jackpot'){var jc=bonus(8000);awardCoins(jc);gems+=25;spins+=25;return {i:'🌟',t:'+'+fmt(jc)+'c, +25💎, +25 spins'};}return {i:s.i,t:'reward'};}
+  function grantWheel(s){if(s.k==='coins'){var c=bonus(s.base);awardCoins(c);return {i:s.i,t:'+'+fmt(c)+' coins'};}if(s.k==='spins'){spins+=s.n;return {i:s.i,t:'+'+s.n+' spins'};}if(s.k==='gems'){gems+=s.n;return {i:s.i,t:'+'+s.n+' gems'};}if(s.k==='shield'){addShields(s.n);return {i:s.i,t:'+'+s.n+' shields'};}if(s.k==='treats'){grantTreat(s.n);return {i:s.i,t:'+'+s.n+' treats'};}if(s.k==='jackpot'){var jc=bonus(8000);awardCoins(jc);gems+=25;spins+=25;return {i:'🌟',t:'+'+fmt(jc)+'c, +25💎, +25 spins'};}return {i:s.i,t:'reward'};}
   function renderDaily(){const grid=$('dailyGrid');grid.innerHTML='';const todayIdx=dailyAvailable()?nextStreakIdx():((streak-1)%7);
     DAILY.forEach((d,i)=>{const el=document.createElement('div');el.className='day';if(i===todayIdx&&dailyAvailable())el.classList.add('today');if(i<todayIdx)el.classList.add('done');el.innerHTML='<div class="d">Day '+(i+1)+'</div><div class="i">'+d.i+'</div><div class="r">'+d.r+'</div>';grid.appendChild(el);});
     $('dailyLead').textContent=dailyAvailable()?('Streak: '+streak+' day'+(streak===1?'':'s')+' — claim Day '+(todayIdx+1)+'!'):'Already claimed today. Come back tomorrow!';
@@ -1263,7 +1265,7 @@ export const GAME_HTML = `<!DOCTYPE html>
     if(Math.random()<0.15){grantTreat(1);got.push('🦴');}
     sBig();coinRain(10);confetti(14);popup(ch.icon,ch.name+' Chest!'+(chestMult()>1?' · Cards Boom!':''),'You found: '+got.join(' '));renderRelics();}
   function openChest(idx){const ch=CHESTS[idx];if(!chestUseful(ch)){popup(ch.icon,'Nothing new in here','You already own every relic this chest can offer. Reach a new world to unlock more sets'+(ch.gold>0?'':' — or open a Golden/Magical chest to chase the ✨ gold versions')+'.','Got it');return;}const c=chestCost(ch);if(coins<c)return;coins-=c;grantChest(ch);save();render();}
-  function openGemChest(){if(gems<GEM_CHEST.cost)return;gems-=GEM_CHEST.cost;grantChest(GEM_CHEST);save();render();}
+  function openGemChest(){if(!chestUseful(GEM_CHEST)){popup(GEM_CHEST.icon,'Nothing new in here','You already own everything this chest can offer right now — no point spending gems. Reach a new world to unlock more sets.','Got it');return;}if(gems<GEM_CHEST.cost)return;gems-=GEM_CHEST.cost;grantChest(GEM_CHEST);save();render();}
   function renderShop(){const p=$('shopPacks');p.innerHTML='';
     SPIN_PACKS.forEach(pk=>{const bonus=firstBuy,total=bonus?pk.spins*2:pk.spins;const el=document.createElement('div');el.className='shopcard';
       el.innerHTML='<div class="si2">'+pk.icon+'</div><div class="sinfo"><div class="sn">'+pk.name+(bonus?' <span class="badge">FIRST BUY 2x</span>':'')+'</div><div class="sd">+'+fmt(total)+' spins</div></div>';
@@ -1271,7 +1273,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   var pendingBuy=null,pendingAction=null;
   function buyPack(key){const pk=SPIN_PACKS.find(x=>x.key===key);if(!pk)return;const bonus=firstBuy,total=bonus?pk.spins*2:pk.spins;pendingBuy=key;sTap();$('buyIcon').textContent=pk.icon;$('buyTitle').textContent='Confirm Purchase';$('buyText').textContent='Buy '+pk.name+' for '+pk.price+'?  You will receive +'+fmt(total)+' spins'+(bonus?' (first-buy 2× bonus)':'')+'.  This is a real-money purchase.';$('buyPop').classList.add('show');}
   function doBuyPack(){const key=pendingBuy;pendingBuy=null;$('buyPop').classList.remove('show');const pk=SPIN_PACKS.find(x=>x.key===key);if(!pk)return;const bonus=firstBuy,total=bonus?pk.spins*2:pk.spins;spins+=total;firstBuy=false;sBig();coinRain(16);popup(pk.icon,pk.name+' (Demo)','+'+fmt(total)+' spins!'+(bonus?' First-buy 2× bonus!':'')+'  (Demo — no real charge.)');renderShop();save();render();}
-  function buyGem(key){const gp=GEM_STORE.find(x=>x.key===key);if(!gp||gems<gp.cost)return;gems-=gp.cost;if(gp.spins)spins+=gp.spins;if(gp.shields)shields+=gp.shields;if(gp.gold)grantGold(gp.gold);if(gp.joker&&typeof grantJoker==='function')grantJoker(gp.joker);if(gp.chest==='magic'){grantChest(CHESTS.find(c=>c.key==='magic'));}else{sWin();coinRain(8);popup('💎',gp.name,'Redeemed for '+gp.cost+' gems!');}renderGems();save();render();}
+  function buyGem(key){const gp=GEM_STORE.find(x=>x.key===key);if(!gp||gems<gp.cost)return;gems-=gp.cost;if(gp.spins)spins+=gp.spins;if(gp.shields)addShields(gp.shields);if(gp.gold)grantGold(gp.gold);if(gp.joker&&typeof grantJoker==='function')grantJoker(gp.joker);if(gp.chest==='magic'){grantChest(CHESTS.find(c=>c.key==='magic'));}else{sWin();coinRain(8);popup('💎',gp.name,'Redeemed for '+gp.cost+' gems!');}renderGems();save();render();}
 
   function completeSet(key){const s=SETS.find(x=>x.key===key);if(!s||!setCompletable(s))return;setsDone[key]=true;spins+=s.reward.spins;coins+=bonus(s.reward.coins);grantTreat(2);var gg=s.reward.gems||3;gems+=gg;let petTxt='';if(s.pet&&!petsOwned.includes(s.pet)){petsOwned.push(s.pet);petLvl[s.pet]=1;petTxt=' Unlocked pet '+PETS[s.pet].name+'!';}sBig();coinRain(20);confetti(22);popup(s.icon,s.name+' Complete!','+'+s.reward.spins+' spins, +'+fmt(bonus(s.reward.coins))+' coins, +2 treats, +'+gg+'💎.'+petTxt);renderRelics();save();render();}
   function completeGoldSet(key){const s=SETS.find(x=>x.key===key);if(!s||!goldComplete(s))return;goldSetsDone[key]=true;const sp=s.reward.spins*2,co=s.reward.coins*2,gg=(s.reward.gems||3)*3;spins+=sp;coins+=bonus(co);grantTreat(3);gems+=gg;sBig();coinRain(26);bigPop('🌟','Gold Set Complete!','The '+s.name+' gold collection! +'+sp+' spins, +'+fmt(bonus(co))+' coins, +3 treats, +'+gg+'💎.');renderRelics();save();render();}
@@ -1308,7 +1310,7 @@ export const GAME_HTML = `<!DOCTYPE html>
       box.appendChild(el);});}
   function nemFoe(){let foe=nemesisRival();if(!foe){let bg=-1;RIVALS.forEach(r=>{const s=rs(r.n);if(s.g>bg){bg=s.g;foe=r;}});}return foe||RIVALS[0];}
   function renderNemesis(){const host=$('nemHost');if(!host)return;const foe=nemFoe();const s=rs(foe.n);const isNem=nemesisId===foe.n;const st=duelStage(s.g);const owed=revenge.filter(v=>v.n===foe.n).reduce((a,v)=>a+v.amt,0);const label=isNem?('🔥 NEMESIS · '+duelName(st)):'Rival';const sub=(owed>0?('Owes you '+fmt(owed)+' · '):'')+'Grudge '+s.g+'/10 · STRIKE to duel';host.innerHTML='<div class="nembar"><span class="nf">'+foe.f+'</span><div class="nbody"><div class="nn">'+foe.n+' <b>'+label+'</b></div><div class="ns">'+sub+'</div><div class="hpwrap"><i style="width:'+(s.hp/25*100)+'%"></i></div></div><button class="nstk" id="nemStrikeBtn">STRIKE<small>-'+bet()+' spins</small></button></div>';const btn=$('nemStrikeBtn');if(btn)btn.onclick=nemStrike;const rb=$('nemRail');if(rb){rb.style.display=isNem?'':'none';const ic=rb.querySelector('.ri');if(ic&&isNem)ic.textContent=foe.f;}}
-  function nemStrike(foeArg){if(overlayOpen())return;const foe=foeArg&&foeArg.n?foeArg:nemFoe();var _s=rs(foe.n),_ow=revenge.filter(v=>v.n===foe.n).reduce((a,v)=>a+v.amt,0);if(!(foeArg&&foeArg.n)&&nemesisId!==foe.n&&_s.g<=0&&_ow<=0){popup('🤝','No feud yet',foe.n+' has not raided you, so there is nothing to take back. Get raided or build a grudge first — then STRIKE reclaims your coins and works toward a duel.','Got it');return;}const be=bet();if(spins<be){popup('🎰','Need spins','A strike costs '+be+' spins (one bet). Win some, then come back.','OK');return;}spins-=be;sSpin();haptic(15);const s=rs(foe.n);const isNem=nemesisId===foe.n;const st=duelStage(s.g);let reclaimed=0;for(let i=revenge.length-1;i>=0;i--){if(revenge[i].n===foe.n){reclaimed+=revenge[i].amt;revenge.splice(i,1);}}if(reclaimed>0)awardCoins(reclaimed);gainCoins(12*be);const dmg=1+(be>=3?1:0)+(st>=3?1:0);s.hp=Math.max(0,s.hp-dmg);flashWin();coinRain(8);if(s.hp<=0){s.hp=25;const sp=8*st;spins+=sp;var jt='';if(isNem&&typeof grantJoker==='function'){grantJoker(1);jt=' · +1 Joker 🃏';}addGrudge(foe.n,-99);sBig();coinRain(18);stagePop();bigPop('🏆',isNem?('Duel Won — '+duelName(st)+'!'):'Rival Toppled!','You crushed '+foe.n+"'s lair! +"+sp+' spins'+(reclaimed>0?(' · reclaimed '+fmt(reclaimed)+' coins'):'')+jt);}else{addGrudge(foe.n,1);popup('⚒️','Struck '+foe.n+'!','You hit their lair (-'+dmg+' HP)'+(reclaimed>0?(' and clawed back '+fmt(reclaimed)+' coins'):'')+'. '+s.hp+' HP left — keep hitting to win the duel.','Strike again');}save();render();}
+  function nemStrike(foeArg){if(overlayOpen())return;const foe=foeArg&&foeArg.n?foeArg:nemFoe();var _s=rs(foe.n),_ow=revenge.filter(v=>v.n===foe.n).reduce((a,v)=>a+v.amt,0);if(!(foeArg&&foeArg.n)&&nemesisId!==foe.n&&_s.g<=0&&_ow<=0){popup('🤝','No feud yet',foe.n+' has not raided you, so there is nothing to take back. Get raided or build a grudge first — then STRIKE reclaims your coins and works toward a duel.','Got it');return;}const be=bet();if(spins<be){popup('🎰','Need spins','A strike costs '+be+' spins (one bet). Win some, then come back.','OK');return;}spins-=be;sSpin();haptic(15);const s=rs(foe.n);const isNem=nemesisId===foe.n;const st=duelStage(s.g);let reclaimed=0;for(let i=revenge.length-1;i>=0;i--){if(revenge[i].n===foe.n){reclaimed+=revenge[i].amt;revenge.splice(i,1);}}reclaimed=Math.round(reclaimed*0.5);if(reclaimed>0)awardCoins(reclaimed);gainCoins(8*be);const dmg=1+(be>=3?1:0)+(st>=3?1:0);s.hp=Math.max(0,s.hp-dmg);flashWin();coinRain(8);if(s.hp<=0){s.hp=25;const sp=8*st;spins+=sp;var jt='';if(isNem&&typeof grantJoker==='function'){grantJoker(1);jt=' · +1 Joker 🃏';}addGrudge(foe.n,-99);sBig();coinRain(18);stagePop();bigPop('🏆',isNem?('Duel Won — '+duelName(st)+'!'):'Rival Toppled!','You crushed '+foe.n+"'s lair! +"+sp+' spins'+(reclaimed>0?(' · reclaimed '+fmt(reclaimed)+' coins'):'')+jt);}else{addGrudge(foe.n,1);popup('⚒️','Struck '+foe.n+'!','You hit their lair (-'+dmg+' HP)'+(reclaimed>0?(' and clawed back '+fmt(reclaimed)+' coins'):'')+'. '+s.hp+' HP left — keep hitting to win the duel.','Strike again');}save();render();}
   function renderDef(){const slotBox=$('defSlots');slotBox.innerHTML='';defense.forEach(d=>{const el=document.createElement('div');el.className='slot'+(d?' filled':'');const t=d?DEFENSE_TYPES.find(x=>x.key===d):null;el.textContent=t?t.icon:'＋';slotBox.appendChild(el);});
       const shop=$('defShop');shop.innerHTML='';DEFENSE_TYPES.forEach(t=>{const have=defCount(t.key);const el=document.createElement('div');el.className='defcard';
         el.innerHTML='<div class="di">'+t.icon+'</div><div class="dinfo"><div class="dn">'+t.name+(have?' <span class="dq">x'+have+'</span>':'')+'</div><div class="dd">'+t.desc+'</div></div>';
@@ -1328,13 +1330,19 @@ export const GAME_HTML = `<!DOCTYPE html>
       if($('digModal').classList.contains('show'))break;
       const b=bet();
       if(busy){await waitMs(80);continue;}
+      // PAUSE the reels whenever any popup/menu is open. Auto-dismiss only the reward
+      // popup (so auto-play keeps flowing); for any other overlay, wait for the player.
+      if(overlayOpen()){
+        if($('pop').classList.contains('show')){await waitMs(3000);if(!autoActive)break;$('pop').classList.remove('show');const _c=document.querySelector('.pop .card');if(_c)_c.classList.remove('bigwin');render();}
+        else{await waitMs(300);}
+        continue;
+      }
       if(spins<b)break;
       await spin();
       // pause auto only at the MOMENT the village completes (so the 5-star popup isn't blown
       // through). If you're already on a maxed world, auto keeps spinning so you can stay & farm.
       if(maxedWorld()&&!wasMaxed){autoActive=false;$('spinBtn').classList.remove('auto');render();break;}
       wasMaxed=maxedWorld();
-      if($('pop').classList.contains('show')){await waitMs(3000);if(!autoActive)break;$('pop').classList.remove('show');const _c=document.querySelector('.pop .card');if(_c)_c.classList.remove('bigwin');render();}
       await waitMs(650);
     }
     autoActive=false;autoRunning=false;$('spinBtn').classList.remove('auto');render();
@@ -1365,13 +1373,4 @@ export const GAME_HTML = `<!DOCTYPE html>
     document.querySelectorAll('.railbtn').forEach(function(b){b.onclick=function(){openModal(b.getAttribute('data-open'),HUB_FN[b.getAttribute('data-fn')]);};});
     document.addEventListener('keydown',function(e){if(e.code==='Space'){e.preventDefault();spin();}});
     setInterval(function(){if(typeof syncEvents==='function')syncEvents();var before=spins;regenSpins();if(spins!==before)save();render();},1000);
-    document.addEventListener('visibilitychange',function(){if(!document.hidden){regenSpins();save();render();}});
-    $('muteBtn').textContent=muted?'🔇':'🔊';
-    if(typeof syncEvents==='function')syncEvents();recomputeNemesis();regenSpins();save();render();
-    function placeRails(){var a=document.querySelector('.app'),mc=document.querySelector('.evtrow'),rl=$('railL'),rr=$('railR');if(!a||!mc||!rl||!rr)return;var t=Math.max(0,mc.getBoundingClientRect().top-a.getBoundingClientRect().top);rl.style.top=t+'px';rr.style.top=t+'px';}
-    placeRails();window.addEventListener('resize',placeRails);setTimeout(placeRails,400);setTimeout(placeRails,1200);
-    if(dailyAvailable())openModal('dailyModal',renderDaily);
-  })();
-})();
-</script>
-</b`;
+    docume`;
