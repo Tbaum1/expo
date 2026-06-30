@@ -29,6 +29,8 @@ workflows:
         script: |
           cd android
           ./gradlew bundleRelease \
+            --init-script "$CM_BUILD_DIR/ci-no-sonatype.init.gradle" \
+            --stacktrace \
             -Pandroid.injected.signing.store.file="$CM_KEYSTORE_PATH" \
             -Pandroid.injected.signing.store.password="$CM_KEYSTORE_PASSWORD" \
             -Pandroid.injected.signing.key.alias="$CM_KEY_ALIAS" \

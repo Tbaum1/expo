@@ -1,0 +1,34 @@
+// CI hardening: remove the deprecated/flaky oss.sonatype.org repositories from the
+// build so Gradle never queries them (they return 504s and abort resolution).
+// Everything we need is available on google() and mavenCentral().
+
+def isSonatype(repo) {
+    return (repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository) &&
+           (repo.url != null) &&
+           repo.url.toString().contains('oss.sonatype.org')
+}
+
+gradle.settingsEvaluated { settings ->
+    try {
+        def drm = settings.dependencyResolutionManagement.repositories
+        drm.findAll { isSonatype(it) }.each { drm.remove(it) }
+    } catch (Throwable t) {
+        println('init-script: dependencyResolutionManagement cleanup skipped: ' + t.message)
+    }
+    try {
+        def pm = settings.pluginManagement.repositories
+        pm.findAll { isSonatype(it) }.each { pm.remove(it) }
+    } catch (Throwable t) {
+        println('init-script: pluginManagement cleanup skipped: ' + t.message)
+    }
+}
+
+allprojects { p ->
+    p.repositories.findAll { isSonatype(it) }.each {
+        println('init-script: removing flaky repo from ' + p.name + ': ' + it.url)
+        p.repositories.remove(it)
+    }
+    p.buildscript.repositories.findAll { isSonatype(it) }.each {
+        p.buildscript.repositories.remove(it)
+    }
+}
