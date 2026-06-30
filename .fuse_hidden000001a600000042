@@ -1,6 +1,6 @@
 # Loot Hollow — Android app (test on phone + ship to Google Play)
 
-This folder wraps the game (`../game/loot-hollow.html`) in a tiny native Android app
+This folder wraps the game (`../game/lucky-lair.html`) in a tiny native Android app
 using **Expo + react-native-webview**. The whole game is embedded inside the app
 (`gameHtml.js`), so the app works offline except for the world background images,
 which currently load from the web.
@@ -21,7 +21,7 @@ There are three stages, in order: **(A) test instantly on your phone**, then
 First-time setup (run once, in this `expo` folder):
 
 ```powershell
-cd C:\Users\antho\Downloads\loot-hollow-project\loot-hollow\expo
+cd C:\Users\antho\Downloads\lucky-lair-project\lucky-lair\expo
 npm install
 ```
 
@@ -114,6 +114,6 @@ Bump both numbers in `app.json` every release: `expo.version` (e.g. `1.0.1`) and
 - `App.js` — the native shell (a fullscreen WebView rendering the game).
 - `gameHtml.js` — the entire game embedded as a string (auto-generated; don't hand-edit).
 - `sync-game.mjs` — regenerates `gameHtml.js` from the game HTML. Run after any game change.
-- `app.json` — app name, package id (`com.loothollow.app`), version, icon, splash, orientation.
+- `app.json` — app name, package id (`com.luckylair.app`), version, icon, splash, orientation.
 - `eas.json` — build profiles: `preview` (APK) and `production` (AAB).
 - `assets/` — icon, adaptive icon, splash (placeholder gem art; replace anytime).

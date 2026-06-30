@@ -1,4 +1,4 @@
-// Regenerates gameHtml.js from ../game/loot-hollow.html.
+// Regenerates gameHtml.js from ../game/lucky-lair.html.
 // Run after editing the game:  node sync-game.mjs
 //
 // Two embed-time transforms make the packaged WebView fully offline-capable:
@@ -17,7 +17,7 @@ const checkBanned = (s, where) => {
   }
 };
 
-const htmlPath = new URL('../game/loot-hollow.html', import.meta.url);
+const htmlPath = new URL('../game/lucky-lair.html', import.meta.url);
 let html = fs.readFileSync(htmlPath, 'utf8');
 checkBanned(html, 'game HTML');
 
@@ -83,7 +83,7 @@ checkBanned(html, 'embed after inlining');
 
 const TICK = String.fromCharCode(96);
 const header =
-  '// Auto-generated from game/loot-hollow.html - do not edit by hand.\n' +
+  '// Auto-generated from game/lucky-lair.html - do not edit by hand.\n' +
   '// Run: node sync-game.mjs to regenerate after editing the game.\n' +
   'export const GAME_HTML = ';
 fs.writeFileSync(new URL('./gameHtml.js', import.meta.url), header + TICK + html + TICK + ';\n');

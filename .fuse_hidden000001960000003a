@@ -1,11 +1,9 @@
 workflows:
-  android-aab:
-    name: Loot Hollow Android AAB (signed)
+  android-apk:
+    name: Loot Hollow Android APK
     max_build_duration: 60
     instance_type: mac_mini_m2
     environment:
-      android_signing:
-        - loothollow_upload
       node: v22.13.1
     triggering:
       events:
@@ -25,16 +23,12 @@ workflows:
       - name: Set Android SDK location
         script: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
-      - name: Build signed Android App Bundle (release)
+      - name: Build Android APK (release)
         script: |
           cd android
-          ./gradlew bundleRelease \
-            -Pandroid.injected.signing.store.file="$CM_KEYSTORE_PATH" \
-            -Pandroid.injected.signing.store.password="$CM_KEYSTORE_PASSWORD" \
-            -Pandroid.injected.signing.key.alias="$CM_KEY_ALIAS" \
-            -Pandroid.injected.signing.key.password="$CM_KEY_PASSWORD"
+          ./gradlew assembleRelease
     artifacts:
-      - android/app/build/outputs/**/*.aab
+      - android/app/build/outputs/**/*.apk
     publishing:
       email:
         recipients:

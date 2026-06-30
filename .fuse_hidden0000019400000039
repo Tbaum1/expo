@@ -15,7 +15,7 @@ let sharp = null;
 try { sharp = (await import('sharp')).default; }
 catch (e) { console.warn('NOTE: `sharp` not installed - bundling images at full size (bigger app).\n      For a smaller app run:  npm install --save-dev sharp   then re-run this.'); }
 
-const html = fs.readFileSync(new URL('../game/loot-hollow.html', import.meta.url), 'utf8');
+const html = fs.readFileSync(new URL('../game/lucky-lair.html', import.meta.url), 'utf8');
 const m = html.match(/const WORLD_BG=\[([\s\S]*?)\];/);
 if (!m) { console.error('Could not find WORLD_BG in the game. Aborting.'); process.exit(1); }
 const urls = [...new Set((m[1].match(/'([^']+)'/g) || []).map(s => s.slice(1, -1)))]

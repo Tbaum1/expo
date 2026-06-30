@@ -10,7 +10,7 @@ export default function App() {
       <WebView
         style={styles.web}
         // baseUrl gives the page a real origin so the game's localStorage saving works
-        source={{ html: GAME_HTML, baseUrl: 'https://loothollow.local/' }}
+        source={{ html: GAME_HTML, baseUrl: 'https://luckylair.local/' }}
         originWhitelist={['*']}
         javaScriptEnabled
         domStorageEnabled            // Android: enables localStorage
