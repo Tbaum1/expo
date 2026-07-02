@@ -18,7 +18,11 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.loothollow.app"
+      "bundleIdentifier": "com.loothollow.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.loothollow.app",
@@ -45,7 +49,13 @@
           }
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-notifications",
+        {
+          "color": "#f5c542"
+        }
+      ]
     ],
     "extra": {
       "eas": {

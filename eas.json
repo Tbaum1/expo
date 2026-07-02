@@ -12,10 +12,17 @@
       "android": {
         "buildType": "app-bundle"
       },
+      "ios": {},
       "autoIncrement": true
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "anthony.tennenbaum@yahoo.com",
+        "ascAppId": "6786716882",
+        "appleTeamId": "88F694SK4T"
+      }
+    }
   }
 }
