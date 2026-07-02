@@ -13,7 +13,8 @@ const AGE_KEY = 'lh_age_ok_v1';
 // Show a banner if a scheduled notification fires while the app is open.
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
   }),

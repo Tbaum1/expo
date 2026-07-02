@@ -55,7 +55,7 @@ workflows:
       groups:
         - ios_credentials
       node: v22.13.1
-      xcode: "16.4"
+      xcode: latest
       cocoapods: default
       vars:
         BUNDLE_ID: "com.loothollow.app"
