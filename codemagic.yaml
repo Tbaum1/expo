@@ -52,12 +52,11 @@ workflows:
     integrations:
       app_store_connect: LootHollow_ASC
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.loothollow.app
       node: v22.13.1
       xcode: latest
       cocoapods: default
+      vars:
+        BUNDLE_ID: "com.loothollow.app"
     triggering:
       events:
         - push
@@ -76,8 +75,13 @@ workflows:
       - name: Install CocoaPods dependencies
         script: |
           cd ios && pod install
-      - name: Set up code signing (fetch/create profiles)
+      - name: Set up code signing (create cert + profile if missing)
         script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
           xcode-project use-profiles
       - name: Build signed iOS app (.ipa)
         script: |
