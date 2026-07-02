@@ -52,6 +52,8 @@ workflows:
     integrations:
       app_store_connect: LootHollow_ASC
     environment:
+      groups:
+        - ios_credentials
       node: v22.13.1
       xcode: latest
       cocoapods: default
@@ -87,6 +89,7 @@ workflows:
           keychain initialize
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
+            --certificate-key @env:CERTIFICATE_PRIVATE_KEY \
             --create
           keychain add-certificates
           xcode-project use-profiles
