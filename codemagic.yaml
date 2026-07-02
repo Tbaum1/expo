@@ -72,6 +72,13 @@ workflows:
       - name: Generate iOS native project (Expo prebuild)
         script: |
           npx expo prebuild --platform ios --no-install
+      - name: Strip unused Push Notifications entitlement (local notifications only)
+        script: |
+          ENT=$(find ios -name "*.entitlements" | head -1)
+          echo "Entitlements file: $ENT"
+          /usr/libexec/PlistBuddy -c "Delete :aps-environment" "$ENT" 2>/dev/null || echo "aps-environment not present (ok)"
+          echo "--- entitlements after strip ---"
+          cat "$ENT"
       - name: Install CocoaPods dependencies
         script: |
           cd ios && pod install
