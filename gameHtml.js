@@ -16,8 +16,8 @@ export const GAME_HTML = `<!DOCTYPE html>
   :root{--bg-0:#150a26;--bg-1:#241140;--gold:#ffce4d;--gold-deep:#f5a623;--teal:#2fd6c4;--rose:#ff6b9d;--ink:#0c0618;--cream:#fff6e0;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
   html,body{height:100%;}
-  body{font-family:'Fredoka',system-ui,sans-serif;background:radial-gradient(120% 80% at 50% -10%, #3a1d63 0%, var(--bg-1) 40%, var(--bg-0) 100%);color:var(--cream);display:flex;justify-content:center;align-items:stretch;overflow:hidden;user-select:none;}
-  .app{width:100%;max-width:440px;height:100dvh;display:flex;flex-direction:column;padding:var(--sbtop,env(safe-area-inset-top)) 12px env(safe-area-inset-bottom);position:relative;}
+  body{font-family:'Fredoka',system-ui,sans-serif;background:radial-gradient(120% 80% at 50% -10%, #3a1d63 0%, var(--bg-1) 40%, var(--bg-0) 100%);color:var(--cream);display:flex;justify-content:center;align-items:center;overflow:hidden;user-select:none;}
+  .app{width:100%;max-width:440px;height:100dvh;max-height:calc(min(100vw, 440px) * 2.17);display:flex;flex-direction:column;padding:var(--sbtop,env(safe-area-inset-top)) 12px env(safe-area-inset-bottom);position:relative;}
   .specks{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
   .speck{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.5;filter:blur(.5px);animation:float 7s ease-in-out infinite;}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-22px)}}
@@ -274,7 +274,8 @@ export const GAME_HTML = `<!DOCTYPE html>
   .echip.claim{border-color:var(--gold);animation:chipGlow 1.8s ease-in-out infinite;}
   .echip.adfree{border-color:#3fbf52;background:linear-gradient(180deg,#1f5a2a,#123a1c);} .echip.adfree .ect{color:#9af0a6;}
   .echip.relic{border-color:rgba(160,120,255,.75);} .echip.relic .ect{color:#c9b3ff;}
-  .wheelStage{position:relative;width:248px;height:248px;margin:8px auto 12px;}
+  .treeWrap{position:relative;text-align:center;margin:6px 0;}.treeArt{font-size:74px;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5));}.treeLvlBadge{display:block;margin-top:2px;font-family:'Lilita One';font-size:15px;color:var(--gold);}.treeRow{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin:8px 2px 3px;}.treeRate{color:var(--teal);}.treeBar{height:12px;border-radius:8px;background:rgba(0,0,0,.4);overflow:hidden;border:1px solid rgba(255,255,255,.12);}.treeBarFill{height:100%;width:0;transition:width .3s;}.treeBarFill.xp{background:linear-gradient(90deg,#5ff0e0,var(--teal));}.treeBarFill.bk{background:linear-gradient(90deg,#ffe27a,var(--gold-deep));}.treeWaterBtn{margin-top:8px;background:linear-gradient(180deg,#5fd0ff,#2f8fd6);box-shadow:0 5px 0 #1a5f96;}
+  .racbadge{font-family:'Lilita One';font-size:13px;color:var(--teal);white-space:nowrap;}.wjack{font-family:'Lilita One';font-size:14px;color:var(--gold);text-align:center;margin:6px 0 2px;}.wjackBtn{margin-top:6px;background:linear-gradient(180deg,#c58bff,#7a3fd0);box-shadow:0 5px 0 #4a1f8a;}.collBoost{text-align:center;font-size:12px;font-weight:700;color:var(--teal);margin:2px 0 8px;}.wheelStage{position:relative;width:248px;height:248px;margin:8px auto 12px;}
   .wheelDisc{position:absolute;inset:0;border-radius:50%;border:5px solid #ffce4d;box-shadow:0 0 0 3px rgba(0,0,0,.45),0 8px 22px rgba(0,0,0,.6),inset 0 0 34px rgba(0,0,0,.4);transition:transform 3.5s cubic-bezier(.12,.85,.18,1);}
   .wspoke{position:absolute;left:50%;top:50%;width:0;height:0;}
   .wlabel{position:absolute;left:-28px;top:-108px;width:56px;text-align:center;font-size:11px;font-weight:700;color:#fff;line-height:1.05;text-shadow:0 1px 2px rgba(0,0,0,.85);}
@@ -535,7 +536,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   <header>
     <div class="topbar">
       <div class="title" id="gameTitle">Loot <span>Hollow</span></div>
-      <div class="rating" id="rating" style="cursor:pointer">⭐ 0</div>
+      <div class="rating" id="rating" style="cursor:pointer">⭐ 0</div><div class="racbadge" id="racBadge" style="cursor:pointer">🦝 Lv 1</div>
       <div class="menu">
         <button class="mbtn" id="muteBtn">🔊</button>
         <button class="mbtn" id="hubBtn">☰<i class="dot" id="hubDot"></i></button>
@@ -553,7 +554,8 @@ export const GAME_HTML = `<!DOCTYPE html>
 
   <div class="siderail left" id="railL">
     <button class="railbtn freebtn" data-open="adModal" data-fn="renderAds"><span class="ri">📺</span><span class="rl">FREE</span><i class="rdot" data-k="ad"></i></button>
-    <button class="railbtn" data-open="dailyModal" data-fn="renderDaily"><span class="ri">🎁</span><span class="rl">Daily</span><i class="rdot" data-k="daily"></i></button>
+    <button class="railbtn" data-open="treeModal" data-fn="renderTree"><span class="ri">🌳</span><span class="rl">Tree</span></button>
+<button class="railbtn" data-open="dailyModal" data-fn="renderDaily"><span class="ri">🎁</span><span class="rl">Daily</span><i class="rdot" data-k="daily"></i></button>
     <button class="railbtn" data-open="petModal" data-fn="renderPets"><span class="ri">🐾</span><span class="rl">Pets</span><i class="rdot" data-k="pet"></i></button>
   </div>
   <div class="siderail right" id="railR">
@@ -655,6 +657,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   <div class="modal" id="relicModal"><div class="sheet">
     <button class="x" data-close>✕</button><h2>🃏 Relic Collections</h2>
     <p class="lead">Open chests for relics. Complete a set for spins, coins &amp; a pet!</p>
+    <div class="collBoost" id="collBoost"></div>
     <div class="chests" id="chestRow"></div>
     <div id="setList"></div>
   </div></div>
@@ -665,12 +668,23 @@ export const GAME_HTML = `<!DOCTYPE html>
     <div class="petlist" id="petList"></div>
   </div></div>
 
+  <div class="modal" id="treeModal"><div class="sheet">
+    <button class="x" data-close>✕</button><h2>🌳 Wishing Tree</h2>
+    <p class="lead">It grows coins while you are away. Water it to level it up, then collect.</p>
+    <div class="treeWrap"><div class="treeArt" id="treeArt">🌱</div><span class="treeLvlBadge" id="treeLvlBadge">Level 1</span></div>
+    <div class="treeRow"><span>Growth</span><span id="treeXPtxt">0 / 20</span></div>
+    <div class="treeBar"><div class="treeBarFill xp" id="treeXPbar"></div></div>
+    <div class="treeRow"><span id="treeBucketTxt">0 ready</span><span id="treeRateTxt" class="treeRate">+0 / min</span></div>
+    <div class="treeBar"><div class="treeBarFill bk" id="treeBucketBar"></div></div>
+    <button class="bigbtn" id="treeCollect">Collect</button>
+    <button class="bigbtn treeWaterBtn" id="treeWaterBtn">💧 Water (5)</button>
+  </div></div>
   <div class="modal" id="wheelModal"><div class="sheet">
     <button class="x" data-close>✕</button><h2>🎡 Fortune Wheel</h2>
     <p class="lead">One free spin every day. Coin prizes scale to your world, so it's always worth it. Out of free spins? Pay gems to spin again.</p>
     <div class="wheelStage"><div class="wheelPin">▼</div><div class="wheelDisc" id="wheelDisc"></div><div class="wheelHub">🎡</div></div>
     <div class="wheelInfo" id="wheelInfo"></div>
-    <button class="bigbtn" id="wheelBtn"></button>
+    <div class="wjack" id="wjack"></div><button class="bigbtn wjackBtn" id="wjackBtn"></button><button class="bigbtn" id="wheelBtn"></button>
   </div></div>
 
   <div class="modal" id="rosterModal"><div class="sheet">
@@ -728,6 +742,10 @@ export const GAME_HTML = `<!DOCTYPE html>
       <div class="faqq">🧱 Defenses</div><div class="faqa">Place defenses on your lair to reduce or block incoming raids and attacks. Manage them from the Defenses menu.</div>
       <div class="faqq">🎰 Spins refill over time</div><div class="faqa">Your spins slowly refill on their own — even while the game is closed — up to a cap, so there are always some waiting when you come back.</div>
       <div class="faqq">📺 Free spins, 🎁 Daily, 🎡 Wheel, 📅 Events</div><div class="faqa">Top up faster: watch free-spin offers, claim a daily reward that grows each day, spin the daily Fortune Wheel for coins/spins/gems, and finish limited-time events for big payouts.</div>
+      <div class="faqq">🌳 Wishing Tree</div><div class="faqa">A little tree that grows coins while you are away. Tap the 🌳 button, then Collect when it is full. Water it to level it up for faster growth and a bigger bucket - it keeps growing even when the game is closed.</div>
+      <div class="faqq">🦝 Raccoon Level</div><div class="faqa">Every spin levels up your raccoon. The higher its level, the bigger ALL your coin payouts (spins, raids, wheel, tree). Tap the 🦝 badge at the top to see your current boost.</div>
+      <div class="faqq">🌟 Jackpot Upgrade</div><div class="faqa">On the daily 🎡 Wheel you can spend 💎 gems to upgrade the 🌟 Jackpot - each upgrade makes the jackpot payout bigger for when you land it.</div>
+      <div class="faqq">📈 Collection Boost</div><div class="faqa">Completing relic card sets does not just pay out once - each completed set also permanently boosts your coin earnings. Check the Relic Collections screen to see your current boost.</div>
       <div class="faqq">🗺️ Worlds</div><div class="faqa">250 unique worlds across 8 regions, each with its own look, sounds, and a special rule — tap the world name on the reel to read it.</div>
     </div>
   </div></div>
@@ -786,6 +804,9 @@ export const GAME_HTML = `<!DOCTYPE html>
   // Machine-side characters load from local transparent PNGs (assets/raccoon.png + assets/foe.png) via the img tags in the machine markup; they hide themselves if the files are not present yet.
 
   let coins=store.get('ll_coins',500),spins=store.get('ll_spins',50),shields=store.get('ll_shields',0);
+  let treeLvl=store.get('ll_treeLvl',1),treeXP=store.get('ll_treeXP',0),treeBucket=store.get('ll_treeBucket',0),treeTs=store.get('ll_treeTs',Date.now()),treeWater=store.get('ll_treeWater',5),treeWaterDay=store.get('ll_treeWaterDay','');
+  let racLvl=store.get('ll_racLvl',1),racXP=store.get('ll_racXP',0);
+  let wheelJackLvl=store.get('ll_wheelJackLvl',0);
   let world=store.get('ll_world',0),tier=store.get('ll_tier',0),progress=store.get('ll_prog',0);
   let totBuild=store.get('ll_tb',0),totTier=store.get('ll_tt',0),pig=store.get('ll_pig',0);
   let village=store.get('ll_village',[0,0,0,0,0]);if(!Array.isArray(village)||village.length!==5)village=[0,0,0,0,0];
@@ -807,6 +828,22 @@ export const GAME_HTML = `<!DOCTYPE html>
   let wheelDay=store.get('ll_wheelday',''),wheelExtra=store.get('ll_wheelextra',0);var wheelRot=0,wheelSpinning=false;
   const WHEEL_EXTRA_MAX=3,WHEEL_EXTRA_BASE=20;
   const WHEEL=[{k:'coins',i:'🪙',base:1500,w:22,c:'#6a2fae'},{k:'spins',i:'🎰',n:25,w:18,c:'#2f9f93'},{k:'gems',i:'💎',n:15,w:12,c:'#c98f2a'},{k:'coins',i:'🪙',base:6000,w:13,c:'#7b3fb0'},{k:'shield',i:'🛡️',n:3,w:12,c:'#3aa0a0'},{k:'treats',i:'🦴',n:2,w:11,c:'#b07d2a'},{k:'spins',i:'🎰',n:90,w:7,c:'#8a3a6a'},{k:'jackpot',i:'🌟',w:5,c:'#d4452e'}];
+  /* ---- Daily-wheel seasonal SKIN system (art-lite: palette + hub + pin + ring) ---- */
+  const WHEEL_SKIN_OVERRIDE=''; /* set to a skin id to force it (testing); '' = follow schedule */
+  const WHEEL_SKINS={
+    classic:{seg:['#6a2fae','#2f9f93','#c98f2a','#7b3fb0','#3aa0a0','#b07d2a','#8a3a6a','#d4452e'],hub:'🎡',hubA:'#ffe9a8',hubB:'#e0a93a',pin:'#ff4d6d',ring:'#ffce4d'},
+    sunny_shores:{seg:['#17a9c9','#ff7a5c','#ffd36b','#22c7c0','#e8613f','#f0b64a','#1f8fb8','#ff5a4d'],hub:'🏖️',hubA:'#9fefff',hubB:'#28b6c9',pin:'#ff5a4d',ring:'#ffd36b',spx:'#8fe9fa'},
+    firefly_nights:{seg:['#3a2f7a','#ffb84d','#5a3fa0','#ffd36b','#2a2258','#e89a3c','#4a3a86','#ffc857'],hub:'🏮',hubA:'#ffe9a8',hubB:'#e0a93a',pin:'#ffcf5c',ring:'#ffd36b',spx:'#ffcf6b'}
+  };
+  /* [skinId, startMMDD, endMMDD] inclusive; local date. (Cross-year windows: use two entries.) */
+  const WHEEL_SKIN_SCHEDULE=[['sunny_shores','07-02','07-21'],['firefly_nights','07-22','08-04']];
+  function activeWheelSkin(){
+    if(WHEEL_SKIN_OVERRIDE&&WHEEL_SKINS[WHEEL_SKIN_OVERRIDE])return WHEEL_SKINS[WHEEL_SKIN_OVERRIDE];
+    try{var d=new Date();var md=('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+      for(var i=0;i<WHEEL_SKIN_SCHEDULE.length;i++){var e=WHEEL_SKIN_SCHEDULE[i];if(md>=e[1]&&md<=e[2]&&WHEEL_SKINS[e[0]])return WHEEL_SKINS[e[0]];}
+    }catch(_e){}
+    return WHEEL_SKINS.classic;
+  }
   let charge=store.get('ll_charge',0),frenzy=store.get('ll_frenzy',0);
   let regenAnchor=store.get('ll_regenAnchor',Date.now());
   let adWatches=store.get('ll_adW',0),adDay=store.get('ll_adDay','');
@@ -950,7 +987,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   function pigCap(){return Math.round(4000*econScale());}
   function feedBank(a){pig=Math.min(pigCap(),pig+Math.round(a*0.25));}
   function gainCoins(base){let m=payMult();if(activePet==='mole')m*=1+0.15*petPow();const w=Math.round(base*m);coins+=w;feedBank(w);return w;}
-  function awardCoins(n){coins+=n;feedBank(n);return n;}
+  function awardCoins(n){n=Math.round(n*racMult()*collMult());coins+=n;feedBank(n);return n;}
   const SHIELD_MAX=8;
   function addShields(n){shields=Math.min(SHIELD_MAX,shields+Math.max(0,n));}
   function pickRival(){return RIVALS[Math.floor(Math.random()*RIVALS.length)];}
@@ -1045,7 +1082,7 @@ export const GAME_HTML = `<!DOCTYPE html>
     host.onclick=function(){if(host.classList.contains('done'))closeBuildAnim();};}
   function closeBuildAnim(){var host=$('buildAnim');if(!host)return;_baTO.forEach(clearTimeout);_baTO=[];if(_baSpark){clearInterval(_baSpark);_baSpark=null;}host.classList.remove('show');setTimeout(function(){if(host)host.classList.remove('done');},400);}
   const HUB_ITEMS=[{i:'📖',l:'How to Play',m:'faqModal'},{i:'🏗️',l:'Village',m:'villageModal',f:'renderVillageShop'},{i:'🎁',l:'Daily',m:'dailyModal',f:'renderDaily',k:'daily'},{i:'📅',l:'Events',m:'eventModal',f:'renderEvents',k:'event'},{i:'🃏',l:'Cards',m:'relicModal',f:'renderRelics',k:'relic'},{i:'🐾',l:'Pets',m:'petModal',f:'renderPets',k:'pet'},{i:'👥',l:'Rivals',m:'rosterModal',f:'renderRoster',k:'roster'},{i:'🧱',l:'Defenses',m:'defModal',f:'renderDef',k:'def'},{i:'📺',l:'Free Spins',m:'adModal',f:'renderAds',k:'ad'},{i:'🎰',l:'Spin Shop',m:'shopModal',f:'renderShop'},{i:'💎',l:'Gems',m:'gemModal',f:'renderGems'},{i:'🗺️',l:'Map',m:'mapModal',f:'renderMap'},{i:'🎡',l:'Wheel',m:'wheelModal',f:'renderWheel',k:'wheel'},{i:'🏆',l:'Leaderboard',soon:1},{i:'👫',l:'Friends',soon:1},{i:'📰',l:'News',soon:1}];
-  const HUB_FN={renderVillageShop:()=>renderVillageShop(),renderDaily:()=>renderDaily(),renderEvents:()=>renderEvents(),renderRelics:()=>renderRelics(),renderPets:()=>renderPets(),renderRoster:()=>renderRoster(),renderDef:()=>renderDef(),renderShop:()=>renderShop(),renderGems:()=>renderGems(),renderMap:()=>renderMap(),renderAds:()=>renderAds(),renderWheel:()=>renderWheel()};
+  const HUB_FN={renderVillageShop:()=>renderVillageShop(),renderDaily:()=>renderDaily(),renderEvents:()=>renderEvents(),renderRelics:()=>renderRelics(),renderPets:()=>renderPets(),renderRoster:()=>renderRoster(),renderDef:()=>renderDef(),renderShop:()=>renderShop(),renderGems:()=>renderGems(),renderMap:()=>renderMap(),renderAds:()=>renderAds(),renderWheel:()=>renderWheel(),renderTree:()=>renderTree()};
   function renderHub(){const g=$('hubGrid');g.innerHTML='';HUB_ITEMS.forEach(it=>{const el=document.createElement('div');el.className='hubcell'+(it.soon?' soon':'');
     el.innerHTML='<i class="hd'+(it.k&&hubNotif[it.k]?' on':'')+'"></i><div class="hi">'+it.i+'</div><div class="hl">'+it.l+'</div>'+(it.soon?'<div class="soontag">soon</div>':'');
     if(!it.soon)el.onclick=()=>{$('hubModal').classList.remove('show');openModal(it.m,HUB_FN[it.f]);};g.appendChild(el);});}
@@ -1080,9 +1117,9 @@ export const GAME_HTML = `<!DOCTYPE html>
     var cur=$('mapCur');if(cur)setTimeout(function(){try{cur.scrollIntoView({block:'center'});}catch(e){}},30);}
   function setCoins(){const el=$('coins'),target=coins;cancelAnimationFrame(coinRAF);if(target>shownCoins){el.classList.add('bump');setTimeout(()=>el.classList.remove('bump'),150);}const start=shownCoins,t0=performance.now(),dur=450;(function step(t){const k=Math.min(1,(t-t0)/dur);shownCoins=Math.round(start+(target-start)*k);el.textContent=fmt(shownCoins);if(k<1)coinRAF=requestAnimationFrame(step);else shownCoins=target;})(t0);}
 
-  function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_world:world,ll_tier:tier,ll_prog:progress,ll_tb:totBuild,ll_tt:totTier,ll_pig:pig,ll_last:lastClaim,ll_streak:streak,ll_evtS:evtStart,ll_evtP:evtPoints,ll_evtC:evtClaimed,ll_rev:revenge,ll_mute:muted,ll_bet:betIdx,ll_relics:relicsOwned,ll_sets:setsDone,ll_pets:petsOwned,ll_active:activePet,ll_rivals2:rivalState,ll_nem:nemesisId,ll_def:defense,ll_aev:activeEvents,ll_gold:goldOwned,ll_goldsets:goldSetsDone,ll_jok:jokers,ll_treats:treats,ll_awake:petAwake,ll_special:specialWorld,ll_gems:gems,ll_firstbuy:firstBuy,ll_charge:charge,ll_frenzy:frenzy,ll_regenAnchor:regenAnchor,ll_village:village,ll_adW:adWatches,ll_adDay:adDay,ll_wheelday:wheelDay,ll_wheelextra:wheelExtra};for(const k in m)store.set(k,m[k]);}
+  function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_world:world,ll_tier:tier,ll_prog:progress,ll_tb:totBuild,ll_tt:totTier,ll_pig:pig,ll_last:lastClaim,ll_streak:streak,ll_evtS:evtStart,ll_evtP:evtPoints,ll_evtC:evtClaimed,ll_rev:revenge,ll_mute:muted,ll_bet:betIdx,ll_relics:relicsOwned,ll_sets:setsDone,ll_pets:petsOwned,ll_active:activePet,ll_rivals2:rivalState,ll_nem:nemesisId,ll_def:defense,ll_aev:activeEvents,ll_gold:goldOwned,ll_goldsets:goldSetsDone,ll_jok:jokers,ll_treats:treats,ll_awake:petAwake,ll_special:specialWorld,ll_gems:gems,ll_firstbuy:firstBuy,ll_charge:charge,ll_frenzy:frenzy,ll_regenAnchor:regenAnchor,ll_village:village,ll_adW:adWatches,ll_adDay:adDay,ll_wheelday:wheelDay,ll_wheelextra:wheelExtra,ll_treeLvl:treeLvl,ll_treeXP:treeXP,ll_treeBucket:treeBucket,ll_treeTs:treeTs,ll_treeWater:treeWater,ll_treeWaterDay:treeWaterDay,ll_racLvl:racLvl,ll_racXP:racXP,ll_wheelJackLvl:wheelJackLvl};for(const k in m)store.set(k,m[k]);}
 
-  function render(){
+  function render(){racRender();
     setCoins(); $('spins').textContent=spins; $('shields').textContent=shields; $('gems').textContent=fmt(gems); $('rating').textContent='⭐ '+fmt(rating());
     const cap=pigCap(); $('pigAmt').textContent=fmt(pig); $('pigCap').textContent=fmt(cap);
     $('pigFill').style.width=Math.min(100,pig/cap*100)+'%'; $('pigBtn').disabled=pig<=0; $('piggy').classList.toggle('full',pig>=cap);
@@ -1134,7 +1171,7 @@ export const GAME_HTML = `<!DOCTYPE html>
 
   function buildStrip(el){el.innerHTML='';for(let i=0;i<12;i++){const d=document.createElement('div');d.className='sym';d.innerHTML=symHTML(SYMS[Math.floor(Math.random()*SYMS.length)]);el.appendChild(d);}}
   [0,1,2].forEach(i=>buildStrip($('s'+i)));
-  const sp=$('specks');for(let i=0;i<14;i++){const d=document.createElement('div');d.className='speck';d.style.left=Math.random()*100+'%';d.style.top=Math.random()*100+'%';d.style.animationDelay=(Math.random()*7)+'s';d.style.opacity=(.2+Math.random()*.4);sp.appendChild(d);}
+  const sp=$('specks');var _spc=(activeWheelSkin().spx||'');for(let i=0;i<14;i++){const d=document.createElement('div');d.className='speck';if(_spc)d.style.background=_spc;d.style.left=Math.random()*100+'%';d.style.top=Math.random()*100+'%';d.style.animationDelay=(Math.random()*7)+'s';d.style.opacity=(.2+Math.random()*.4);sp.appendChild(d);}
 
   function spinReel(idx,finalSym,antic){return new Promise(res=>{const strip=$('s'+idx),reel=$('r'+idx);reel.classList.remove('win','near','antic');strip.innerHTML='';const n=20;for(let i=0;i<n;i++){const d=document.createElement('div');d.className='sym';d.innerHTML=symHTML((i===n-1)?finalSym:SYMS[Math.floor(Math.random()*SYMS.length)]);strip.appendChild(d);}strip.style.transition='none';strip.style.transform='translateY(0)';void strip.offsetHeight;const dur=900+idx*260+(antic?650:0);if(antic)reel.classList.add('antic');strip.style.transition='transform '+dur+'ms cubic-bezier(.15,.7,.2,1)';strip.style.transform='translateY(-'+((n-1)*108)+'px)';setTimeout(()=>{reel.classList.remove('antic');sStop();res();},dur);});}
   function weightedSym(){const r=worldRule();const starW=1.4+(spins<=10?0.27:0);const w=[['🪙',3+(r.coinWeight||0)],['💎',2+(r.gemWeight||0)],['⚒️',2],['🛡️',0.5],['🐷',1],['⭐',starW],['🪏',1]];
@@ -1149,7 +1186,7 @@ export const GAME_HTML = `<!DOCTYPE html>
   $('buyYes').onclick=()=>{if(pendingAction){var _f=pendingAction;pendingAction=null;$('buyPop').classList.remove('show');_f();}else{doBuyPack();}};
   $('buyNo').onclick=()=>{pendingBuy=null;pendingAction=null;$('buyPop').classList.remove('show');sTap();};
 
-  async function spin(){const b=bet();if(busy||spins<b||overlayOpen())return;busy=true;spins-=b;sSpin();haptic(8);save();render();$('msg').textContent='Spinning…';
+  async function spin(){const b=bet();if(busy||spins<b||overlayOpen())return;busy=true;spins-=b;racGainXP(1);sSpin();haptic(8);save();render();$('msg').textContent='Spinning…';
     let a,bb,c;
     if(Math.random()<0.08){a=bb=c=weightedSym();}else{a=weightedSym();bb=weightedSym();c=weightedSym();if(a===bb&&bb===c)c=SYMS[(SYMS.indexOf(c)+1)%SYMS.length];}
     const antic=(a===bb&&bb!==c);
@@ -1248,7 +1285,25 @@ export const GAME_HTML = `<!DOCTYPE html>
   function wheelExtraCost(){return WHEEL_EXTRA_BASE*(wheelExtra+1);}
   function pickWheel(){var tot=0;WHEEL.forEach(function(s){tot+=s.w;});var r=Math.random()*tot;for(var i=0;i<WHEEL.length;i++){r-=WHEEL[i].w;if(r<0)return i;}return WHEEL.length-1;}
   function wheelLabel(s){if(s.k==='coins')return fmt(bonus(s.base));if(s.k==='spins')return '+'+s.n;if(s.k==='gems')return '+'+s.n;if(s.k==='shield')return 'x'+s.n;if(s.k==='treats')return 'x'+s.n;return 'BIG';}
-  function renderWheel(){var disc=$('wheelDisc');if(!disc)return;var seg=360/WHEEL.length;var grad='conic-gradient(from '+(-seg/2)+'deg';var html='';for(var i=0;i<WHEEL.length;i++){var s=WHEEL[i];grad+=','+s.c+' '+(i*seg)+'deg '+((i+1)*seg)+'deg';html+='<div class="wspoke" style="transform:rotate('+(i*seg)+'deg)"><div class="wlabel" style="transform:rotate('+(-i*seg)+'deg)"><span class="wic">'+s.i+'</span>'+wheelLabel(s)+'</div></div>';}grad+=')';disc.style.background=grad;disc.innerHTML=html;disc.style.transform='rotate('+wheelRot+'deg)';
+  function collSets(){var n=0;for(var k in setsDone){if(setsDone[k])n++;}return n;}
+  function collMult(){return 1+collSets()*0.03;}
+  function wheelJackMult(){return 1+wheelJackLvl*0.5;}
+  function wheelJackCost(){return 15*(wheelJackLvl+1);}
+  function upgradeJackpot(){var c=wheelJackCost();if(gems<c)return;gems-=c;wheelJackLvl++;save();renderWheel();if(typeof render==='function')render();}
+  function racNeed(){return Math.round(10*Math.pow(1.3,racLvl-1));}
+  function racMult(){return 1+(racLvl-1)*0.02;}
+  function racRender(){var e=$('racBadge');if(e){e.textContent='🦝 Lv '+racLvl;e.onclick=function(){popup('🦝','Raccoon Level '+racLvl,'Your coin earnings are boosted +'+Math.round((racMult()-1)*100)+'%. XP '+racXP+' / '+racNeed()+'. Every spin levels your raccoon up - higher level, bigger coin payouts.','Got it');};}}
+  function racGainXP(n){racXP+=n;var up=false;while(racXP>=racNeed()){racXP-=racNeed();racLvl++;up=true;}racRender();save();if(up)popup('🦝','Raccoon Level '+racLvl+'!','Level up! Coin earnings now boosted +'+Math.round((racMult()-1)*100)+'%. Keep spinning to grow your raccoon.','Nice!');}
+  function treeScale(x){return (typeof bonus==='function')?Math.floor(bonus(x)):Math.floor(x);}
+  function treeRate(){return Math.round(17*Math.pow(1.12,treeLvl-1));}
+  function treeCap(){return treeRate()*180;}
+  function treeXPneed(){return Math.round(20*Math.pow(1.35,treeLvl-1));}
+  function treeWaterReset(){var t=new Date();var day=t.getFullYear()+'-'+t.getMonth()+'-'+t.getDate();if(treeWaterDay!==day){treeWater=5;treeWaterDay=day;}}
+  function treeAccrue(){var now=Date.now();var mins=(now-treeTs)/60000;if(mins>0){treeBucket=Math.min(treeCap(),treeBucket+mins*treeRate());treeTs=now;}}
+  function waterTree(){treeWaterReset();if(treeWater<=0)return;treeWater--;treeXP++;if(treeXP>=treeXPneed()){treeXP=0;treeLvl++;}save();renderTree();}
+  function collectTree(){treeAccrue();var got=treeScale(treeBucket);if(got>0){awardCoins(got);treeBucket=0;treeTs=Date.now();}save();renderTree();if(typeof render==='function')render();}
+  function renderTree(){treeWaterReset();treeAccrue();var e;e=$('treeLvlBadge');if(e)e.textContent='Level '+treeLvl;e=$('treeXPtxt');if(e)e.textContent=treeXP+' / '+treeXPneed();e=$('treeXPbar');if(e)e.style.width=Math.min(100,treeXP/treeXPneed()*100)+'%';var got=treeScale(treeBucket);e=$('treeBucketTxt');if(e)e.textContent=fmt(got)+' ready';e=$('treeBucketBar');if(e)e.style.width=Math.min(100,treeBucket/treeCap()*100)+'%';e=$('treeArt');if(e)e.textContent=treeLvl>=15?'🌳':(treeLvl>=6?'🌲':'🌱');e=$('treeRateTxt');if(e)e.textContent='+'+fmt(treeScale(treeRate()))+' / min';e=$('treeCollect');if(e){e.disabled=got<=0;e.textContent=got>0?('Collect '+fmt(got)):'Filling...';e.onclick=collectTree;}e=$('treeWaterBtn');if(e){e.disabled=treeWater<=0;e.textContent='💧 Water ('+treeWater+')';e.onclick=waterTree;}}
+  function renderWheel(){var disc=$('wheelDisc');if(!disc)return;var sk=activeWheelSkin();var seg=360/WHEEL.length;var grad='conic-gradient(from '+(-seg/2)+'deg';var html='';for(var i=0;i<WHEEL.length;i++){var s=WHEEL[i];grad+=','+((sk.seg&&sk.seg[i])||s.c)+' '+(i*seg)+'deg '+((i+1)*seg)+'deg';html+='<div class="wspoke" style="transform:rotate('+(i*seg)+'deg)"><div class="wlabel" style="transform:rotate('+(-i*seg)+'deg)"><span class="wic">'+s.i+'</span>'+wheelLabel(s)+'</div></div>';}grad+=')';disc.style.background=grad;disc.style.borderColor=sk.ring;disc.innerHTML=html;disc.style.transform='rotate('+wheelRot+'deg)';var _st=disc.parentNode;if(_st){var _h=_st.querySelector('.wheelHub');if(_h){_h.textContent=sk.hub;_h.style.background='radial-gradient(circle at 38% 34%,'+sk.hubA+','+sk.hubB+')';}var _p=_st.querySelector('.wheelPin');if(_p)_p.style.color=sk.pin;}var _wj=$('wjack');if(_wj){var jv=Math.round((typeof bonus==='function'?bonus(8000):8000)*wheelJackMult());_wj.textContent='Jackpot 🌟 '+fmt(jv);}var _wb=$('wjackBtn');if(_wb){var wc=wheelJackCost();_wb.textContent='Upgrade Jackpot ('+wc+'💎)';_wb.disabled=gems<wc;_wb.onclick=upgradeJackpot;}
     var info=$('wheelInfo'),btn=$('wheelBtn');var free=wheelFree();
     if(info)info.textContent=free?'Your free daily spin is ready!':(wheelExtra>=WHEEL_EXTRA_MAX?'No more spins today — come back tomorrow.':'Free spin used. Extra spins cost gems.');
     if(btn){if(wheelSpinning){btn.textContent='Spinning…';btn.disabled=true;btn.onclick=null;}else if(free){btn.textContent='SPIN — Free';btn.disabled=false;btn.onclick=function(){spinWheel(true);};}else if(wheelExtra<WHEEL_EXTRA_MAX){var c=wheelExtraCost();btn.textContent='Spin Again — '+c+'💎';btn.disabled=gems<c;btn.onclick=function(){spinWheel(false);};}else{btn.textContent='Come Back Tomorrow';btn.disabled=true;btn.onclick=null;}}}
@@ -1257,7 +1312,7 @@ export const GAME_HTML = `<!DOCTYPE html>
     wheelSpinning=true;var b=$('wheelBtn');if(b){b.textContent='Spinning…';b.disabled=true;b.onclick=null;}var inf=$('wheelInfo');if(inf)inf.textContent='Good luck!';
     var idx=pickWheel();var seg=360/WHEEL.length;var base=Math.ceil((wheelRot+1)/360)*360;var target=(360-idx*seg)%360;wheelRot=base+360*5+target+(Math.random()*(seg*0.6)-seg*0.3);disc.style.transform='rotate('+wheelRot+'deg)';sPop();haptic(14);save();render();
     setTimeout(function(){wheelSpinning=false;var s=WHEEL[idx];var res=grantWheel(s);sBig();confetti(s.k==='jackpot'?42:18);coinRain(s.k==='jackpot'?22:8);haptic(s.k==='jackpot'?[0,40,30,60]:24);popup(res.i,s.k==='jackpot'?'JACKPOT!':'Fortune Wheel',res.t+'!');renderWheel();save();render();},3650);}
-  function grantWheel(s){if(s.k==='coins'){var c=bonus(s.base);awardCoins(c);return {i:s.i,t:'+'+fmt(c)+' coins'};}if(s.k==='spins'){spins+=s.n;return {i:s.i,t:'+'+s.n+' spins'};}if(s.k==='gems'){gems+=s.n;return {i:s.i,t:'+'+s.n+' gems'};}if(s.k==='shield'){addShields(s.n);return {i:s.i,t:'+'+s.n+' shields'};}if(s.k==='treats'){grantTreat(s.n);return {i:s.i,t:'+'+s.n+' treats'};}if(s.k==='jackpot'){var jc=bonus(8000);awardCoins(jc);gems+=25;spins+=25;return {i:'🌟',t:'+'+fmt(jc)+'c, +25💎, +25 spins'};}return {i:s.i,t:'reward'};}
+  function grantWheel(s){if(s.k==='coins'){var c=bonus(s.base);awardCoins(c);return {i:s.i,t:'+'+fmt(c)+' coins'};}if(s.k==='spins'){spins+=s.n;return {i:s.i,t:'+'+s.n+' spins'};}if(s.k==='gems'){gems+=s.n;return {i:s.i,t:'+'+s.n+' gems'};}if(s.k==='shield'){addShields(s.n);return {i:s.i,t:'+'+s.n+' shields'};}if(s.k==='treats'){grantTreat(s.n);return {i:s.i,t:'+'+s.n+' treats'};}if(s.k==='jackpot'){var jc=Math.round(bonus(8000)*wheelJackMult());awardCoins(jc);gems+=25;spins+=25;return {i:'🌟',t:'+'+fmt(jc)+'c, +25💎, +25 spins'};}return {i:s.i,t:'reward'};}
   function renderDaily(){const grid=$('dailyGrid');grid.innerHTML='';const todayIdx=dailyAvailable()?nextStreakIdx():((streak-1)%7);
     DAILY.forEach((d,i)=>{const el=document.createElement('div');el.className='day';if(i===todayIdx&&dailyAvailable())el.classList.add('today');if(i<todayIdx)el.classList.add('done');el.innerHTML='<div class="d">Day '+(i+1)+'</div><div class="i">'+d.i+'</div><div class="r">'+d.r+'</div>';grid.appendChild(el);});
     $('dailyLead').textContent=dailyAvailable()?('Streak: '+streak+' day'+(streak===1?'':'s')+' — claim Day '+(todayIdx+1)+'!'):'Already claimed today. Come back tomorrow!';
@@ -1294,7 +1349,7 @@ export const GAME_HTML = `<!DOCTYPE html>
 
   function completeSet(key){const s=SETS.find(x=>x.key===key);if(!s||!setCompletable(s))return;setsDone[key]=true;spins+=s.reward.spins;coins+=bonus(s.reward.coins);grantTreat(2);var gg=s.reward.gems||3;gems+=gg;let petTxt='';if(s.pet&&!petsOwned.includes(s.pet)){petsOwned.push(s.pet);petLvl[s.pet]=1;petTxt=' Unlocked pet '+PETS[s.pet].name+'!';}sBig();coinRain(20);confetti(22);popup(s.icon,s.name+' Complete!','+'+s.reward.spins+' spins, +'+fmt(bonus(s.reward.coins))+' coins, +2 treats, +'+gg+'💎.'+petTxt);renderRelics();save();render();}
   function completeGoldSet(key){const s=SETS.find(x=>x.key===key);if(!s||!goldComplete(s))return;goldSetsDone[key]=true;const sp=s.reward.spins*2,co=s.reward.coins*2,gg=(s.reward.gems||3)*3;spins+=sp;coins+=bonus(co);grantTreat(3);gems+=gg;sBig();coinRain(26);bigPop('🌟','Gold Set Complete!','The '+s.name+' gold collection! +'+sp+' spins, +'+fmt(bonus(co))+' coins, +3 treats, +'+gg+'💎.');renderRelics();save();render();}
-  function renderRelics(){pruneJokers();const row=$('chestRow');row.innerHTML='';CHESTS.forEach((ch,i)=>{const cc=chestCost(ch);const el=document.createElement('div');el.className='chest'+(coins<cc?' cant':'');const n=Math.round(ch.n*chestMult());el.innerHTML='<div class="ci">'+ch.icon+'</div><div class="cn">'+ch.name+'</div><div class="cc">'+fmt(cc)+'c · '+n+(chestMult()>1?' 🔥':'')+'</div>';el.onclick=()=>openChest(i);row.appendChild(el);});var ge=document.createElement('div');ge.className='chest'+(gems<GEM_CHEST.cost?' cant':'');ge.innerHTML='<div class="ci">'+GEM_CHEST.icon+'</div><div class="cn">'+GEM_CHEST.name+'</div><div class="cc">'+GEM_CHEST.cost+'💎 · '+GEM_CHEST.n+'</div>';ge.onclick=openGemChest;row.appendChild(ge);
+  function renderRelics(){pruneJokers();var _cb=$('collBoost');if(_cb)_cb.textContent=collSets()>0?('📈 Collection boost: +'+Math.round((collMult()-1)*100)+'% coins ('+collSets()+' sets done)'):'Complete sets to permanently boost your coins!';const row=$('chestRow');row.innerHTML='';CHESTS.forEach((ch,i)=>{const cc=chestCost(ch);const el=document.createElement('div');el.className='chest'+(coins<cc?' cant':'');const n=Math.round(ch.n*chestMult());el.innerHTML='<div class="ci">'+ch.icon+'</div><div class="cn">'+ch.name+'</div><div class="cc">'+fmt(cc)+'c · '+n+(chestMult()>1?' 🔥':'')+'</div>';el.onclick=()=>openChest(i);row.appendChild(el);});var ge=document.createElement('div');ge.className='chest'+(gems<GEM_CHEST.cost?' cant':'');ge.innerHTML='<div class="ci">'+GEM_CHEST.icon+'</div><div class="cn">'+GEM_CHEST.name+'</div><div class="cc">'+GEM_CHEST.cost+'💎 · '+GEM_CHEST.n+'</div>';ge.onclick=openGemChest;row.appendChild(ge);
       const list=$('setList');list.innerHTML='';
       if(jokers.length>0){const jb=document.createElement('div');jb.className='jokerbar';jb.innerHTML='<div class="ji">🃏</div><div class="jinfo"><div class="jn">Jokers: '+jokers.length+'</div><div class="jd">'+(jokerChoosing?'Pick any missing relic below to create it.':'A Joker becomes any relic you need — use before it expires.')+'</div></div>';const jbn=document.createElement('button');jbn.textContent=jokerChoosing?'Cancel':'Use a Joker';jbn.onclick=()=>{jokerChoosing=!jokerChoosing;renderRelics();};jb.appendChild(jbn);list.appendChild(jb);}
       SETS.forEach(s=>{const cards=cardEmojis(s);const have=cards.filter(r=>(relicsOwned[r]||0)>0).length;const goldHave=cards.filter(r=>(goldOwned[r]||0)>0).length;const done=!!setsDone[s.key];const gdone=!!goldSetsDone[s.key];const locked=!setActive(s);const card=document.createElement('div');card.className='setcard'+(done?' done':'')+(locked?' locked':'');
