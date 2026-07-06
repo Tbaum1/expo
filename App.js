@@ -28,8 +28,10 @@ async function scheduleDailyReminder() {
       status = (await Notifications.requestPermissionsAsync()).status;
     }
     if (status !== 'granted') return;
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    // Keep the daily reminder but do not clobber the one-off spinsFull notif.
+    await Notifications.cancelScheduledNotificationAsync('dailyReminder').catch(() => {});
     await Notifications.scheduleNotificationAsync({
+      identifier: 'dailyReminder',
       content: {
         title: 'Loot Hollow',
         body: 'Your free spins are ready! Come collect your coins and gems. 🪙',
@@ -161,4 +163,55 @@ export default function App() {
         overScrollMode="never"
         bounces={false}
         containerStyle={styles.web}
-        and
+        androidLayerType="hardware"
+        injectedJavaScript={`(function(){try{document.documentElement.style.setProperty('--sbtop',(${StatusBar.currentHeight || 0})+'px');}catch(e){}})();true;`}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: '#150a26' },
+  web: { flex: 1, backgroundColor: '#150a26' },
+  center: {
+    flex: 1,
+    backgroundColor: '#150a26',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  title: {
+    color: '#f5c542',
+    fontSize: 28,
+    fontWeight: '800',
+    marginBottom: 18,
+    textAlign: 'center',
+  },
+  body: {
+    color: '#e8e0f5',
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  btnPrimary: {
+    backgroundColor: '#f5c542',
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    borderRadius: 14,
+    marginBottom: 16,
+    minWidth: 240,
+    alignItems: 'center',
+  },
+  btnPrimaryText: { color: '#150a26', fontSize: 18, fontWeight: '800' },
+  btnSecondary: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+  },
+  btnSecondaryText: {
+    color: '#9a8fb5',
+    fontSize: 15,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+});
