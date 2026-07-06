@@ -43,9 +43,38 @@ async function scheduleDailyReminder() {
   } catch (e) { /* notifications are best-effort */ }
 }
 
+// Schedule a one-off "your spins are full" nudge. The game reports minutes-to-full
+// when the app is backgrounded; we (re)schedule a single local notification.
+async function scheduleSpinsFull(mins) {
+  try {
+    const perm = await Notifications.getPermissionsAsync();
+    if (perm.status !== 'granted') return;
+    await Notifications.cancelScheduledNotificationAsync('spinsFull').catch(() => {});
+    if (!mins || mins < 1) return;
+    await Notifications.scheduleNotificationAsync({
+      identifier: 'spinsFull',
+      content: { title: 'Loot Hollow', body: 'Your spins are full — time to play! 🎰' },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: Math.max(60, Math.round(mins * 60)),
+      },
+    });
+  } catch (e) { /* best-effort */ }
+}
+
 export default function App() {
   // loading | gate | blocked | game
   const [screen, setScreen] = useState('loading');
+
+  // Messages posted by the game (window.ReactNativeWebView.postMessage).
+  const onWebMessage = useCallback((event) => {
+    try {
+      const d = JSON.parse(event.nativeEvent.data);
+      if (d && d.t === 'notif' && typeof d.spinsFullMin === 'number') {
+        scheduleSpinsFull(d.spinsFullMin);
+      }
+    } catch (e) { /* ignore malformed messages */ }
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -127,59 +156,9 @@ export default function App() {
         javaScriptEnabled
         domStorageEnabled
         allowFileAccess
+        onMessage={onWebMessage}
         scrollEnabled={false}
         overScrollMode="never"
         bounces={false}
         containerStyle={styles.web}
-        androidLayerType="hardware"
-        injectedJavaScript={`(function(){try{document.documentElement.style.setProperty('--sbtop',(${StatusBar.currentHeight || 0})+'px');}catch(e){}})();true;`}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#150a26' },
-  web: { flex: 1, backgroundColor: '#150a26' },
-  center: {
-    flex: 1,
-    backgroundColor: '#150a26',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-  },
-  title: {
-    color: '#f5c542',
-    fontSize: 28,
-    fontWeight: '800',
-    marginBottom: 18,
-    textAlign: 'center',
-  },
-  body: {
-    color: '#e8e0f5',
-    fontSize: 16,
-    lineHeight: 24,
-    textAlign: 'center',
-    marginBottom: 32,
-  },
-  btnPrimary: {
-    backgroundColor: '#f5c542',
-    paddingVertical: 16,
-    paddingHorizontal: 40,
-    borderRadius: 14,
-    marginBottom: 16,
-    minWidth: 240,
-    alignItems: 'center',
-  },
-  btnPrimaryText: { color: '#150a26', fontSize: 18, fontWeight: '800' },
-  btnSecondary: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-  },
-  btnSecondaryText: {
-    color: '#9a8fb5',
-    fontSize: 15,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
-  },
-});
+        and
