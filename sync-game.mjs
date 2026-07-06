@@ -33,6 +33,18 @@ function inlineImg(file, srcPath) {
 inlineImg('raccoon.webp', 'assets/raccoon.png');
 inlineImg('foe.webp', 'assets/foe.png');
 
+// inline wheel reward icons (token -> data uri; missing file -> emoji fallback)
+function inlineToken(file, token){
+  let p; try { p = fs.readFileSync(new URL(file, assetDir)); }
+  catch (e) { console.warn('WARN: ' + file + ' not found - wheel icon falls back to emoji.'); return; }
+  const uri = 'data:image/webp;base64,' + p.toString('base64');
+  html = html.split(token).join(uri);
+}
+inlineToken('reels/coin.webp', '__IMG_coin__');
+inlineToken('reels/gem.webp', '__IMG_gem__');
+inlineToken('reels/shield.webp', '__IMG_shield__');
+inlineToken('reels/star.webp', '__IMG_star__');
+
 // 2) dedupe + (optionally) inline backgrounds
 async function bundleBackgrounds() {
   const m = html.match(/const WORLD_BG=\[([\s\S]*?)\];/);
