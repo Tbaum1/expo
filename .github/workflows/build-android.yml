@@ -2,8 +2,7 @@ name: Build Android APK
 
 # Runs when you push to master, OR on-demand from the Actions tab ("Run workflow").
 on:
-  push:
-    branches: [ master, main ]
+  # Manual only — build from the Actions tab. (Codemagic android-apk is the primary path.)
   workflow_dispatch:
   
 

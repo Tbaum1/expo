@@ -45,6 +45,44 @@ workflows:
           success: true
           failure: true
 
+  android-apk:
+    name: Loot Hollow Android APK (installable test build)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      android_signing:
+        - loothollow_upload
+      node: v22.13.1
+    scripts:
+      - name: Install npm dependencies
+        script: |
+          npm install
+      - name: Generate Android project
+        script: |
+          npx expo prebuild --platform android
+      - name: Set Android SDK location
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Build signed Android APK (release)
+        script: |
+          cd android
+          ./gradlew assembleRelease \
+            --init-script "$CM_BUILD_DIR/ci-no-sonatype.init.gradle" \
+            --stacktrace \
+            -Pandroid.injected.signing.store.file="$CM_KEYSTORE_PATH" \
+            -Pandroid.injected.signing.store.password="$CM_KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$CM_KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$CM_KEY_PASSWORD"
+    artifacts:
+      - android/app/build/outputs/**/*.apk
+    publishing:
+      email:
+        recipients:
+          - anthony.tennenbaum@yahoo.com
+        notify:
+          success: true
+          failure: true
+
   ios-appstore:
     name: Loot Hollow iOS (App Store)
     max_build_duration: 90
