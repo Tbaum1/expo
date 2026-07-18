@@ -164,7 +164,7 @@ export default function App() {
         bounces={false}
         containerStyle={styles.web}
         androidLayerType="hardware"
-        injectedJavaScript={`(function(){try{document.documentElement.style.setProperty('--sbtop',(${StatusBar.currentHeight || 0})+'px');}catch(e){}})();true;`}
+        injectedJavaScript={`(function(){try{document.documentElement.style.setProperty('--sbtop',(${StatusBar.currentHeight || 0})+'px');}catch(e){}try{${Platform.OS === 'ios' ? "window.LH_BOOT_VILLAGE=true;" : ''}}catch(e){}})();true;`}
       />
     </View>
   );
