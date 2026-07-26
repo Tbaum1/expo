@@ -19,14 +19,14 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.loothollow.app",
-      "buildNumber": "4",
+      "buildNumber": "5",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "package": "com.loothollow.app",
-      "versionCode": 31,
+      "versionCode": 32,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#150a26"
