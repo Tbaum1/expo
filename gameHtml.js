@@ -1154,6 +1154,19 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
     {key:'g5',name:'Gem Card Chest',icon:'💎',chest:'gem',cost:28},
     {key:'g6',name:'Dust Bundle',icon:'🧪',dust:1500,cost:30}
   ];
+  // ===== Real-money gem packs + native money bridge (ads + IAP). =====
+  // Web build lacks window.LH_NATIVE/LH_PAY/LH_ADS -> demo fallbacks below.
+  const GEM_PACKS=[
+    {key:'gems_small',name:'5 Gems',icon:'💎',gems:5,price:'$1.99'},
+    {key:'gems_medium',name:'15 Gems',icon:'💎',gems:15,price:'$4.99'},
+    {key:'gems_large',name:'50 Gems',icon:'💎',gems:50,price:'$14.99'},
+    {key:'gems_mega',name:'200 Gems',icon:'💎',gems:200,price:'$49.99'}
+  ];
+  const SPIN_PID={sm:'spins_small',md:'spins_medium',lg:'spins_large',mg:'spins_mega'};
+  function payReady(){return !!(window.LH_NATIVE&&window.LH_PAY);}
+  function adsNativeReady(){return !!(window.LH_NATIVE&&window.LH_ADS);}
+  function lhPost(o){try{if(window.ReactNativeWebView&&window.ReactNativeWebView.postMessage){window.ReactNativeWebView.postMessage(JSON.stringify(o));return true;}}catch(e){}return false;}
+  var _pendingAd=-1,pendingGemPack=null;
   const EVT_DUR=24*3600*1000;
   const JOKER_TTL=48*3600*1000;
   // ===== EVENT LIBRARY (baked defaults; can be extended/overridden by events.json) =====
@@ -1442,7 +1455,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
       else if(i===adWatches){b.textContent='Watch';b.onclick=()=>playAd(i);}
       else{b.textContent='Locked';b.disabled=true;}
       el.appendChild(b);box.appendChild(el);});}
-  function playAd(idx){adReset();if(idx!==adWatches||adWatches>=AD_MAX)return;const o=AD_OFFERS[idx];const sp=AD_SPONSORS[Math.floor(Math.random()*AD_SPONSORS.length)];
+  function playAd(idx){adReset();if(idx!==adWatches||adWatches>=AD_MAX)return;if(adsNativeReady()){_pendingAd=idx;lhPost({t:'ad'});return;}const o=AD_OFFERS[idx];const sp=AD_SPONSORS[Math.floor(Math.random()*AD_SPONSORS.length)];
     $('adSponsor').textContent=sp.e;$('adName').textContent=sp.n;$('adFill').style.width='0%';
     let left=o.sec;const total=o.sec;$('adCount').textContent='Reward in '+left+'s';
     const claim=$('adClaim');claim.disabled=true;claim.textContent='Watch to earn';claim.onclick=null;
@@ -2491,7 +2504,7 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
   function bigPop(icon,title,text){popup(icon,title,text);const card=document.querySelector('.pop .card');if(card)card.classList.add('bigwin');screenShake();confetti(28);sFanfare();haptic([0,40,30,60,30,90]);}
   function overlayOpen(){var ba=$('buildAnim');return $('pop').classList.contains('show')||$('buyPop').classList.contains('show')||!!document.querySelector('.modal.show')||!!(ba&&ba.classList.contains('show'));}
   $('popBtn').onclick=()=>{$('pop').classList.remove('show');const card=document.querySelector('.pop .card');if(card)card.classList.remove('bigwin');render();};
-  $('buyYes').onclick=()=>{if(pendingAction){var _f=pendingAction;pendingAction=null;$('buyPop').classList.remove('show');_f();}else{doBuyPack();}};
+  $('buyYes').onclick=()=>{if(pendingAction){var _f=pendingAction;pendingAction=null;$('buyPop').classList.remove('show');_f();}else if(pendingGemPack){doBuyGemPack();}else{doBuyPack();}};
   $('buyNo').onclick=()=>{pendingBuy=null;pendingAction=null;$('buyPop').classList.remove('show');sTap();};
 
   async function spin(){const b=bet();if(busy||spins<b||overlayOpen())return;busy=true;spins-=b;goldenNow=((typeof CP==='function')&&CP().goldenHour&&(++cardSpinCount%25===0));racGainXP(1);sSpin();haptic(8);save();render();$('msg').textContent='Spinning…';
@@ -2618,8 +2631,9 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
     $('unlockModal').classList.add('show');confetti(40);sFanfare();haptic([0,40,30,60]);buildUpStage();}
   function brag(){const txt='I just unlocked World '+(world+1)+' ('+worldRule().name+') in Loot Hollow! 🏰✨';if(typeof navigator!=='undefined'&&navigator.share){try{navigator.share({text:txt,title:'Loot Hollow'}).catch(()=>{});}catch(e){}}const b=$('bragBtn');if(b){const o=b.textContent;b.textContent='Shared! ✓';setTimeout(()=>{b.textContent=o;},1500);}sPop();}
 
-  function breakPig(){if(pig<=0)return;const got=pig;coins+=got;pig=0;sBig();coinRain(20);bigPop('🏦','Bank Cracked!','+'+fmt(got)+' coins!  (Demo — no real charge.)');save();render();}
-  function askBreakPig(){if(pig<=0){popup('🏦','Bank is empty','Win coins on the reels to fill your bank, then crack it open.','OK');return;}pendingAction=breakPig;sTap();$('buyIcon').textContent='🏦';$('buyTitle').textContent='Break the Bank?';$('buyText').textContent='Crack your bank open and collect '+fmt(pig)+' coins?  ($1.99 — Demo, no real charge.)';$('buyPop').classList.add('show');}
+  function breakPig(demo){if(pig<=0)return;const got=pig;coins+=got;pig=0;sBig();coinRain(20);bigPop('🏦','Bank Cracked!','+'+fmt(got)+' coins!'+(demo?'  (Demo — no real charge.)':''));save();render();}
+  function doBreakPig(){if(payReady()){lhPost({t:'buy',productId:'bank_break'});return;}breakPig(true);}
+  function askBreakPig(){if(pig<=0){popup('🏦','Bank is empty','Win coins on the reels to fill your bank, then crack it open.','OK');return;}pendingAction=doBreakPig;sTap();$('buyIcon').textContent='🏦';$('buyTitle').textContent='Break the Bank?';$('buyText').textContent='Crack your bank open and collect '+fmt(pig)+' coins?'+(payReady()?'  ($1.99)':'  ($1.99 — Demo, no real charge.)');$('buyPop').classList.add('show');}
 
   function wheelToday(){return new Date().toDateString();}
   function wheelFree(){return wheelDay!==wheelToday();}
@@ -2688,7 +2702,13 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
       const bn=document.createElement('button');bn.textContent=pk.price;bn.onclick=()=>buyPack(pk.key);el.appendChild(bn);p.appendChild(el);});}
   var pendingBuy=null,pendingAction=null;
   function buyPack(key){const pk=SPIN_PACKS.find(x=>x.key===key);if(!pk)return;const bonus=firstBuy,total=bonus?pk.spins*2:pk.spins;pendingBuy=key;sTap();$('buyIcon').textContent=pk.icon;$('buyTitle').textContent='Confirm Purchase';$('buyText').textContent='Buy '+pk.name+' for '+pk.price+'?  You will receive +'+fmt(total*1000)+' spins'+(bonus?' (first-buy 2× bonus)':'')+'.  This is a real-money purchase.';$('buyPop').classList.add('show');}
-  function doBuyPack(){const key=pendingBuy;pendingBuy=null;$('buyPop').classList.remove('show');const pk=SPIN_PACKS.find(x=>x.key===key);if(!pk)return;const bonus=firstBuy,total=bonus?pk.spins*2:pk.spins;spins+=total;firstBuy=false;sBig();coinRain(16);popup(pk.icon,pk.name+' (Demo)','+'+fmt(total*1000)+' spins!'+(bonus?' First-buy 2× bonus!':'')+'  (Demo — no real charge.)');renderShop();save();render();}
+  function doBuyPack(){const key=pendingBuy;pendingBuy=null;$('buyPop').classList.remove('show');const pk=SPIN_PACKS.find(x=>x.key===key);if(!pk)return;if(payReady()){lhPost({t:'buy',productId:SPIN_PID[key]});return;}grantSpinPack(pk,true);}
+  function grantSpinPack(pk,demo){const bonus=firstBuy,total=bonus?pk.spins*2:pk.spins;spins+=total;firstBuy=false;sBig();coinRain(16);popup(pk.icon,pk.name+(demo?' (Demo)':''),'+'+fmt(total*1000)+' spins!'+(bonus?' First-buy 2× bonus!':'')+(demo?'  (Demo — no real charge.)':''));renderShop();save();render();}
+  function buyGemPack(key){const gp=GEM_PACKS.find(x=>x.key===key);if(!gp)return;pendingGemPack=key;sTap();$('buyIcon').textContent=gp.icon;$('buyTitle').textContent='Confirm Purchase';$('buyText').textContent='Buy '+gp.name+' for '+gp.price+'?  You will receive +'+gp.gems+' gems.  This is a real-money purchase.';$('buyPop').classList.add('show');}
+  function doBuyGemPack(){const key=pendingGemPack;pendingGemPack=null;$('buyPop').classList.remove('show');const gp=GEM_PACKS.find(x=>x.key===key);if(!gp)return;if(payReady()){lhPost({t:'buy',productId:key});return;}grantGemPack(gp,true);}
+  function grantGemPack(gp,demo){gems+=gp.gems;sBig();coinRain(10);popup('💎',gp.name+(demo?' (Demo)':''),'+'+gp.gems+' gems!'+(demo?'  (Demo — no real charge.)':''));if(typeof renderGems==='function')renderGems();save();render();}
+  window.LH_onPurchase=function(productId,ok){try{if(!ok){popup('🛒','Purchase canceled','No charge was made.','OK');return;}if(productId==='bank_break'){breakPig(false);return;}if(productId&&productId.indexOf('spins_')===0){var _k=null;for(var k in SPIN_PID){if(SPIN_PID[k]===productId)_k=k;}var pk=SPIN_PACKS.find(x=>x.key===_k);if(pk)grantSpinPack(pk,false);return;}if(productId&&productId.indexOf('gems_')===0){var gp=GEM_PACKS.find(x=>x.key===productId);if(gp)grantGemPack(gp,false);return;}}catch(e){}};
+  window.LH_onAdReward=function(amt){try{var idx=_pendingAd;_pendingAd=-1;if(amt>0&&idx>=0){finishAd(idx);}else{var ap=$('adPlayer');if(ap)ap.classList.remove('show');popup('📺','No reward','The ad was not completed, so no spins were granted.','OK');}}catch(e){}};
   function buyGem(key){const gp=GEM_STORE.find(x=>x.key===key);if(!gp||gems<gp.cost)return;gems-=gp.cost;if(gp.spins)spins+=gp.spins;if(gp.shields)addShields(gp.shields);if(gp.dust)cardState.dust=(cardState.dust||0)+gp.dust;if(gp.chest){var _g=cardOpenChest(cardState,(gp.chest==='gem'?'gem':'magical'),(gp.chest==='gem'?GEM_CHEST.n:4),((typeof CP==='function')?CP().chestLuck:0)||0,Math.random);if(typeof addEvtProgress==='function')addEvtProgress('collect',_g.length);if(typeof cardChestPetRoll==='function')cardChestPetRoll();if(typeof cardCheckAlbums==='function')cardCheckAlbums();if(typeof cardsRefresh==='function')cardsRefresh();var _nm=[];for(var _i=0;_i<_g.length;_i++)_nm.push(_g[_i].name+' - '+CARD_TIER_NAME[_g[_i].rarity]);showChestReveal(_g,gp.name);}else{sWin();coinRain(8);popup('💎',gp.name,'Redeemed for '+gp.cost+' gems!');}renderGems();save();render();}
 
   function completeSet(key){const s=SETS.find(x=>x.key===key);if(!s||!setCompletable(s))return;setsDone[key]=true;spins+=s.reward.spins;coins+=bonus(s.reward.coins);grantTreat(2);var gg=s.reward.gems||3;gems+=gg;let petTxt='';if(s.pet&&!petsOwned.includes(s.pet)){petsOwned.push(s.pet);petLvl[s.pet]=1;petTxt=' Unlocked pet '+PETS[s.pet].name+'!';}sBig();coinRain(20);confetti(22);popup(s.icon,s.name+' Complete!','+'+fmt(s.reward.spins*1000)+' spins, +'+fmt(bonus(s.reward.coins))+' coins, +2 treats, +'+gg+'💎.'+petTxt);renderRelics();save();render();}
@@ -2748,6 +2768,11 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
         el.appendChild(bn);shop.appendChild(el);});}
   function buyDef(key){const t=DEFENSE_TYPES.find(x=>x.key===key);const slot=emptySlot();if(slot<0||coins<t.cost)return;coins-=t.cost;defense[slot]=key;sPop();renderDef();save();render();}
   function renderGems(){const g=$('gemList');if(!g)return;g.innerHTML='';
+      var _bh=document.createElement('div');_bh.style.cssText='font-weight:800;color:#f5c542;margin:8px 2px 2px;font-size:13px;letter-spacing:.3px;';_bh.textContent='Buy Gems';g.appendChild(_bh);
+      GEM_PACKS.forEach(gp=>{const el=document.createElement('div');el.className='shopcard';
+        el.innerHTML='<div class="si2">'+gp.icon+'</div><div class="sinfo"><div class="sn">'+gp.name+'</div><div class="sd">+'+gp.gems+' gems</div></div>';
+        const bn=document.createElement('button');bn.textContent=gp.price;bn.onclick=()=>buyGemPack(gp.key);el.appendChild(bn);g.appendChild(el);});
+      var _sh=document.createElement('div');_sh.style.cssText='font-weight:800;color:#f5c542;margin:12px 2px 2px;font-size:13px;letter-spacing:.3px;';_sh.textContent='Spend Gems';g.appendChild(_sh);
       GEM_STORE.forEach(gp=>{const el=document.createElement('div');el.className='shopcard';
         const desc=gp.spins?('+'+fmt(gp.spins*1000)+' spins'):(gp.chest?(gp.chest==='gem'?'Premium card chest — best odds':'Open a Magical card chest'):(gp.dust?('+'+gp.dust+' 🧪 dust for crafting cards'):(gp.shields?('+'+gp.shields+' shields'):'')));
         el.innerHTML='<div class="si2">'+gp.icon+'</div><div class="sinfo"><div class="sn">'+gp.name+'</div><div class="sd">'+desc+'</div></div>';

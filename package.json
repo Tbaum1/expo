@@ -15,7 +15,9 @@
     "expo-system-ui": "~56.0.5",
     "react": "19.2.3",
     "react-native": "0.85.3",
-    "react-native-webview": "13.16.1"
+    "react-native-webview": "13.16.1",
+    "react-native-google-mobile-ads": "^15.4.0",
+    "react-native-purchases": "^9.2.0"
   },
   "devDependencies": {
     "sharp": "^0.33.4"

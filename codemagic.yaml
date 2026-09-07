@@ -97,14 +97,19 @@ workflows:
       cocoapods: default
       vars:
         BUNDLE_ID: "com.loothollow.app"
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: master
-          include: true
-        - pattern: main
-          include: true
+    # Auto-trigger disabled 2026-09-07: iOS is parked pending the Apple
+    # Organization account (Guideline 2.3.6). Pushing to master would fire a
+    # TestFlight submission that cannot succeed. Run this workflow manually
+    # from the Codemagic UI when iOS is unblocked, then restore the
+    # triggering block below.
+    # triggering:
+    #   events:
+    #     - push
+    #   branch_patterns:
+    #     - pattern: master
+    #       include: true
+    #     - pattern: main
+    #       include: true
     scripts:
       - name: Install npm dependencies
         script: |

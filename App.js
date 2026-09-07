@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   StyleSheet, View, StatusBar, Text, TouchableOpacity,
   ActivityIndicator, Platform,
@@ -8,7 +8,30 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { GAME_HTML } from './gameHtml';
 
+// --- Ads + IAP SDKs. Loaded defensively so a web/dev context without the native
+// modules (or a build where they failed to link) never crashes the app. ---
+let AdMob = null, Purchases = null;
+try { AdMob = require('react-native-google-mobile-ads'); } catch (e) { AdMob = null; }
+try { Purchases = require('react-native-purchases').default; } catch (e) { Purchases = null; }
+
 const AGE_KEY = 'lh_age_ok_v1';
+
+// RevenueCat public SDK key (Android). Placeholder until Anthony pastes the real
+// key from the RevenueCat dashboard. With the placeholder, configure() is skipped
+// and purchases report a graceful failure instead of throwing.
+const RC_ANDROID_KEY = 'goog_PLACEHOLDER_REVENUECAT_KEY';
+
+// AdMob rewarded ad unit. TestIds.REWARDED shows Google's test ad safely; swap in
+// the real rewarded unit id before release.
+const REWARDED_UNIT_ID =
+  AdMob && AdMob.TestIds ? AdMob.TestIds.REWARDED : 'ca-app-pub-3940256099942544/5224354917';
+
+// Product IDs — must match Play Console + RevenueCat exactly (see MONETIZATION-PLAN.md).
+const PRODUCT_IDS = [
+  'spins_small', 'spins_medium', 'spins_large', 'spins_mega',
+  'gems_small', 'gems_medium', 'gems_large', 'gems_mega',
+  'bank_break',
+];
 
 // Show a banner if a scheduled notification fires while the app is open.
 Notifications.setNotificationHandler({
@@ -64,22 +87,102 @@ async function scheduleSpinsFull(mins) {
   } catch (e) { /* best-effort */ }
 }
 
+// One-time SDK init. Safe to call when the modules are missing (web/dev).
+let _sdkInit = false;
+async function initSdks() {
+  if (_sdkInit) return;
+  _sdkInit = true;
+  try {
+    if (AdMob && AdMob.default && typeof AdMob.default === 'function') {
+      await AdMob.default().initialize();
+    }
+  } catch (e) { /* ads best-effort */ }
+  try {
+    if (Purchases && RC_ANDROID_KEY.indexOf('PLACEHOLDER') === -1) {
+      Purchases.configure({ apiKey: RC_ANDROID_KEY });
+    }
+  } catch (e) { /* iap best-effort */ }
+}
+
 export default function App() {
   // loading | gate | blocked | game
   const [screen, setScreen] = useState('loading');
+  const webRef = useRef(null);
+
+  // Push a snippet of JS into the game (used for native->web callbacks).
+  const inject = useCallback((js) => {
+    try { webRef.current && webRef.current.injectJavaScript(js + ';true;'); } catch (e) {}
+  }, []);
+
+  // Show a rewarded ad; on earned reward tell the game to grant spins.
+  const showRewarded = useCallback(() => {
+    if (!AdMob || !AdMob.RewardedAd) {
+      inject('window.LH_onAdReward && window.LH_onAdReward(0)');
+      return;
+    }
+    try {
+      const { RewardedAd, RewardedAdEventType, AdEventType } = AdMob;
+      const ad = RewardedAd.createForAdRequest(REWARDED_UNIT_ID, {
+        requestNonPersonalizedAdsOnly: true,
+      });
+      let earned = false;
+      const unsubLoaded = ad.addAdEventListener(RewardedAdEventType.LOADED, () => {
+        try { ad.show(); } catch (e) {
+          inject('window.LH_onAdReward && window.LH_onAdReward(0)');
+        }
+      });
+      const unsubEarned = ad.addAdEventListener(RewardedAdEventType.EARNED_REWARD, () => {
+        earned = true;
+      });
+      const unsubClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
+        inject('window.LH_onAdReward && window.LH_onAdReward(' + (earned ? 1 : 0) + ')');
+        unsubLoaded(); unsubEarned(); unsubClosed();
+      });
+      const unsubErr = ad.addAdEventListener(AdEventType.ERROR, () => {
+        inject('window.LH_onAdReward && window.LH_onAdReward(0)');
+        try { unsubLoaded(); unsubEarned(); unsubClosed(); unsubErr(); } catch (e) {}
+      });
+      ad.load();
+    } catch (e) {
+      inject('window.LH_onAdReward && window.LH_onAdReward(0)');
+    }
+  }, [inject]);
+
+  // Run a purchase for a product id via RevenueCat; report ok/fail back to the game.
+  const buyProduct = useCallback(async (productId) => {
+    const fail = () => inject("window.LH_onPurchase && window.LH_onPurchase('" + productId + "',false)");
+    const ok = () => inject("window.LH_onPurchase && window.LH_onPurchase('" + productId + "',true)");
+    if (!Purchases || PRODUCT_IDS.indexOf(productId) === -1) { fail(); return; }
+    try {
+      const products = await Purchases.getProducts(PRODUCT_IDS);
+      const p = (products || []).find((x) => x.identifier === productId);
+      if (!p) { fail(); return; }
+      await Purchases.purchaseStoreProduct(p);
+      ok();
+    } catch (e) {
+      // user cancel or store error -> treat as a non-grant
+      fail();
+    }
+  }, [inject]);
 
   // Messages posted by the game (window.ReactNativeWebView.postMessage).
   const onWebMessage = useCallback((event) => {
     try {
       const d = JSON.parse(event.nativeEvent.data);
-      if (d && d.t === 'notif' && typeof d.spinsFullMin === 'number') {
+      if (!d || !d.t) return;
+      if (d.t === 'notif' && typeof d.spinsFullMin === 'number') {
         scheduleSpinsFull(d.spinsFullMin);
+      } else if (d.t === 'ad') {
+        showRewarded();
+      } else if (d.t === 'buy' && typeof d.productId === 'string') {
+        buyProduct(d.productId);
       }
     } catch (e) { /* ignore malformed messages */ }
-  }, []);
+  }, [showRewarded, buyProduct]);
 
   useEffect(() => {
     (async () => {
+      initSdks();
       // Apple requires an age gate for simulated-gambling apps. Android keeps
       // its existing 13+ rating flow, so we only gate on iOS.
       if (Platform.OS !== 'ios') {
@@ -148,10 +251,18 @@ export default function App() {
     );
   }
 
+  // Tell the game the native money bridge is present so it routes buys/ads to us
+  // (web build lacks this and keeps its demo fallback).
+  const nativeFlags =
+    "window.LH_NATIVE=true;" +
+    (Purchases && RC_ANDROID_KEY.indexOf('PLACEHOLDER') === -1 ? "window.LH_PAY=true;" : "") +
+    (AdMob && AdMob.RewardedAd ? "window.LH_ADS=true;" : "");
+
   return (
     <View style={styles.root}>
       <StatusBar barStyle="light-content" backgroundColor="#150a26" />
       <WebView
+        ref={webRef}
         style={styles.web}
         source={{ html: GAME_HTML, baseUrl: 'https://loothollow.local/' }}
         originWhitelist={['*']}
@@ -164,7 +275,7 @@ export default function App() {
         bounces={false}
         containerStyle={styles.web}
         androidLayerType="hardware"
-        injectedJavaScript={`(function(){try{document.documentElement.style.setProperty('--sbtop',(${StatusBar.currentHeight || 0})+'px');}catch(e){}try{${Platform.OS === 'ios' ? "window.LH_BOOT_VILLAGE=true;" : ''}}catch(e){}})();true;`}
+        injectedJavaScript={`(function(){try{document.documentElement.style.setProperty('--sbtop',(${StatusBar.currentHeight || 0})+'px');}catch(e){}try{${nativeFlags}${Platform.OS === 'ios' ? "window.LH_BOOT_VILLAGE=true;" : ''}}catch(e){}})();true;`}
       />
     </View>
   );
