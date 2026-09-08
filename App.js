@@ -16,15 +16,18 @@ try { Purchases = require('react-native-purchases').default; } catch (e) { Purch
 
 const AGE_KEY = 'lh_age_ok_v1';
 
-// RevenueCat public SDK key (Android). Placeholder until Anthony pastes the real
-// key from the RevenueCat dashboard. With the placeholder, configure() is skipped
-// and purchases report a graceful failure instead of throwing.
-const RC_ANDROID_KEY = 'goog_PLACEHOLDER_REVENUECAT_KEY';
+// RevenueCat public SDK key (Android). Public/publishable by design - it ships in
+// the client binary. Project "Loot Hollow", app "Loot Hollow (Play Store)".
+const RC_ANDROID_KEY = 'goog_HruBjSADPBeuocKnIurdWmMibrR';
 
-// AdMob rewarded ad unit. TestIds.REWARDED shows Google's test ad safely; swap in
-// the real rewarded unit id before release.
+// AdMob rewarded ad unit - real unit "Free Spins Rewarded" on publisher
+// pub-4697898246674003. Set LH_USE_TEST_ADS=true to fall back to Google's test
+// ad while developing, so you never click a live ad on your own account.
+const LH_USE_TEST_ADS = false;
 const REWARDED_UNIT_ID =
-  AdMob && AdMob.TestIds ? AdMob.TestIds.REWARDED : 'ca-app-pub-3940256099942544/5224354917';
+  LH_USE_TEST_ADS && AdMob && AdMob.TestIds
+    ? AdMob.TestIds.REWARDED
+    : 'ca-app-pub-4697898246674003/5116879667';
 
 // Product IDs — must match Play Console + RevenueCat exactly (see MONETIZATION-PLAN.md).
 const PRODUCT_IDS = [

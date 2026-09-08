@@ -1147,6 +1147,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
     {key:'mg',name:'Mega Pack',icon:'💰',spins:5000,price:'$49.99'}
   ];
   const GEM_STORE=[
+    {key:'g0',name:'33,000 Spins',icon:'🎰',spins:33,cost:5},
     {key:'g1',name:'100,000 Spins',icon:'🎰',spins:100,cost:15},
     {key:'g2',name:'400,000 Spins',icon:'🎁',spins:400,cost:50},
     {key:'g3',name:'1,500,000 Spins',icon:'💰',spins:1500,cost:150},
