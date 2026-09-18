@@ -2,7 +2,7 @@
   "expo": {
     "name": "Loot Hollow",
     "slug": "loot-hollow",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -17,7 +17,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": false,
+      "supportsTablet": true,
       "bundleIdentifier": "com.loothollow.app",
       "buildNumber": "5",
       "infoPlist": {
@@ -26,7 +26,7 @@
     },
     "android": {
       "package": "com.loothollow.app",
-      "versionCode": 36,
+      "versionCode": 37,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#150a26"
@@ -64,7 +64,8 @@
           "androidAppId": "ca-app-pub-4697898246674003~4586396629",
           "iosAppId": "ca-app-pub-3940256099942544~1458002511"
         }
-      ]
+      ],
+      "./plugins/withGameCategory"
     ],
     "extra": {
       "eas": {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   StyleSheet, View, StatusBar, Text, TouchableOpacity,
-  ActivityIndicator, Platform,
+  ActivityIndicator, Platform, Linking, AppState,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -15,6 +15,12 @@ try { AdMob = require('react-native-google-mobile-ads'); } catch (e) { AdMob = n
 try { Purchases = require('react-native-purchases').default; } catch (e) { Purchases = null; }
 
 const AGE_KEY = 'lh_age_ok_v1';
+// Transaction ids we have already handed to the game. Prevents a relaunch from
+// granting the same pre-registration reward / promo code twice.
+const GRANTED_TX_KEY = 'lh_granted_tx_v1';
+// Where the 'Redeem code' menu item sends the player. Google Play owns the
+// redemption flow; we only open it.
+const PLAY_REDEEM_URL = 'https://play.google.com/redeem';
 
 // RevenueCat public SDK key (Android). Public/publishable by design - it ships in
 // the client binary. Project "Loot Hollow", app "Loot Hollow (Play Store)".
@@ -107,6 +113,59 @@ async function initSdks() {
   } catch (e) { /* iap best-effort */ }
 }
 
+// --- Owned-entitlement grant ------------------------------------------------
+//
+// Some purchases never pass through buyProduct(): a Google Play
+// pre-registration reward, a redeemed Play promo code, a purchase that
+// completed while the app was being killed, or a reinstall. All of them land
+// on the account as an owned transaction that the app has to find for itself.
+//
+// Play states that a pre-registration reward MUST be delivered, so this is not
+// optional polish - a silent miss here is an app-removal risk.
+//
+// Dedupe is by TRANSACTION id, not product id: the same product can be bought
+// or granted more than once and each occurrence is owed to the player.
+//
+// NOTE ON THE ONE TRADE-OFF HERE: RevenueCat keeps non-subscription
+// transactions forever, including consumables the app already consumed. We do
+// NOT seed a 'baseline' of pre-existing transactions on first run, because a
+// pre-registration player's FIRST run is exactly when their reward arrives -
+// baselining would swallow the one grant we are required to deliver. The cost
+// is that a player who already owned consumables before this build shipped can
+// be re-granted them once. With production not yet launched that population is
+// the closed-test group only, so the compliance risk is the one worth avoiding.
+async function loadGrantedTx() {
+  try {
+    const raw = await AsyncStorage.getItem(GRANTED_TX_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) { return []; }
+}
+
+async function saveGrantedTx(list) {
+  try {
+    const trimmed = list.slice(-200);
+    await AsyncStorage.setItem(GRANTED_TX_KEY, JSON.stringify(trimmed));
+  } catch (e) { /* best-effort */ }
+}
+
+// RevenueCat has renamed these fields across major versions; accept any shape
+// rather than assuming one.
+function txProductId(t) {
+  return (t && (t.productIdentifier || t.productId || t.product_id)) || null;
+}
+function txId(t) {
+  if (!t) return null;
+  return (
+    t.transactionIdentifier ||
+    t.storeTransactionId ||
+    t.revenueCatId ||
+    t.transactionId ||
+    t.id ||
+    null
+  );
+}
+
 export default function App() {
   // loading | gate | blocked | game
   const [screen, setScreen] = useState('loading');
@@ -168,6 +227,57 @@ export default function App() {
     }
   }, [inject]);
 
+  // Hand the game any owned purchase it has not been told about yet.
+  // Runs when the WebView finishes loading and again whenever the app returns
+  // to the foreground - a player can redeem a promo code in the Play Store
+  // while we are backgrounded, so coming back is exactly when to re-check.
+  const grantOwnedEntitlements = useCallback(async () => {
+    if (!Purchases) return;
+    try {
+      // Pull anything the store knows about but RevenueCat has not seen yet.
+      try { await Purchases.syncPurchases(); } catch (e) { /* offline is fine */ }
+      const info = await Purchases.getCustomerInfo();
+      const txs = (info && info.nonSubscriptionTransactions) || [];
+      if (!txs.length) return;
+      const granted = await loadGrantedTx();
+      const seen = {};
+      granted.forEach((k) => { seen[k] = true; });
+      let changed = false;
+      for (let i = 0; i < txs.length; i++) {
+        const pid = txProductId(txs[i]);
+        const id = txId(txs[i]);
+        if (!pid || !id) continue;
+        if (PRODUCT_IDS.indexOf(pid) === -1) continue;
+        if (seen[id]) continue;
+        seen[id] = true;
+        granted.push(id);
+        changed = true;
+        // The game defines LH_onPurchase in its main script, which may not have
+        // run yet on a cold start - retry for up to 10s rather than dropping it.
+        inject(
+          '(function(){var n=0;function go(){' +
+          'if(window.LH_onPurchase){window.LH_onPurchase(' +
+          "'" + pid + "'" + ',true);return;}' +
+          'if(++n<40)setTimeout(go,250);}go();})()'
+        );
+      }
+      if (changed) await saveGrantedTx(granted);
+    } catch (e) { /* best-effort - never block the game on this */ }
+  }, [inject]);
+
+  // Google Play owns code redemption; we just open its flow.
+  const openRedeem = useCallback(() => {
+    try { Linking.openURL(PLAY_REDEEM_URL).catch(() => {}); } catch (e) {}
+  }, []);
+
+  // Re-check owned purchases each time the app comes back to the foreground.
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (st) => {
+      if (st === 'active') grantOwnedEntitlements();
+    });
+    return () => { try { sub && sub.remove(); } catch (e) {} };
+  }, [grantOwnedEntitlements]);
+
   // Messages posted by the game (window.ReactNativeWebView.postMessage).
   const onWebMessage = useCallback((event) => {
     try {
@@ -179,9 +289,11 @@ export default function App() {
         showRewarded();
       } else if (d.t === 'buy' && typeof d.productId === 'string') {
         buyProduct(d.productId);
+      } else if (d.t === 'redeem') {
+        openRedeem();
       }
     } catch (e) { /* ignore malformed messages */ }
-  }, [showRewarded, buyProduct]);
+  }, [showRewarded, buyProduct, openRedeem]);
 
   useEffect(() => {
     (async () => {
@@ -259,7 +371,8 @@ export default function App() {
   const nativeFlags =
     "window.LH_NATIVE=true;" +
     (Purchases && RC_ANDROID_KEY.indexOf('PLACEHOLDER') === -1 ? "window.LH_PAY=true;" : "") +
-    (AdMob && AdMob.RewardedAd ? "window.LH_ADS=true;" : "");
+    (AdMob && AdMob.RewardedAd ? "window.LH_ADS=true;" : "") +
+    (Platform.OS === 'android' ? "window.LH_REDEEM=true;" : "");
 
   return (
     <View style={styles.root}>
@@ -273,6 +386,7 @@ export default function App() {
         domStorageEnabled
         allowFileAccess
         onMessage={onWebMessage}
+        onLoadEnd={grantOwnedEntitlements}
         scrollEnabled={false}
         overScrollMode="never"
         bounces={false}

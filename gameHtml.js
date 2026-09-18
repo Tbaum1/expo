@@ -6,6 +6,45 @@ export const GAME_HTML = `<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script>
+/* Large-screen scaler.
+   The whole UI is tuned in fixed px against a ~440px phone canvas. Rather than
+   re-tune it for tablets, we widen the LAYOUT VIEWPORT so the browser scales
+   everything uniformly - every px, every vw/vh, every body-level overlay, and
+   all getBoundingClientRect maths stays internally consistent, because this is
+   a real viewport change and not a visual transform.
+   A transform on .app would NOT do this: the ten overlays appended to
+   document.body would stay phone-sized, and placeRails() writes rect deltas
+   back as unscaled px, so the side rails would land wrong.
+   Trigger is the rotation-invariant smallest screen dimension (Android sw600dp),
+   so phones are never touched. screen.* is read instead of innerWidth because
+   innerWidth reports the layout viewport we just set - reading it back would
+   oscillate. */
+(function(){
+  var M=document.querySelector("meta[name=viewport]");
+  if(!M||!window.screen)return;
+  var TAIL=", initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover";
+  var ZOOM=1.35, MINW=440, MAXP=600, MAXL=1000, TRIGGER=600;
+  function apply(){
+    try{
+      var a=Math.min(screen.width||0,screen.height||0);
+      var b=Math.max(screen.width||0,screen.height||0);
+      if(!a||a<TRIGGER){M.setAttribute("content","width=device-width"+TAIL);return;}
+      var portrait=true;
+      try{if(window.matchMedia)portrait=window.matchMedia("(orientation:portrait)").matches;}catch(e){}
+      var pw=portrait?a:b;
+      var want=Math.round(pw/ZOOM);
+      var hi=portrait?MAXP:MAXL;
+      if(want<MINW)want=MINW;
+      if(want>hi)want=hi;
+      M.setAttribute("content","width="+want+TAIL);
+    }catch(e){}
+  }
+  apply();
+  window.addEventListener("orientationchange",function(){setTimeout(apply,120);});
+})();
+</script>
+
 <meta name="theme-color" content="#1a0f2e">
 <title>Loot Hollow</title>
 <!-- v4: attacks, raids, nemesis, world twists, defenses -->
@@ -607,6 +646,28 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
 /* new build reveal animation */
 .bpn{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 42%,rgba(20,10,40,.5),rgba(8,4,20,.9));opacity:0;transition:opacity .22s}.bpn.show{display:flex;opacity:1}.bpn-plot{position:absolute;left:50%;top:62%;width:180px;height:34px;transform:translateX(-50%);background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,.34),rgba(0,0,0,0) 70%);border-radius:50%;filter:blur(3px)}.bpn-bwrap{position:absolute;left:50%;top:56%;width:190px;height:190px;transform-origin:bottom center;opacity:0}.bpn.show .bpn-bwrap{animation:bpnRise 720ms cubic-bezier(.2,1.25,.3,1) 200ms both}.bpn-img{width:100%;height:100%;object-fit:contain;transform:translateY(-100%);filter:drop-shadow(0 10px 8px rgba(0,0,0,.4))}@keyframes bpnRise{0%{transform:translateY(70px) scaleY(.12) scaleX(1.15);opacity:0}55%{opacity:1}78%{transform:translateY(-8px) scaleY(1.06) scaleX(.96)}100%{transform:translateY(0) scale(1);opacity:1}}.bpn-stars{position:absolute;left:50%;top:20%;transform:translateX(-50%);display:flex;gap:9px;z-index:2}.bpn-stars b{font-size:30px;color:#f5c542;opacity:.28;transform:scale(.8);text-shadow:0 2px 4px rgba(0,0,0,.5)}.bpn-stars b.on{opacity:1;animation:bpnStar .5s cubic-bezier(.2,1.6,.3,1) forwards}@keyframes bpnStar{0%{transform:scale(0) rotate(-30deg)}60%{transform:scale(1.5)}100%{transform:scale(1)}}.bpn-title{position:absolute;left:0;right:0;bottom:17%;text-align:center;color:#fff;font-weight:800;font-size:23px;text-shadow:0 2px 8px #000;z-index:2}.bpn-fx{position:absolute;inset:0;pointer-events:none;z-index:3}.bpn-skip{position:absolute;bottom:6%;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:8px 18px;font-family:inherit;font-weight:600;font-size:13px;z-index:4}.bpn .p{position:absolute}.bpn .dust{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle,#fff8e6,#d9c69a)}.bpn .coin{font-size:22px}.bpn .conf{width:10px;height:16px;border-radius:2px}.bpn .glow{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(255,244,180,.95),rgba(255,210,90,0) 70%)}@keyframes bpn-dust{0%{transform:translate(-50%,0) scale(.3);opacity:.95}100%{transform:translate(var(--dx),var(--dy)) scale(1.5);opacity:0}}@keyframes bpn-coin{0%{transform:translate(-50%,0) scale(.5);opacity:1}100%{transform:translate(calc(-50% + var(--cx)),var(--cy)) rotate(var(--cr)) scale(1);opacity:0}}@keyframes bpn-conf{0%{transform:translate(-50%,0) rotate(0);opacity:1}100%{transform:translate(calc(-50% + var(--fx)),var(--fy)) rotate(var(--fr));opacity:0}}@keyframes bpn-glow{0%{transform:translate(-50%,-50%) scale(.2);opacity:.9}100%{transform:translate(-50%,-50%) scale(2.8);opacity:0}}
 
+
+  /* ---- Landscape / large-screen two-column layout ----------------------
+     Ships dormant: app.json still locks orientation to portrait, so this only
+     engages once that lock is lifted. Every overlay child of .app (.modal,
+     .pop, .rain, .siderail, #bgLayer, .specks) is position:absolute and so is
+     out of flow - only the nine flow children below need placing. */
+  @media (orientation:landscape) and (min-width:560px){
+    .app{max-width:min(100vw,1180px);max-height:none;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      grid-template-rows:auto auto auto auto auto minmax(0,1fr);
+      column-gap:14px;align-content:start;}
+    .app>header{grid-column:1/-1;grid-row:1;}
+    .app>.evtrow{grid-column:1/-1;grid-row:2;}
+    .app>.machine{grid-column:1;grid-row:3;margin:6px 0 4px;}
+    .app>.msg{grid-column:1;grid-row:4;}
+    .app>.charge{grid-column:1;grid-row:5;}
+    .app>.spinrow{grid-column:1;grid-row:6;align-self:start;}
+    .app>#nemHost{grid-column:2;grid-row:3;}
+    .app>.piggy{grid-column:2;grid-row:4/6;align-self:start;margin-top:6px;}
+    .app>.build{grid-column:2;grid-row:6;min-height:0;margin-bottom:6px;}
+  }
 </style>
 </head>
 <body>
@@ -1435,11 +1496,11 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function completeReveal(rg,onDone){if(hasCompleteVid(rg)){playAnimVideo(VIDEO_BASE+'complete_r'+rg+'.mp4',onDone,onDone);}else{onDone();}}
   function playBuildAnim(idx){var items=worldItems();var it=items[idx];if(!it)return;var rg=world%WORLD_ITEMS.length,src=pieceSrc(rg,idx);var host=$('buildAnim');if(!host){host=document.createElement('div');host.id='buildAnim';document.body.appendChild(host);}host.className='bpn';host.classList.remove('show');host.classList.remove('done');host.innerHTML='<div class="bpn-plot"></div><div class="bpn-bwrap"><img class="bpn-img" alt="" src="'+src+'"></div><div class="bpn-stars" id="bpnStars"><b>★</b><b>★</b><b>★</b><b>★</b><b>★</b></div><div class="bpn-title" id="bpnTitle">Building '+it.n+'…</div><div class="bpn-fx" id="bpnFx"></div><button class="bpn-skip" id="bpnSkip">Tap to continue</button>';_baTO.forEach(clearTimeout);_baTO=[];if(_baSpark){clearInterval(_baSpark);_baSpark=null;}requestAnimationFrame(function(){host.classList.add('show');});sBig();haptic(14);var fx=$('bpnFx'),W=host.clientWidth||360,H=host.clientHeight||640,cx=W/2,base=H*0.56;function mk(cls){var p=document.createElement('div');p.className='p '+cls;fx.appendChild(p);return p;}function dust(n){for(var i=0;i<n;i++){var p=mk('dust');var a=Math.random()*6.283,dd=34+Math.random()*48;p.style.setProperty('--dx',(Math.cos(a)*dd)+'px');p.style.setProperty('--dy',(-Math.abs(Math.sin(a))*dd-8)+'px');p.style.left=cx+'px';p.style.top=base+'px';p.style.animation='bpn-dust '+(600+Math.random()*300)+'ms ease-out forwards';(function(pp){setTimeout(function(){pp.remove();},950);})(p);}}function coins(){for(var i=0;i<16;i++){var p=mk('coin');p.textContent='🪙';p.style.left=cx+'px';p.style.top=(base-40)+'px';var ang=-1.57+(Math.random()-0.5)*2.3,sp=80+Math.random()*100;p.style.setProperty('--cx',(Math.cos(ang)*sp)+'px');p.style.setProperty('--cy',(Math.sin(ang)*sp-24)+'px');p.style.setProperty('--cr',(Math.random()*720-360)+'deg');p.style.animation='bpn-coin '+(760+Math.random()*450)+'ms cubic-bezier(.2,.7,.3,1) forwards';(function(pp){setTimeout(function(){pp.remove();},1300);})(p);}}function conf(){var co=['#f5c542','#e8654f','#4b8ef0','#7fae6b','#b06bf0','#ffffff'];for(var i=0;i<28;i++){var p=mk('conf');p.style.background=co[i%co.length];p.style.left=cx+'px';p.style.top=(base-90)+'px';p.style.setProperty('--fx',((Math.random()-0.5)*280)+'px');p.style.setProperty('--fy',(70+Math.random()*190)+'px');p.style.setProperty('--fr',(Math.random()*720)+'deg');p.style.animation='bpn-conf '+(950+Math.random()*550)+'ms ease-in forwards';(function(pp){setTimeout(function(){pp.remove();},1550);})(p);}}function glow(){var g=mk('glow');g.style.left=cx+'px';g.style.top=(base-56)+'px';g.style.animation='bpn-glow 700ms ease-out forwards';setTimeout(function(){g.remove();},720);}_baTO.push(setTimeout(function(){dust(14);haptic(22);},430));_baTO.push(setTimeout(function(){glow();coins();conf();var t=$('bpnTitle');if(t)t.textContent=it.n+' Complete!';var st=$('bpnStars');if(st){var bs=st.children;for(var s=0;s<5;s++){(function(k){_baTO.push(setTimeout(function(){if(bs[k])bs[k].classList.add('on');sPop();},k*120));})(s);}}confetti(24);coinRain(8);haptic(34);host.classList.add('done');},1000));_baTO.push(setTimeout(closeBuildAnim,3000));var sk=$('bpnSkip');if(sk)sk.onclick=closeBuildAnim;host.onclick=function(){if(host.classList.contains('done'))closeBuildAnim();};}
   function closeBuildAnim(){var host=$('buildAnim');if(!host)return;_baTO.forEach(clearTimeout);_baTO=[];if(_baSpark){clearInterval(_baSpark);_baSpark=null;}host.classList.remove('show');setTimeout(function(){if(host)host.classList.remove('done');},400);}
-  const HUB_ITEMS=[{i:'📖',l:'How to Play',m:'faqModal'},{i:'🏘️',l:'Village',m:'villageModal',f:'renderVillageShop'},{i:'🎁',l:'Daily',m:'dailyModal',f:'renderDaily',k:'daily'},{i:'🎪',l:'Events',m:'eventModal',f:'renderEvents',k:'event'},{i:'🎯',l:'Challenges',m:'chalModal',f:'renderChallenges',k:'chal'},{i:'🎵',l:'Season Pass',m:'passModal',f:'renderPass',k:'pass'},{i:'🃏',l:'Cards',m:'relicModal',f:'renderCards',k:'relic'},{i:'🐾',l:'Pets',m:'petModal',f:'renderPets',k:'pet'},{i:'⚔️',l:'Rivals',m:'rosterModal',f:'renderRoster',k:'roster'},{i:'🛡️',l:'Defenses',m:'defModal',f:'renderDef',k:'def'},{i:'📺',l:'Free Spins',m:'adModal',f:'renderAds',k:'ad'},{i:'🎰',l:'Spin Shop',m:'shopModal',f:'renderShop'},{i:'💎',l:'Gems',m:'gemModal',f:'renderGems'},{i:'🗺️',l:'Map',m:'mapModal',f:'renderMap'},{i:'🎡',l:'Wheel',m:'wheelModal',f:'renderWheel',k:'wheel'},{i:'🎨',l:'Skins',m:'skinModal',f:'renderSkins',k:'skin'},{i:'🏆',l:'Leaderboard',soon:1},{i:'👫',l:'Friends',soon:1},{i:'📰',l:'News',soon:1}];
+  const HUB_ITEMS=[{i:'📖',l:'How to Play',m:'faqModal'},{i:'🏘️',l:'Village',m:'villageModal',f:'renderVillageShop'},{i:'🎁',l:'Daily',m:'dailyModal',f:'renderDaily',k:'daily'},{i:'🎪',l:'Events',m:'eventModal',f:'renderEvents',k:'event'},{i:'🎯',l:'Challenges',m:'chalModal',f:'renderChallenges',k:'chal'},{i:'🎵',l:'Season Pass',m:'passModal',f:'renderPass',k:'pass'},{i:'🃏',l:'Cards',m:'relicModal',f:'renderCards',k:'relic'},{i:'🐾',l:'Pets',m:'petModal',f:'renderPets',k:'pet'},{i:'⚔️',l:'Rivals',m:'rosterModal',f:'renderRoster',k:'roster'},{i:'🛡️',l:'Defenses',m:'defModal',f:'renderDef',k:'def'},{i:'📺',l:'Free Spins',m:'adModal',f:'renderAds',k:'ad'},{i:'🎰',l:'Spin Shop',m:'shopModal',f:'renderShop'},{i:'💎',l:'Gems',m:'gemModal',f:'renderGems'},{i:'🗺️',l:'Map',m:'mapModal',f:'renderMap'},{i:'🎡',l:'Wheel',m:'wheelModal',f:'renderWheel',k:'wheel'},{i:'🎨',l:'Skins',m:'skinModal',f:'renderSkins',k:'skin'},{i:'🎟️',l:'Redeem Code',act:'redeem',need:'redeem'},{i:'🏆',l:'Leaderboard',soon:1},{i:'👫',l:'Friends',soon:1},{i:'📰',l:'News',soon:1}];
   const HUB_FN={renderVillageShop:()=>renderVillageShop(),renderDaily:()=>renderDaily(),renderEvents:()=>renderEvents(),renderChallenges:()=>renderChallenges(),renderPass:()=>renderPass(),renderRelics:()=>renderRelics(),renderCards:()=>renderCards(),renderPets:()=>renderPets(),renderRoster:()=>renderRoster(),renderDef:()=>renderDef(),renderShop:()=>renderShop(),renderGems:()=>renderGems(),renderMap:()=>renderMap(),renderAds:()=>renderAds(),renderSkins:()=>renderSkins(),renderWheel:()=>renderWheel(),renderTree:()=>renderTree()};
-  function renderHub(){const g=$('hubGrid');g.innerHTML='';HUB_ITEMS.forEach(it=>{const el=document.createElement('div');el.className='hubcell'+(it.soon?' soon':'');
+  function renderHub(){const g=$('hubGrid');g.innerHTML='';HUB_ITEMS.forEach(it=>{if(it.need==='redeem'&&!window.LH_REDEEM)return;const el=document.createElement('div');el.className='hubcell'+(it.soon?' soon':'');
     el.innerHTML='<i class="hd'+(it.k&&hubNotif[it.k]?' on':'')+'"></i><div class="hi">'+it.i+'</div><div class="hl">'+it.l+'</div>'+(it.soon?'<div class="soontag">soon</div>':'');
-    if(!it.soon)el.onclick=()=>{$('hubModal').classList.remove('show');openModal(it.m,HUB_FN[it.f]);};g.appendChild(el);});}
+    if(!it.soon)el.onclick=()=>{$('hubModal').classList.remove('show');if(it.act==='redeem'){lhPost({t:'redeem'});return;}openModal(it.m,HUB_FN[it.f]);};g.appendChild(el);});}
 
   const AD_MAX=3;
   const AD_OFFERS=[{sec:6,reward:150},{sec:5,reward:100},{sec:6,reward:150}];
