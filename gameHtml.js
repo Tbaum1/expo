@@ -967,7 +967,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
 
   <div class="modal" id="shopModal"><div class="sheet">
     <button class="x" data-close>✕</button><h2>🎰 Spin Shop</h2>
-    <p class="lead">Demo store — these don't charge anything. Real purchases would go through the app store.</p>
+    <p class="lead">Real-money purchases, processed securely through Google Play.</p>
     <div id="shopPacks"></div>
   </div></div>
 
@@ -1511,7 +1511,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function renderAds(){adReset();const box=$('adList');box.innerHTML='';const rem=adsRemaining();
     $('adLead').textContent=rem>0?('Watch a full ad to earn spins — '+rem+' of '+AD_MAX+' left today.'):('All '+AD_MAX+' ads watched today. Come back tomorrow!');
     AD_OFFERS.forEach((o,i)=>{const el=document.createElement('div');el.className='adrow';
-      el.innerHTML='<div class="ae">🎬</div><div class="at"><b>+'+fmt(o.reward*1000)+' spins</b><span>'+o.sec+'-second video · demo</span></div>';
+      el.innerHTML='<div class="ae">🎬</div><div class="at"><b>+'+fmt(o.reward*1000)+' spins</b><span>'+o.sec+'-second video</span></div>';
       const b=document.createElement('button');
       if(i<adWatches){b.textContent='Watched ✓';b.disabled=true;}
       else if(i===adWatches){b.textContent='Watch';b.onclick=()=>playAd(i);}
