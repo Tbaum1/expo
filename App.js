@@ -1,12 +1,38 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   StyleSheet, View, StatusBar, Text, TouchableOpacity,
-  ActivityIndicator, Platform, Linking, AppState,
+  ActivityIndicator, Platform, Linking, AppState, Dimensions, Alert,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { GAME_HTML } from './gameHtml';
+import { GAME_HTML_TABLET } from './gameHtmlTablet';
+
+// Tablet/large-screen detection. Same threshold Android itself uses for the
+// sw600dp resource qualifier, so this lines up with how the OS already
+// classifies "tablet" for this device. Computed once from the screen's
+// shortest side (not the current window, which changes with rotation) so a
+// phone rotated to landscape never gets misclassified as a tablet.
+const { width: LH_SCR_W, height: LH_SCR_H } = Dimensions.get('screen');
+const LH_IS_TABLET = Math.min(LH_SCR_W, LH_SCR_H) >= 600;
+
+// app.json's native orientation lock had to become "default" (unlocked) so a
+// tablet can be forced into landscape here - a single manifest-level setting
+// can't be "portrait for phone, landscape for tablet" on its own. This is the
+// ONLY place orientation gets locked now, and it runs before anything else on
+// mount so phones still land in portrait exactly like before (same lock, just
+// requested from JS instead of the manifest) and tablets land in landscape.
+async function lockOrientationForDevice() {
+  try {
+    await ScreenOrientation.lockAsync(
+      LH_IS_TABLET
+        ? ScreenOrientation.OrientationLock.LANDSCAPE
+        : ScreenOrientation.OrientationLock.PORTRAIT_UP
+    );
+  } catch (e) { /* best-effort - worst case the device rotates freely */ }
+}
 
 // --- Ads + IAP SDKs. Loaded defensively so a web/dev context without the native
 // modules (or a build where they failed to link) never crashes the app. ---
@@ -216,14 +242,40 @@ export default function App() {
     const ok = () => inject("window.LH_onPurchase && window.LH_onPurchase('" + productId + "',true)");
     if (!Purchases || PRODUCT_IDS.indexOf(productId) === -1) { fail(); return; }
     try {
-      const products = await Purchases.getProducts(PRODUCT_IDS);
+      // NON_SUBSCRIPTION is required. getProducts() defaults to SUBSCRIPTION,
+      // and every Loot Hollow product is a one-time consumable, so without it
+      // Play returns an empty list, no product is found, and fail() fires
+      // before the Google Play purchase sheet ever opens - for every player,
+      // tester or not.
+      const products = await Purchases.getProducts(
+        PRODUCT_IDS,
+        Purchases.PRODUCT_CATEGORY.NON_SUBSCRIPTION
+      );
       const p = (products || []).find((x) => x.identifier === productId);
-      if (!p) { fail(); return; }
+      if (!p) {
+        fail();
+        Alert.alert(
+          'Store unavailable',
+          'This item could not be loaded from Google Play (' + productId + '). Please try again later.'
+        );
+        return;
+      }
       await Purchases.purchaseStoreProduct(p);
       ok();
     } catch (e) {
-      // user cancel or store error -> treat as a non-grant
       fail();
+      // A player backing out of the Play sheet is not an error - the game's own
+      // 'Purchase canceled' popup covers it. Anything else used to be swallowed
+      // silently, which is why this bug was invisible; surface the store's
+      // code so a tester report says what actually went wrong.
+      if (!(e && e.userCancelled)) {
+        Alert.alert(
+          'Purchase failed',
+          'Google Play could not complete this purchase' +
+            (e && e.code ? ' (code ' + e.code + ')' : '') +
+            '. You have not been charged.'
+        );
+      }
     }
   }, [inject]);
 
@@ -297,6 +349,7 @@ export default function App() {
 
   useEffect(() => {
     (async () => {
+      lockOrientationForDevice();
       initSdks();
       // Apple requires an age gate for simulated-gambling apps. Android keeps
       // its existing 13+ rating flow, so we only gate on iOS.
@@ -380,7 +433,7 @@ export default function App() {
       <WebView
         ref={webRef}
         style={styles.web}
-        source={{ html: GAME_HTML, baseUrl: 'https://loothollow.local/' }}
+        source={{ html: LH_IS_TABLET ? GAME_HTML_TABLET : GAME_HTML, baseUrl: 'https://loothollow.local/' }}
         originWhitelist={['*']}
         javaScriptEnabled
         domStorageEnabled

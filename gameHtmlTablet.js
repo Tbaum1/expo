@@ -1,6 +1,12 @@
-// Auto-generated from game/loot-hollow.html - do not edit by hand.
-// Run: node sync-game.mjs to regenerate after editing the game.
-export const GAME_HTML = `<!DOCTYPE html>
+// Auto-generated from game/loot-hollow-tablet.html - do not edit by hand.
+// Run: node ../game/build-tablet-html.mjs then node sync-game-tablet.mjs to regenerate.
+export const GAME_HTML_TABLET = `<!DOCTYPE html>
+<!-- Auto-generated from game/loot-hollow.html by build-tablet-html.mjs - do not edit by hand.
+     The only intentional difference from loot-hollow.html is that the 2-column
+     large-screen layout engages at width>=560px in any orientation, not just
+     landscape. Edit game logic/markup/styling in loot-hollow.html and rerun
+     "node build-tablet-html.mjs" to pick the change up here. -->
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -656,7 +662,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
      - on large screens it is pulled into normal grid flow instead, as its
      own row up top beside the events strip, so it never overlaps the (now
      bigger) slot machine below it. */
-  @media (orientation:landscape) and (min-width:560px){
+  @media (min-width:560px){
     .app{max-width:min(100vw,1180px);max-height:none;
       display:grid;
       grid-template-columns:minmax(0,1fr) minmax(0,1fr);

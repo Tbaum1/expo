@@ -2,8 +2,8 @@
   "expo": {
     "name": "Loot Hollow",
     "slug": "loot-hollow",
-    "version": "1.0.2",
-    "orientation": "portrait",
+    "version": "1.0.3",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#150a26",
@@ -26,7 +26,7 @@
     },
     "android": {
       "package": "com.loothollow.app",
-      "versionCode": 37,
+      "versionCode": 38,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#150a26"
