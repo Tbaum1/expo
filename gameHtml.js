@@ -349,7 +349,7 @@ export const GAME_HTML = `<!DOCTYPE html>
 
   #bgLayer{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;transition:opacity .5s;}
   #bgLayer::after{content:'';position:absolute;inset:0;background:radial-gradient(125% 72% at 50% 16%, rgba(21,10,38,.08), rgba(21,10,38,.4) 58%, rgba(10,5,22,.82) 100%);}
-  .spots{display:flex;gap:6px;justify-content:center;margin:2px 0 4px;flex:0 0 auto;}
+  .spots{display:flex;gap:6px;justify-content:center;margin:2px 0 4px;flex:0 1 auto;min-height:0;}
   .spot{flex:1;max-width:84px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:12px;padding:7px 4px;text-align:center;}
   .spot .spi{font-size:24px;line-height:1;}
   .spot .spl{font-size:9px;font-weight:700;margin-top:3px;opacity:.85;}
@@ -392,9 +392,10 @@ export const GAME_HTML = `<!DOCTYPE html>
   .maprow.cur{border-color:var(--gold);box-shadow:0 0 12px rgba(255,206,77,.3);} .maprow.cur .mn{color:var(--gold);}
   .maprow.done{opacity:.7;} .maprow.done .ms{color:var(--teal);}
   .maprow.lock{opacity:.5;}
-  .vcard{flex:1;max-width:80px;background:linear-gradient(180deg,#3a2068,#1c0e3a);border:2px solid rgba(255,213,110,.45);border-radius:11px;padding:4px 2px;text-align:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.35);}
+  .vcard{flex:1;max-width:80px;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(180deg,#3a2068,#1c0e3a);border:2px solid rgba(255,213,110,.45);border-radius:11px;padding:4px 2px;text-align:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.35);}
   .vcard.cant{opacity:.5;cursor:default;} .vcard.max{border-color:var(--teal);box-shadow:0 0 0 1px rgba(0,0,0,.35),0 0 9px rgba(47,214,196,.4);cursor:default;}
-  .vcard .vi{font-size:19px;line-height:1;height:38px;display:flex;align-items:center;justify-content:center;} .vcard .vstars{font-size:7px;color:var(--gold);letter-spacing:-.5px;margin-top:1px;line-height:1;}
+  /* When the panel is squeezed the icon gives up its space first, so the star row and the upgrade price stay readable instead of being clipped off the bottom of the card. */
+  .vcard .vi{font-size:19px;line-height:1;height:38px;flex:0 1 auto;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;} .vcard .vstars{font-size:7px;color:var(--gold);letter-spacing:-.5px;margin-top:1px;line-height:1;}
   .pcimg{max-width:100%;max-height:100%;object-fit:contain;display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45));} .pcem{display:none;} .noimg .pcimg{display:none;} .noimg .pcem{display:inline;} 
   .vcard .vc{font-size:8px;font-weight:700;color:var(--gold);margin-top:1px;} .vcard.max .vc{color:var(--teal);}
   /* ---- village celebration (alive glow + chest) ---- */
@@ -646,6 +647,46 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
 /* new build reveal animation */
 .bpn{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 42%,rgba(20,10,40,.5),rgba(8,4,20,.9));opacity:0;transition:opacity .22s}.bpn.show{display:flex;opacity:1}.bpn-plot{position:absolute;left:50%;top:62%;width:180px;height:34px;transform:translateX(-50%);background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,.34),rgba(0,0,0,0) 70%);border-radius:50%;filter:blur(3px)}.bpn-bwrap{position:absolute;left:50%;top:56%;width:190px;height:190px;transform-origin:bottom center;opacity:0}.bpn.show .bpn-bwrap{animation:bpnRise 720ms cubic-bezier(.2,1.25,.3,1) 200ms both}.bpn-img{width:100%;height:100%;object-fit:contain;transform:translateY(-100%);filter:drop-shadow(0 10px 8px rgba(0,0,0,.4))}@keyframes bpnRise{0%{transform:translateY(70px) scaleY(.12) scaleX(1.15);opacity:0}55%{opacity:1}78%{transform:translateY(-8px) scaleY(1.06) scaleX(.96)}100%{transform:translateY(0) scale(1);opacity:1}}.bpn-stars{position:absolute;left:50%;top:20%;transform:translateX(-50%);display:flex;gap:9px;z-index:2}.bpn-stars b{font-size:30px;color:#f5c542;opacity:.28;transform:scale(.8);text-shadow:0 2px 4px rgba(0,0,0,.5)}.bpn-stars b.on{opacity:1;animation:bpnStar .5s cubic-bezier(.2,1.6,.3,1) forwards}@keyframes bpnStar{0%{transform:scale(0) rotate(-30deg)}60%{transform:scale(1.5)}100%{transform:scale(1)}}.bpn-title{position:absolute;left:0;right:0;bottom:17%;text-align:center;color:#fff;font-weight:800;font-size:23px;text-shadow:0 2px 8px #000;z-index:2}.bpn-fx{position:absolute;inset:0;pointer-events:none;z-index:3}.bpn-skip{position:absolute;bottom:6%;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:8px 18px;font-family:inherit;font-weight:600;font-size:13px;z-index:4}.bpn .p{position:absolute}.bpn .dust{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle,#fff8e6,#d9c69a)}.bpn .coin{font-size:22px}.bpn .conf{width:10px;height:16px;border-radius:2px}.bpn .glow{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(255,244,180,.95),rgba(255,210,90,0) 70%)}@keyframes bpn-dust{0%{transform:translate(-50%,0) scale(.3);opacity:.95}100%{transform:translate(var(--dx),var(--dy)) scale(1.5);opacity:0}}@keyframes bpn-coin{0%{transform:translate(-50%,0) scale(.5);opacity:1}100%{transform:translate(calc(-50% + var(--cx)),var(--cy)) rotate(var(--cr)) scale(1);opacity:0}}@keyframes bpn-conf{0%{transform:translate(-50%,0) rotate(0);opacity:1}100%{transform:translate(calc(-50% + var(--fx)),var(--fy)) rotate(var(--fr));opacity:0}}@keyframes bpn-glow{0%{transform:translate(-50%,-50%) scale(.2);opacity:.9}100%{transform:translate(-50%,-50%) scale(2.8);opacity:0}}
 
+
+  /* ---- Short phones -----------------------------------------------------
+     .build is flex:1 at the foot of the portrait column, so on a short screen
+     everything above it claims space first and the village panel collapses -
+     measured at 8px of room for 60px of card on a 360x640 phone. #buildSpots
+     clips, and the last line in the card, the upgrade price, is what vanishes.
+     Hand the panel its room back by trimming the machine, which has the most
+     slack. The reel strip is scrolled by the measured symbol height, not a
+     hard-coded 108, so shrinking the reels here stays in sync by itself.
+     Phones taller than 720px never match this rule and are untouched. */
+  @media (orientation:portrait) and (max-height:720px){
+    .reels{height:84px;}
+    .sym{height:84px;font-size:38px;}
+    .sym img{width:72px;height:72px;}
+    .sym svg{width:44px;height:44px;}
+    .machine{margin:6px 0 4px;padding:6px 14px 5px;}
+    .msg{min-height:12px;margin:1px 0 0;}
+    .build{padding:4px 9px;}
+    .bhead{margin:1px 0 3px;}
+    .buildBtn{margin-top:3px;padding:7px;}
+  }
+
+  /* Very short phones (roughly 5in / 568px tall and under) need a second pass:
+     after the machine has given what it can there is still nothing left for
+     the village cards, so take a little from every bar down the column and
+     shorten the card's icon well so a tile fits in what remains. */
+  @media (orientation:portrait) and (max-height:620px){
+    .reels{height:68px;}
+    .sym{height:68px;font-size:32px;}
+    .sym img{width:58px;height:58px;}
+    .sym svg{width:36px;height:36px;}
+    .stats{margin-top:4px;}
+    .spinBtn{min-height:54px;font-size:25px;}
+    .spinrow{margin:1px 0 3px;}
+    .charge{margin:0 2px 2px;}
+    .nembar{margin:0 0 3px;padding:2px 8px;}
+    .piggy{margin:0 0 3px;padding:3px 9px;}
+    .vcard .vi{height:26px;font-size:17px;}
+    .vcard .vstars{font-size:6px;}
+  }
 
   /* ---- Landscape / large-screen two-column layout ----------------------
      Ships dormant: app.json still locks orientation to portrait, so this only
@@ -2696,7 +2737,7 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
     else $('msg').textContent='Built to 5★! Village '+villageSum()+'/'+(ITEMS*STARS)+'.';
     save();render();}
   var _pendingLU=null;
-  function advanceWorld(){var _dr=world%WORLD_ITEMS.length,_dw=world;world++;addEvtProgress('village',1);village=[0,0,0,0,0];specialWorld=Math.random()<SPECIAL_CHANCE;var _rw=lhLevelUpRewards();_pendingLU=_rw;sBig();stagePop();save();render();completeReveal(_dr,function(){if(!_vCeleb)showUnlock();});}
+  function advanceWorld(after){var _dr=world%WORLD_ITEMS.length,_dw=world;world++;addEvtProgress('village',1);village=[0,0,0,0,0];specialWorld=Math.random()<SPECIAL_CHANCE;var _rw=lhLevelUpRewards();_pendingLU=_rw;sBig();stagePop();save();render();completeReveal(_dr,function(){if(after){after();return;}if(!_vCeleb)showUnlock();});}
   let buildT=null;
   function buildUpStage(){const it=worldItems(),ic=worldRule().icon,seq=it.map(x=>x.i).concat([ic]),el=$('unlockStage');let i=0;clearInterval(buildT);el.classList.remove('built');el.textContent=seq[0];
     buildT=setInterval(()=>{i++;if(i>=seq.length){clearInterval(buildT);el.textContent=ic;el.classList.add('built');confetti(22);haptic(40);return;}el.textContent=seq[i];sPop();},170);}
@@ -2709,16 +2750,29 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
     if(!vLive()){done&&done();_vCeleb=false;return;}
     vAlive(true);
     setTimeout(function(){
-      done&&done();                      // advanceWorld: rolls + applies the rewards
-      var rw=_pendingLU;_pendingLU=null; // consumed here, so the old LEVEL UP window never fires
-      vCelebrate(rw,function(){
-        var m=$('villageModal');if(m)m.classList.remove('show');
-        _vdio=null;
-        showUnlock();
-      });
+      // The chest has to wait for the completion video. advanceWorld() kicks
+      // off completeReveal(), which plays full screen when a clip exists for
+      // the region, and it does NOT block - so the chest used to animate, and
+      // often auto-finish, hidden behind that video. The player landed on the
+      // new world having never seen the chest or the reward list, which reads
+      // as 'it skipped my rewards'. (The rewards themselves were always
+      // credited: lhLevelUpRewards() applies them as it rolls them.)
+      // So hand advanceWorld a continuation and celebrate only once the
+      // reveal is done. Older callers that pass a no-argument function still
+      // work through the fallback below.
+      var cont=function(){
+        var rw=_pendingLU;_pendingLU=null; // consumed here, so the old LEVEL UP window never fires
+        vCelebrate(rw,function(){
+          var m=$('villageModal');if(m)m.classList.remove('show');
+          _vdio=null;
+          showUnlock();
+        });
+      };
+      if(done&&done.length>0){done(cont);}
+      else{done&&done();cont();}
     },1000);
   }
-  function showUnlock(){const wr=worldRule();$('unlockRibbon').textContent=specialWorld?'✨ Special World! ✨':'New World Unlocked!';
+  function showUnlock(){var _um=$('unlockModal');/* Both the reveal callback and the chest callback can reach here on a slow video; showing the window twice restarts its build-up animation. */if(_um&&_um.classList.contains('show'))return;const wr=worldRule();$('unlockRibbon').textContent=specialWorld?'✨ Special World! ✨':'New World Unlocked!';
     $('unlockScene').style.backgroundImage="url('"+WORLD_BG[bgIndex(world)]+"')";
     $('unlockName').textContent=wr.icon+' '+wr.name;
     $('unlockDesc').textContent='World '+(world+1)+(specialWorld?' · 2× coins, +50% spins, boosted pets':' · new theme, bigger payouts, higher bets');
@@ -2918,7 +2972,7 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
     var _mq=$('marquee');if(_mq)_mq.onclick=function(){var wr=worldRule();popup(specialWorld?'✨':wr.icon,(specialWorld?'Special World - ':'')+wr.name,(specialWorld?'2x coin payouts, +50% free spins, boosted pets while you build here. ':'')+wr.blurb,'Got it');};
     var _ac=$('adClose');if(_ac)_ac.onclick=function(){if(adTimer){clearInterval(adTimer);adTimer=null;}$('adPlayer').classList.remove('show');};
     document.querySelectorAll('[data-close]').forEach(function(b){b.onclick=function(){var m=b.closest('.modal');if(m)m.classList.remove('show');};});
-    document.querySelectorAll('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('show');});});
+    document.querySelectorAll('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target!==m)return;/* The raid dig is paid for with spins and pays out through closeDig(): a backdrop tap used to just hide it, forfeiting the unused picks and the Raid Complete popup and leaving digState stale. It has its own Dig/Collect button, so there is no way to get stuck. */if(m.id==='digModal')return;m.classList.remove('show');});});
     document.querySelectorAll('.railbtn').forEach(function(b){b.onclick=function(){openModal(b.getAttribute('data-open'),HUB_FN[b.getAttribute('data-fn')]);};});
     document.addEventListener('keydown',function(e){if(e.code==='Space'){e.preventDefault();spin();}});
     setInterval(function(){if(typeof syncEvents==='function')syncEvents();var before=spins;regenSpins();if(spins!==before)save();render();},1000);
