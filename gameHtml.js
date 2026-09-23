@@ -1135,6 +1135,11 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   let wheelJackLvl=store.get('ll_wheelJackLvl',0);
   let world=store.get('ll_world',0),tier=store.get('ll_tier',0),progress=store.get('ll_prog',0);
   let totBuild=store.get('ll_tb',0),totTier=store.get('ll_tt',0),pig=store.get('ll_pig',0);
+  // Coins earned since a rival last got through. A raid skims a slice of THIS,
+  // not of the whole stash, so how hard you get taxed tracks what you actually
+  // earned rather than how many times you pulled the lever. See the raid branch
+  // in resolve() for why.
+  let earnSinceRaid=store.get('ll_esr',0);
   let village=store.get('ll_village',[0,0,0,0,0]);if(!Array.isArray(village)||village.length!==5)village=[0,0,0,0,0];
   let lastClaim=store.get('ll_last',''),streak=store.get('ll_streak',0);var CLAIM_MIN_MS=72000000,STREAK_MAX_GAP_MS=172800000;let freezes=store.get('ll_freezes',0),lastClaimMs=store.get('ll_lastms',0),msDone=store.get('ll_msdone',{});
   let evtStart=store.get('ll_evtS',0)||Date.now(),evtPoints=store.get('ll_evtP',0),evtClaimed=store.get('ll_evtC',[false,false,false,false]);
@@ -1287,8 +1292,12 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   // ===== App version label (shown in the ☰ Menu) =====
   // Bump this string with each release. Format: "<versionName> (<versionCode>)" —
   // keep it matching the Android versionName/versionCode used for the native build.
-  const APP_VERSION='1.0.2 (37)';
-  (function(){var el=document.getElementById('appVersion');if(el)el.textContent='v'+APP_VERSION;}());
+  // Fallback only. The native shell injects the real version/build straight out
+  // of app.json and calls lhSetVersion(), so the label can never drift from the
+  // store listing again. Injection lands after parse, hence the setter.
+  var APP_VERSION='1.0.4 (39)';
+  window.lhSetVersion=function(v){if(v)APP_VERSION=v;var el=document.getElementById('appVersion');if(el)el.textContent='v'+APP_VERSION;};
+  window.lhSetVersion(window.LH_APP_VERSION||'');
   // ===== Real-money gem packs + native money bridge (ads + IAP). =====
   // Web build lacks window.LH_NATIVE/LH_PAY/LH_ADS -> demo fallbacks below.
   const GEM_PACKS=[
@@ -1308,57 +1317,66 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   // tier: anchor (always on) | rot (rotating pool) | weekend (Fri-Sun marquee) | weeklong (7-day).
   // Rewards: baked use f(); remote-defined rungs use r:{k,n} via grantReward() (whitelist only).
   const EVENT_TYPES={
+    // Ladder thresholds are set off a simulated day of free-to-play output at
+    // the median bet: rung 1 ~12% of a day, rung 2 ~32%, rung 3 ~65% (the point
+    // a committed 20-30 minute session lands), rung 4 ~130% - a second day, or
+    // a spin purchase. Weekend ladders (3 days, 5 rungs) and weeklong ladders
+    // (7 days) are scaled off the same day-rate.
+    // weights:{symbol:delta} biases the reels while the event is live, so an
+    // attack event actually makes attacks land. See evtWeightBoost().
     // --- ANCHORS (2, always on, steady rewards) ---
-    treasure:{name:'Treasure Hunt',icon:'🗺️',kind:'progress',metric:'points',tier:'anchor',blurb:'Earn points every spin. 2x with a coin card equipped!',
-      rungs:[{at:25,i:'🪙',t:'1,000 coins',f:()=>(coins+=bonus(1000))},{at:60,i:'🎰',t:'15,000 spins',f:()=>spins+=15},{at:120,i:'🛡️',t:'4 shields',f:()=>addShields(4)},{at:200,i:'💎',t:'5K coins +8💎',f:()=>{(coins+=bonus(5000));gems+=8;}}]},
+    treasure:{name:'Treasure Hunt',icon:'🗺️',kind:'progress',metric:'points',tier:'anchor',blurb:'Earn points every spin. Bigger bets earn more per spin. 2x with a coin card equipped!',
+      rungs:[{at:300,i:'🪙',t:'2,000 coins',f:()=>(coins+=bonus(2000))},{at:750,i:'🎰',t:'30,000 spins',f:()=>spins+=30},{at:1500,i:'🛡️',t:'8 shields',f:()=>addShields(8)},{at:3000,i:'💎',t:'12K coins +16💎',f:()=>{(coins+=bonus(12000));gems+=16;}}]},
     deeds:{name:'Daily Deeds',icon:'📜',kind:'progress',metric:'quest',tier:'anchor',blurb:'Earn a mark from every attack, raid and build.',
-      rungs:[{at:3,i:'🪙',t:'1,200 coins',f:()=>(coins+=bonus(1200))},{at:8,i:'🎰',t:'14,000 spins',f:()=>spins+=14},{at:15,i:'🦴',t:'2 treats',f:()=>grantTreat(2)},{at:24,i:'💎',t:'4K coins +7💎',f:()=>{(coins+=bonus(4000));gems+=7;}}]},
+      rungs:[{at:7,i:'🪙',t:'2,400 coins',f:()=>(coins+=bonus(2400))},{at:18,i:'🎰',t:'28,000 spins',f:()=>spins+=28},{at:36,i:'🦴',t:'4 treats',f:()=>grantTreat(4)},{at:72,i:'💎',t:'10K coins +15💎',f:()=>{(coins+=bonus(10000));gems+=15;}}]},
     // --- ROTATING POOL (drawn 2/day, shuffle-bag: no repeat until the pool is exhausted) ---
-    attackMad:{name:'Attack Madness',icon:'⚔️',kind:'progress',metric:'attacks',tier:'rot',blurb:'Land ⚒️⚒️⚒️ attacks to climb. 2x with a raid card equipped!',
-      rungs:[{at:3,i:'🪙',t:'1,800 coins',f:()=>(coins+=bonus(1800))},{at:7,i:'🎰',t:'22,000 spins',f:()=>spins+=22},{at:12,i:'🦴',t:'2 treats',f:()=>grantTreat(2)},{at:20,i:'💎',t:'9K coins +12💎',f:()=>{(coins+=bonus(9000));gems+=12;}}]},
-    raidMad:{name:'Raid Madness',icon:'🪏',kind:'progress',metric:'raids',tier:'rot',blurb:'Land 🪏🪏🪏 raids to climb. 2x with a raid card equipped!',
-      rungs:[{at:2,i:'🪙',t:'2,000 coins',f:()=>(coins+=bonus(2000))},{at:5,i:'🎰',t:'22,000 spins',f:()=>spins+=22},{at:9,i:'🧪',t:'450 dust',f:()=>{cardState.dust=(cardState.dust||0)+450;}},{at:15,i:'💎',t:'11K coins +13💎',f:()=>{(coins+=bonus(11000));gems+=13;}}]},
+    attackMad:{name:'Attack Madness',icon:'⚔️',kind:'progress',metric:'attacks',tier:'rot',weights:{'⚒️':2},blurb:'Hammers land more often while this is live. Every ⚒️⚒️⚒️ climbs the ladder.',
+      rungs:[{at:2,i:'🪙',t:'3,600 coins',f:()=>(coins+=bonus(3600))},{at:4,i:'🎰',t:'44,000 spins',f:()=>spins+=44},{at:7,i:'🦴',t:'4 treats',f:()=>grantTreat(4)},{at:13,i:'💎',t:'20K coins +24💎',f:()=>{(coins+=bonus(20000));gems+=24;}}]},
+    raidMad:{name:'Raid Madness',icon:'🪏',kind:'progress',metric:'raids',tier:'rot',weights:{'🪏':3},blurb:'Shovels land far more often while this is live. Every 🪏🪏🪏 raid climbs the ladder.',
+      rungs:[{at:1,i:'🪙',t:'4,000 coins',f:()=>(coins+=bonus(4000))},{at:2,i:'🎰',t:'44,000 spins',f:()=>spins+=44},{at:4,i:'🧪',t:'900 dust',f:()=>{cardState.dust=(cardState.dust||0)+900;}},{at:8,i:'💎',t:'24K coins +26💎',f:()=>{(coins+=bonus(24000));gems+=26;}}]},
     cardsBoom:{name:'Cards Boom',icon:'🎴',kind:'modifier',tier:'rot',blurb:'Card chests drop 50% more cards while active.'},
     villageMania:{name:'Village Mania',icon:'🏗️',kind:'modifier',tier:'rot',blurb:'Build costs cut by 50% while active.'},
     vikingQuest:{name:'Viking Quest',icon:'🛡️',kind:'progress',metric:'quest',tier:'rot',blurb:'Earn quest marks from attacks, raids & builds.',
-      rungs:[{at:2,i:'🪙',t:'1,600 coins',f:()=>(coins+=bonus(1600))},{at:5,i:'🦴',t:'2 treats',f:()=>grantTreat(2)},{at:9,i:'🎰',t:'18,000 spins',f:()=>spins+=18},{at:14,i:'🧪',t:'400 dust',f:()=>{cardState.dust=(cardState.dust||0)+400;}},{at:20,i:'💎',t:'9K coins +11💎',f:()=>{(coins+=bonus(9000));gems+=11;}}]},
+      rungs:[{at:6,i:'🪙',t:'3,200 coins',f:()=>(coins+=bonus(3200))},{at:16,i:'🦴',t:'4 treats',f:()=>grantTreat(4)},{at:32,i:'🎰',t:'36,000 spins',f:()=>spins+=36},{at:48,i:'🧪',t:'800 dust',f:()=>{cardState.dust=(cardState.dust||0)+800;}},{at:64,i:'💎',t:'18K coins +22💎',f:()=>{(coins+=bonus(18000));gems+=22;}}]},
     collectRush:{name:'Collection Rush',icon:'📇',kind:'progress',metric:'collect',tier:'rot',blurb:'Open card chests to climb the ladder.',
-      rungs:[{at:5,i:'✨',t:'200 dust',f:()=>{cardState.dust=(cardState.dust||0)+200;}},{at:12,i:'💎',t:'60 gems',f:()=>{gems+=60;}},{at:24,i:'🎰',t:'25,000 spins',f:()=>{spins+=25;}},{at:40,i:'🔮',t:'800 dust +12💎',f:()=>{cardState.dust=(cardState.dust||0)+800;gems+=12;}}]},
-    spinFever:{name:'Spin Fever',icon:'🔥',kind:'progress',metric:'points',tier:'rot',blurb:'Every spin stokes the fever. Bigger bets climb faster.',
-      rungs:[{at:40,i:'🪙',t:'2,200 coins',f:()=>(coins+=bonus(2200))},{at:90,i:'🎰',t:'24,000 spins',f:()=>spins+=24},{at:160,i:'🛡️',t:'5 shields',f:()=>addShields(5)},{at:260,i:'💎',t:'12K coins +14💎',f:()=>{(coins+=bonus(12000));gems+=14;}}]},
+      rungs:[{at:3,i:'✨',t:'400 dust',f:()=>{cardState.dust=(cardState.dust||0)+400;}},{at:8,i:'💎',t:'120 gems',f:()=>{gems+=120;}},{at:16,i:'🎰',t:'50,000 spins',f:()=>{spins+=50;}},{at:32,i:'🔮',t:'1,600 dust +24💎',f:()=>{cardState.dust=(cardState.dust||0)+1600;gems+=24;}}]},
+    spinFever:{name:'Spin Fever',icon:'🔥',kind:'progress',metric:'points',tier:'rot',weights:{'⭐':1.5},blurb:'Stars land more often while the fever burns. Every spin stokes it.',
+      rungs:[{at:350,i:'🪙',t:'4,400 coins',f:()=>(coins+=bonus(4400))},{at:850,i:'🎰',t:'48,000 spins',f:()=>spins+=48},{at:1700,i:'🛡️',t:'8 shields',f:()=>addShields(8)},{at:3400,i:'💎',t:'24K coins +28💎',f:()=>{(coins+=bonus(24000));gems+=28;}}]},
+    tripleTrouble:{name:'Triple Trouble',icon:'🎯',kind:'progress',metric:'triples',tier:'rot',blurb:'Only three-of-a-kind counts. Any triple, any symbol - land them to climb.',
+      rungs:[{at:4,i:'🪙',t:'3,000 coins',f:()=>(coins+=bonus(3000))},{at:9,i:'🎰',t:'40,000 spins',f:()=>spins+=40},{at:19,i:'🧪',t:'700 dust',f:()=>{cardState.dust=(cardState.dust||0)+700;}},{at:38,i:'💎',t:'22K coins +25💎',f:()=>{(coins+=bonus(22000));gems+=25;}}]},
     gemDig:{name:'Gem Dig',icon:'💠',kind:'progress',metric:'collect',tier:'rot',blurb:'Crack open chests for a gem-heavy payout.',
-      rungs:[{at:4,i:'💎',t:'25 gems',f:()=>gems+=25},{at:10,i:'💎',t:'50 gems',f:()=>gems+=50},{at:20,i:'💎',t:'90 gems',f:()=>gems+=90},{at:34,i:'🔮',t:'160💎 +500 dust',f:()=>{gems+=160;cardState.dust=(cardState.dust||0)+500;}}]},
-    coinStorm:{name:'Coin Storm',icon:'🌩️',kind:'progress',metric:'points',tier:'rot',blurb:'Spin up a storm of coins. A pure coin haul.',
-      rungs:[{at:35,i:'🪙',t:'3,000 coins',f:()=>(coins+=bonus(3000))},{at:80,i:'🪙',t:'7,000 coins',f:()=>(coins+=bonus(7000))},{at:150,i:'🪙',t:'15,000 coins',f:()=>(coins+=bonus(15000))},{at:240,i:'🪙',t:'32,000 coins',f:()=>(coins+=bonus(32000))}]},
-    starRush:{name:'Star Rush',icon:'⭐',kind:'progress',metric:'quest',tier:'rot',blurb:'Build up your village — every star counts toward the ladder.',
-      rungs:[{at:4,i:'🪙',t:'2,400 coins',f:()=>(coins+=bonus(2400))},{at:9,i:'🎰',t:'20,000 spins',f:()=>spins+=20},{at:16,i:'🦴',t:'3 treats',f:()=>grantTreat(3)},{at:25,i:'💎',t:'10K coins +12💎',f:()=>{(coins+=bonus(10000));gems+=12;}}]},
-    // --- WEEKEND MARQUEE (Fri-Sun, best haul; lore + seasonal, chosen by week) ---
+      rungs:[{at:3,i:'💎',t:'50 gems',f:()=>gems+=50},{at:8,i:'💎',t:'100 gems',f:()=>gems+=100},{at:16,i:'💎',t:'180 gems',f:()=>gems+=180},{at:30,i:'🔮',t:'320💎 +1,000 dust',f:()=>{gems+=320;cardState.dust=(cardState.dust||0)+1000;}}]},
+    coinStorm:{name:'Coin Storm',icon:'🌩️',kind:'progress',metric:'points',tier:'rot',weights:{'🪙':2},blurb:'Coins flood the reels. A pure coin haul.',
+      rungs:[{at:300,i:'🪙',t:'6,000 coins',f:()=>(coins+=bonus(6000))},{at:750,i:'🪙',t:'14,000 coins',f:()=>(coins+=bonus(14000))},{at:1500,i:'🪙',t:'30,000 coins',f:()=>(coins+=bonus(30000))},{at:3000,i:'🪙',t:'64,000 coins',f:()=>(coins+=bonus(64000))}]},
+    starRush:{name:'Star Rush',icon:'⭐',kind:'progress',metric:'build',tier:'rot',blurb:'Build up your village - every star you raise counts toward the ladder.',
+      rungs:[{at:6,i:'🪙',t:'4,800 coins',f:()=>(coins+=bonus(4800))},{at:15,i:'🎰',t:'40,000 spins',f:()=>spins+=40},{at:30,i:'🦴',t:'6 treats',f:()=>grantTreat(6)},{at:60,i:'💎',t:'20K coins +24💎',f:()=>{(coins+=bonus(20000));gems+=24;}}]},
+    // --- WEEKEND MARQUEE (Fri-Sun, 3 days, best haul; lore + seasonal, chosen by week) ---
     nemesisWar:{name:'Nemesis War',icon:'🔥',kind:'progress',metric:'quest',tier:'weekend',blurb:'Weekend war! Attacks, raids and builds all rally the cause.',
-      rungs:[{at:6,i:'🪙',t:'5,000 coins',f:()=>(coins+=bonus(5000))},{at:16,i:'🎰',t:'35,000 spins',f:()=>spins+=35},{at:30,i:'🧪',t:'700 dust',f:()=>{cardState.dust=(cardState.dust||0)+700;}},{at:48,i:'💎',t:'80 gems',f:()=>gems+=80},{at:75,i:'🔮',t:'30K coins +120💎',f:()=>{(coins+=bonus(30000));gems+=120;}}]},
+      rungs:[{at:22,i:'🪙',t:'10,000 coins',f:()=>(coins+=bonus(10000))},{at:62,i:'🎰',t:'70,000 spins',f:()=>spins+=70},{at:118,i:'🧪',t:'1,400 dust',f:()=>{cardState.dust=(cardState.dust||0)+1400;}},{at:185,i:'💎',t:'160 gems',f:()=>gems+=160},{at:252,i:'🔮',t:'60K coins +240💎',f:()=>{(coins+=bonus(60000));gems+=240;}}]},
     raccoonRally:{name:'Raccoon Rally',icon:'🦝',kind:'progress',metric:'points',tier:'weekend',blurb:'The whole hollow spins together this weekend. Rally big!',
-      rungs:[{at:60,i:'🪙',t:'6,000 coins',f:()=>(coins+=bonus(6000))},{at:140,i:'🎰',t:'40,000 spins',f:()=>spins+=40},{at:260,i:'🛡️',t:'6 shields',f:()=>addShields(6)},{at:420,i:'💎',t:'90 gems',f:()=>gems+=90},{at:640,i:'🔮',t:'40K coins +130💎',f:()=>{(coins+=bonus(40000));gems+=130;}}]},
+      rungs:[{at:930,i:'🪙',t:'12,000 coins',f:()=>(coins+=bonus(12000))},{at:2570,i:'🎰',t:'80,000 spins',f:()=>spins+=80},{at:4900,i:'🛡️',t:'8 shields',f:()=>addShields(8)},{at:7700,i:'💎',t:'180 gems',f:()=>gems+=180},{at:10500,i:'🔮',t:'80K coins +260💎',f:()=>{(coins+=bonus(80000));gems+=260;}}]},
     frogFeast:{name:"Frog King's Feast",icon:'🐸',kind:'progress',metric:'collect',tier:'weekend',blurb:'A weekend feast of chests. Open, collect, gorge on rewards.',
-      rungs:[{at:8,i:'✨',t:'400 dust',f:()=>{cardState.dust=(cardState.dust||0)+400;}},{at:18,i:'💎',t:'70 gems',f:()=>gems+=70},{at:32,i:'🎰',t:'38,000 spins',f:()=>spins+=38},{at:52,i:'🪙',t:'25,000 coins',f:()=>(coins+=bonus(25000))},{at:80,i:'🔮',t:'1,200 dust +140💎',f:()=>{cardState.dust=(cardState.dust||0)+1200;gems+=140;}}]},
-    harvestHaul:{name:'Harvest Haul',icon:'🍂',kind:'progress',metric:'points',tier:'weekend',blurb:'Autumn harvest weekend — gather a bumper crop of coins.',
-      rungs:[{at:60,i:'🪙',t:'6,500 coins',f:()=>(coins+=bonus(6500))},{at:140,i:'🎰',t:'40,000 spins',f:()=>spins+=40},{at:260,i:'🦴',t:'4 treats',f:()=>grantTreat(4)},{at:420,i:'💎',t:'95 gems',f:()=>gems+=95},{at:640,i:'🔮',t:'42K coins +135💎',f:()=>{(coins+=bonus(42000));gems+=135;}}]},
-    winterWonder:{name:'Winter Wonderland',icon:'❄️',kind:'progress',metric:'points',tier:'weekend',blurb:'A snowy weekend of spins and shining rewards.',
-      rungs:[{at:60,i:'🪙',t:'6,500 coins',f:()=>(coins+=bonus(6500))},{at:140,i:'🎰',t:'42,000 spins',f:()=>spins+=42},{at:260,i:'🛡️',t:'6 shields',f:()=>addShields(6)},{at:420,i:'💎',t:'95 gems',f:()=>gems+=95},{at:640,i:'🔮',t:'42K coins +140💎',f:()=>{(coins+=bonus(42000));gems+=140;}}]},
-    summerSplash:{name:'Summer Splash',icon:'🏖️',kind:'progress',metric:'raids',tier:'weekend',blurb:'Make waves this weekend — raid rivals for a splashy haul.',
-      rungs:[{at:4,i:'🪙',t:'5,000 coins',f:()=>(coins+=bonus(5000))},{at:10,i:'🎰',t:'36,000 spins',f:()=>spins+=36},{at:18,i:'🧪',t:'700 dust',f:()=>{cardState.dust=(cardState.dust||0)+700;}},{at:30,i:'💎',t:'85 gems',f:()=>gems+=85},{at:46,i:'🔮',t:'35K coins +130💎',f:()=>{(coins+=bonus(35000));gems+=130;}}]},
+      rungs:[{at:10,i:'✨',t:'800 dust',f:()=>{cardState.dust=(cardState.dust||0)+800;}},{at:28,i:'💎',t:'140 gems',f:()=>gems+=140},{at:53,i:'🎰',t:'76,000 spins',f:()=>spins+=76},{at:83,i:'🪙',t:'50,000 coins',f:()=>(coins+=bonus(50000))},{at:113,i:'🔮',t:'2,400 dust +280💎',f:()=>{cardState.dust=(cardState.dust||0)+2400;gems+=280;}}]},
+    harvestHaul:{name:'Harvest Haul',icon:'🍂',kind:'progress',metric:'points',tier:'weekend',weights:{'🪙':1.5},blurb:'Autumn harvest weekend - coins crowd the reels, gather a bumper crop.',
+      rungs:[{at:930,i:'🪙',t:'13,000 coins',f:()=>(coins+=bonus(13000))},{at:2570,i:'🎰',t:'80,000 spins',f:()=>spins+=80},{at:4900,i:'🦴',t:'8 treats',f:()=>grantTreat(8)},{at:7700,i:'💎',t:'190 gems',f:()=>gems+=190},{at:10500,i:'🔮',t:'84K coins +270💎',f:()=>{(coins+=bonus(84000));gems+=270;}}]},
+    winterWonder:{name:'Winter Wonderland',icon:'❄️',kind:'progress',metric:'points',tier:'weekend',weights:{'⭐':1},blurb:'A snowy weekend of spins and shining rewards. Stars fall thicker.',
+      rungs:[{at:930,i:'🪙',t:'13,000 coins',f:()=>(coins+=bonus(13000))},{at:2570,i:'🎰',t:'84,000 spins',f:()=>spins+=84},{at:4900,i:'🛡️',t:'8 shields',f:()=>addShields(8)},{at:7700,i:'💎',t:'190 gems',f:()=>gems+=190},{at:10500,i:'🔮',t:'84K coins +280💎',f:()=>{(coins+=bonus(84000));gems+=280;}}]},
+    summerSplash:{name:'Summer Splash',icon:'🏖️',kind:'progress',metric:'raids',tier:'weekend',weights:{'🪏':2},blurb:'Make waves this weekend - shovels land more often, raid rivals for a splashy haul.',
+      rungs:[{at:2,i:'🪙',t:'10,000 coins',f:()=>(coins+=bonus(10000))},{at:6,i:'🎰',t:'72,000 spins',f:()=>spins+=72},{at:11,i:'🧪',t:'1,400 dust',f:()=>{cardState.dust=(cardState.dust||0)+1400;}},{at:18,i:'💎',t:'170 gems',f:()=>gems+=170},{at:24,i:'🔮',t:'70K coins +260💎',f:()=>{(coins+=bonus(70000));gems+=260;}}]},
     // --- WEEKLONG (7-day, chosen by week; includes 'play N days' + village goals) ---
-    marathon:{name:'Weekly Marathon',icon:'🏃',kind:'progress',metric:'login',tier:'weeklong',blurb:'Play across the week — each day you open the game counts.',
-      rungs:[{at:2,i:'🪙',t:'4,000 coins',f:()=>(coins+=bonus(4000))},{at:3,i:'🎰',t:'26,000 spins',f:()=>spins+=26},{at:5,i:'💎',t:'60 gems',f:()=>gems+=60},{at:7,i:'🔮',t:'30K coins +130💎',f:()=>{(coins+=bonus(30000));gems+=130;}}]},
+    marathon:{name:'Weekly Marathon',icon:'🏃',kind:'progress',metric:'login',tier:'weeklong',blurb:'Play across the week - each day you open the game counts.',
+      rungs:[{at:2,i:'🪙',t:'8,000 coins',f:()=>(coins+=bonus(8000))},{at:3,i:'🎰',t:'52,000 spins',f:()=>spins+=52},{at:5,i:'💎',t:'120 gems',f:()=>gems+=120},{at:7,i:'🔮',t:'60K coins +260💎',f:()=>{(coins+=bonus(60000));gems+=260;}}]},
     conquest:{name:'Weekly Conquest',icon:'🏰',kind:'progress',metric:'village',tier:'weeklong',blurb:'Complete villages all week to conquer the ladder.',
-      rungs:[{at:2,i:'🪙',t:'5,000 coins',f:()=>(coins+=bonus(5000))},{at:5,i:'🎰',t:'32,000 spins',f:()=>spins+=32},{at:9,i:'🧪',t:'800 dust',f:()=>{cardState.dust=(cardState.dust||0)+800;}},{at:14,i:'🔮',t:'35K coins +140💎',f:()=>{(coins+=bonus(35000));gems+=140;}}]},
+      rungs:[{at:2,i:'🪙',t:'10,000 coins',f:()=>(coins+=bonus(10000))},{at:4,i:'🎰',t:'64,000 spins',f:()=>spins+=64},{at:7,i:'🧪',t:'1,600 dust',f:()=>{cardState.dust=(cardState.dust||0)+1600;}},{at:11,i:'🔮',t:'70K coins +280💎',f:()=>{(coins+=bonus(70000));gems+=280;}}]},
     warpath:{name:'Weekly Warpath',icon:'🗡️',kind:'progress',metric:'quest',tier:'weeklong',blurb:'A week of attacks, raids and builds. Keep the marks coming.',
-      rungs:[{at:10,i:'🪙',t:'5,000 coins',f:()=>(coins+=bonus(5000))},{at:25,i:'🎰',t:'32,000 spins',f:()=>spins+=32},{at:45,i:'💎',t:'80 gems',f:()=>gems+=80},{at:70,i:'🔮',t:'36K coins +140💎',f:()=>{(coins+=bonus(36000));gems+=140;}}]},
+      rungs:[{at:50,i:'🪙',t:'10,000 coins',f:()=>(coins+=bonus(10000))},{at:134,i:'🎰',t:'64,000 spins',f:()=>spins+=64},{at:258,i:'💎',t:'160 gems',f:()=>gems+=160},{at:392,i:'🔮',t:'72K coins +280💎',f:()=>{(coins+=bonus(72000));gems+=280;}}]},
     grandVault:{name:'Grand Vault',icon:'🏦',kind:'progress',metric:'collect',tier:'weeklong',blurb:'Open chests all week to crack the Grand Vault.',
-      rungs:[{at:10,i:'✨',t:'500 dust',f:()=>{cardState.dust=(cardState.dust||0)+500;}},{at:25,i:'💎',t:'90 gems',f:()=>gems+=90},{at:45,i:'🎰',t:'34,000 spins',f:()=>spins+=34},{at:70,i:'🔮',t:'1,500 dust +150💎',f:()=>{cardState.dust=(cardState.dust||0)+1500;gems+=150;}}]}
+      rungs:[{at:22,i:'✨',t:'1,000 dust',f:()=>{cardState.dust=(cardState.dust||0)+1000;}},{at:60,i:'💎',t:'180 gems',f:()=>gems+=180},{at:115,i:'🎰',t:'68,000 spins',f:()=>spins+=68},{at:175,i:'🔮',t:'3,000 dust +300💎',f:()=>{cardState.dust=(cardState.dust||0)+3000;gems+=300;}}]}
   };
   // Baked event config (events.json can override any of these at runtime).
   const EVT_CFG_DEFAULT={
     anchors:['treasure','deeds'],
-    rotating:['attackMad','raidMad','cardsBoom','villageMania','vikingQuest','collectRush','spinFever','gemDig','coinStorm','starRush'],
+    rotating:['attackMad','raidMad','cardsBoom','villageMania','vikingQuest','collectRush','spinFever','tripleTrouble','gemDig','coinStorm','starRush'],
     drawPerDay:2,
     weekendThemes:['nemesisWar','raccoonRally','frogFeast','harvestHaul','summerSplash','winterWonder'],
     weeklongThemes:['marathon','conquest','warpath','grandVault']
@@ -1380,9 +1398,16 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function maxedWorld(){return villageSum()>=ITEMS*STARS;}
   function econScale(){return Math.pow(ECON_BASE,totBuild);}
   function bonus(x){return Math.round(x*econScale()*100);}
-  function payMult(){return econScale()*(specialWorld?2:1)*(frenzy>0?FRENZY_MULT:1)*((typeof CP==='function')?CP().coinMult:1)*(goldenNow?2:1);}
+  // Build costs climb 1.2x every 25 worlds (worldCostMult) while coin income
+  // did not, so the two curves diverged 8.7x over 250 worlds and progress
+  // stalled dead around world 150-200. Income now tracks that ramp to the
+  // 0.4 power, normalised so world 0 is unchanged: the late game still slows
+  // down (costs outpace income ~2.9x across the full 250) but it no longer
+  // becomes unfinishable.
+  function worldPayRamp(){return Math.pow(worldCostMult()/SPW_BASE,0.4);}
+  function payMult(){return econScale()*worldPayRamp()*(specialWorld?2:1)*(frenzy>0?FRENZY_MULT:1)*((typeof CP==='function')?CP().coinMult:1)*(goldenNow?2:1);}
   function pigCap(){return Math.round(4000*econScale()*100);}
-  function feedBank(a){pig=Math.min(pigCap(),pig+Math.round(a*0.25));}
+  function feedBank(a){if(a>0)earnSinceRaid+=a;pig=Math.min(pigCap(),pig+Math.round(a*0.25));}
   function gainCoins(base){let m=payMult();if(activePet==='mole')m*=1+0.15*petPow();const w=Math.round(base*m*100);coins+=w;feedBank(w);return w;}
   function awardCoins(n){n=Math.round(n*racMult()*collMult()*100);coins+=n;feedBank(n);return n;}
   const SAFE_FRAC=0.75;
@@ -2149,6 +2174,13 @@ function evtFetchRemote(){
       if(j.defs&&typeof j.defs==='object'){var kk;for(kk in j.defs){var d=j.defs[kk];if(!d||typeof d!=='object')continue;
         var kind=(d.kind==='modifier')?'modifier':'progress';
         var def={name:evtSanitize(d.name||kk),icon:evtSanitize(d.icon||'🎪'),kind:kind,tier:(['anchor','rot','weekend','weeklong','override'].indexOf(d.tier)>=0?d.tier:'override'),blurb:evtSanitize(d.blurb||'')};
+        // Reel bias, same shape as the baked events: {symbol:delta}. Only real
+        // reel symbols are accepted and each delta is clamped to 0..3, so a bad
+        // or tampered events.json cannot make one symbol swallow the reels.
+        if(d.weights&&typeof d.weights==='object'){var _w={},_any=false,_sy;
+          for(_sy in d.weights){if(SYMS.indexOf(_sy)<0)continue;var _v=d.weights[_sy];
+            if(typeof _v!=='number'||!(_v>0))continue;_w[_sy]=Math.min(3,_v);_any=true;}
+          if(_any)def.weights=_w;}
         if(kind==='progress'){def.metric=evtSanitize(d.metric||'points');var rungs=Array.isArray(d.rungs)?d.rungs:[];def.rungs=[];
           rungs.forEach(function(r){if(!r||typeof r.at!=='number')return;var rr=(r.r&&typeof r.r==='object')?{k:evtSanitize(r.r.k),n:(typeof r.r.n==='number'?r.r.n:0)}:null;def.rungs.push({at:Math.max(1,Math.floor(r.at)),i:evtSanitize(r.i||'🎁'),t:evtSanitize(r.t||''),r:rr});});
           if(!def.rungs.length)continue;}
@@ -2308,7 +2340,7 @@ function dailyMilestone(st){var M={14:function(){gems+=100;freezes=Math.min(2,fr
 /* ==== VILLAGE COMPLETE SPLASH ==== */
 var _vcFire=null;
 /* ==== end ==== */
-function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_world:world,ll_tier:tier,ll_prog:progress,ll_tb:totBuild,ll_tt:totTier,ll_pig:pig,ll_last:lastClaim,ll_streak:streak,ll_evtS:evtStart,ll_evtP:evtPoints,ll_evtC:evtClaimed,ll_rev:revenge,ll_mute:muted,ll_bet:betIdx,ll_relics:relicsOwned,ll_sets:setsDone,ll_pets:petsOwned,ll_active:activePet,ll_rivals2:rivalState,ll_nem:nemesisId,ll_def:defense,ll_aev:activeEvents,ll_loginDay:lastLoginDay,ll_gold:goldOwned,ll_goldsets:goldSetsDone,ll_jok:jokers,ll_treats:treats,ll_awake:petAwake,ll_special:specialWorld,ll_gems:gems,ll_firstbuy:firstBuy,ll_charge:charge,ll_frenzy:frenzy,ll_regenAnchor:regenAnchor,ll_village:village,ll_adW:adWatches,ll_adDay:adDay,ll_wheelday:wheelDay,ll_wheelextra:wheelExtra,ll_treeLvl:treeLvl,ll_treeXP:treeXP,ll_treeBucket:treeBucket,ll_treeTs:treeTs,ll_treeWater:treeWater,ll_treeWaterDay:treeWaterDay,ll_racLvl:racLvl,ll_racXP:racXP,ll_wheelJackLvl:wheelJackLvl,ll_cards:cardState,ll_chal:chalState,ll_skin:skinSel,ll_skinOwned:skinOwned,ll_pass:passState,ll_seenReveal:seenReveal,ll_freezes:freezes,ll_lastms:lastClaimMs,ll_msdone:msDone};for(const k in m)store.set(k,m[k]);}
+function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_world:world,ll_tier:tier,ll_prog:progress,ll_tb:totBuild,ll_tt:totTier,ll_pig:pig,ll_esr:earnSinceRaid,ll_last:lastClaim,ll_streak:streak,ll_evtS:evtStart,ll_evtP:evtPoints,ll_evtC:evtClaimed,ll_rev:revenge,ll_mute:muted,ll_bet:betIdx,ll_relics:relicsOwned,ll_sets:setsDone,ll_pets:petsOwned,ll_active:activePet,ll_rivals2:rivalState,ll_nem:nemesisId,ll_def:defense,ll_aev:activeEvents,ll_loginDay:lastLoginDay,ll_gold:goldOwned,ll_goldsets:goldSetsDone,ll_jok:jokers,ll_treats:treats,ll_awake:petAwake,ll_special:specialWorld,ll_gems:gems,ll_firstbuy:firstBuy,ll_charge:charge,ll_frenzy:frenzy,ll_regenAnchor:regenAnchor,ll_village:village,ll_adW:adWatches,ll_adDay:adDay,ll_wheelday:wheelDay,ll_wheelextra:wheelExtra,ll_treeLvl:treeLvl,ll_treeXP:treeXP,ll_treeBucket:treeBucket,ll_treeTs:treeTs,ll_treeWater:treeWater,ll_treeWaterDay:treeWaterDay,ll_racLvl:racLvl,ll_racXP:racXP,ll_wheelJackLvl:wheelJackLvl,ll_cards:cardState,ll_chal:chalState,ll_skin:skinSel,ll_skinOwned:skinOwned,ll_pass:passState,ll_seenReveal:seenReveal,ll_freezes:freezes,ll_lastms:lastClaimMs,ll_msdone:msDone};for(const k in m)store.set(k,m[k]);}
 
   function render(){racRender();
     setCoins(); $('spins').textContent=fmt(spins*1000); $('shields').textContent=shields; $('gems').textContent=fmt(gems); $('rating').textContent='⭐ '+fmt(rating());
@@ -2630,7 +2662,27 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
   const sp=$('specks');var _spc=(activeWheelSkin().spx||'');for(let i=0;i<14;i++){const d=document.createElement('div');d.className='speck';if(_spc)d.style.background=_spc;d.style.left=Math.random()*100+'%';d.style.top=Math.random()*100+'%';d.style.animationDelay=(Math.random()*7)+'s';d.style.opacity=(.2+Math.random()*.4);sp.appendChild(d);}
 
   function spinReel(idx,finalSym,antic){return new Promise(res=>{const strip=$('s'+idx),reel=$('r'+idx);reel.classList.remove('win','near','antic');strip.innerHTML='';const n=20;for(let i=0;i<n;i++){const d=document.createElement('div');d.className='sym';d.innerHTML=symHTML((i===n-1)?finalSym:SYMS[Math.floor(Math.random()*SYMS.length)]);strip.appendChild(d);}strip.style.transition='none';strip.style.transform='translateY(0)';void strip.offsetHeight;const dur=900+idx*260+(antic?650:0);if(antic)reel.classList.add('antic');strip.style.transition='transform '+dur+'ms cubic-bezier(.15,.7,.2,1)';const symH=strip.firstChild?strip.firstChild.getBoundingClientRect().height:108;strip.style.transform='translateY(-'+((n-1)*symH)+'px)';setTimeout(()=>{reel.classList.remove('antic');sStop();res();},dur);});}
+  // Event points scale with bet on a log curve, not linearly: a 100x bet is
+  // worth 3x the ladder progress, not 100x. Keeps big-bet whales ahead without
+  // letting them clear a 24h ladder in a dozen spins, and keeps a 1x-bet player
+  // on a ladder that is still reachable.
+  function evtBetMult(be){return 1+Math.log(Math.max(1,be))/Math.LN10;}
+  // Per-event reel bias. An event may declare weights:{symbol:delta}; the delta
+  // is added to that symbol's base weight while the event is live, so an attack
+  // event actually makes attacks land more often. Clamped so a bad or hostile
+  // events.json cannot warp the reels: total bias per symbol is capped at +3.
+  function evtWeightBoost(sym){
+    if(typeof activeEvents==='undefined'||!activeEvents||!activeEvents.length)return 0;
+    var b=0;
+    for(var i=0;i<activeEvents.length;i++){
+      var t=(typeof evDef==='function')?evDef(activeEvents[i].key):null;
+      if(t&&t.weights&&typeof t.weights[sym]==='number')b+=t.weights[sym];
+    }
+    if(!(b>0))return 0;
+    return Math.min(3,b);
+  }
   function weightedSym(){const r=worldRule();const starW=1.4+(spins<=10?0.27:0)+((typeof CP==='function')?CP().rareOdds*2:0);const w=[['🪙',3+(r.coinWeight||0)],['💎',2+(r.gemWeight||0)],['⚒️',2],['🛡️',0.5],['🐷',1],['⭐',starW],['🪏',1]];
+    for(let j=0;j<w.length;j++)w[j][1]=Math.max(0,w[j][1]+evtWeightBoost(w[j][0]));
     let tot=0;for(let i=0;i<w.length;i++)tot+=w[i][1];let x=Math.random()*tot;
     for(let i=0;i<w.length;i++){x-=w[i][1];if(x<0)return w[i][0];}return '🪙';}
 
@@ -2653,7 +2705,7 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
 
   function resolve(a,b,c){
     const triple=(a===b&&b===c),be=bet();
-    addEvtProgress('points',(triple?12:4)*be);if(typeof chalBump==='function')chalBump('spin',1);if(typeof passAddXP==='function')passAddXP(2);
+    addEvtProgress('points',Math.round((triple?12:4)*evtBetMult(be)));if(triple)addEvtProgress('triples',1);if(typeof chalBump==='function')chalBump('spin',1);if(typeof passAddXP==='function')passAddXP(2);
     if(triple){flashWin();const s=a;
       if(s==='🪙'){const w=gainCoins(250*be*CP().jackpotMult);coinRain(20);bigPop('🪙','Coin Jackpot!','+'+fmt(w)+' coins!');$('msg').textContent='Triple coins! +'+fmt(w);}
       else if(s==='💎'){const w=gainCoins(600*be*CP().jackpotMult);const gg=2+(specialWorld?1:0);gems+=gg;coinRain(26);bigPop('💎','Mega Gems!','+'+fmt(w)+' coins, +'+gg+'💎!');$('msg').textContent='Triple gems! +'+fmt(w)+' +'+gg+'💎';}
@@ -2672,7 +2724,14 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
       if(activePet==='tortoise'&&Math.random()<0.30*petPow()){sPop();$('msg').textContent=r.n+' tried to raid you — Shelby blocked it free!';}
       else if(snareBlocks()){sPop();$('msg').textContent=r.n+' hit your Snare Trap — raid blocked!';}
       else if(cardRaidBlock()){sPop();$('msg').textContent=r.n+' raid blocked by your cards!';}else if(shields>0){shields--;sPop();$('msg').textContent=r.n+' raid BLOCKED! (−1 shield)';}
-      else{var rate=0.10*(isNem?1.3:1);var safeFloor=Math.max(100,Math.round(coins*SAFE_FRAC));var stealable=Math.max(0,coins-safeFloor);let loss=Math.min(stealable,Math.max(120,Math.round(coins*rate)));loss=applyBarricade(loss);coins-=loss;sHit();addGrudge(r.n,2);revenge.push({n:r.n,f:r.f,amt:loss});if(revenge.length>6)revenge.shift();
+      else{var rate=0.10*(isNem?1.3:1);var safeFloor=Math.max(100,Math.round(coins*SAFE_FRAC));var stealable=Math.max(0,coins-safeFloor);
+        // A raid takes a cut of what you have earned since the last one, capped
+        // by the old flat percentage of the stash so it is never harsher than
+        // before. Without this, raid frequency tracks SPIN COUNT while income
+        // tracks BET, so a patient 1x player was losing ~39% of everything they
+        // earned deep in the game while a 10x player lost ~12% for the same
+        // income. Now both pay about the same share.
+        var earned=Math.round(earnSinceRaid*0.20*(isNem?1.3:1));let loss=Math.min(stealable,Math.max(120,Math.min(earned,Math.round(coins*rate))));loss=applyBarricade(loss);coins-=loss;earnSinceRaid=0;sHit();addGrudge(r.n,2);revenge.push({n:r.n,f:r.f,amt:loss});if(revenge.length>6)revenge.shift();
         let cb=watchCounter(loss),ctxt='';if(cb>0){coins+=cb;feedBank(cb);ctxt=' Your Watch-Beast clawed back '+cb.toLocaleString()+'!';}
         popup('💥',(isNem?'Nemesis ':'')+r.n+' Raided You!','They skimmed '+loss.toLocaleString()+' coins (most of your stash is safe). Strike them back in Rivals to topple their lair and reclaim it!'+ctxt);$('msg').textContent=r.n+' stole '+loss+'!';}}
     save();render();
@@ -2720,7 +2779,7 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
   }
   function vLive(){if(!(_vdio&&_vdio.host&&document.body.contains(_vdio.host)&&_vdio.rg===vreg()))return false;
     var m=_vdio.host.closest('.modal');return !!(m&&m.classList.contains('show'));}
-  function buildItem(i){if(village[i]>=STARS)return;const c=itemCost(i);if(coins<c)return;const before=Math.floor(villageSum()/STARS);const _lv0=village[i];coins-=c;village[i]++;totBuild++;addEvtProgress('quest',1);sPop();
+  function buildItem(i){if(village[i]>=STARS)return;const c=itemCost(i);if(coins<c)return;const before=Math.floor(villageSum()/STARS);const _lv0=village[i];coins-=c;village[i]++;totBuild++;addEvtProgress('quest',1);addEvtProgress('build',1);sPop();
     // the diorama animates the piece in place; the full-screen reveal is only for when it is not on screen
     if(vLive())vAnimate(i,_lv0); else if(village[i]===STARS)buildReveal(i);
     if(villageShopLive())renderVillageList();
@@ -2729,7 +2788,7 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
     else $('msg').textContent='Built! Village '+villageSum()+'/'+(ITEMS*STARS)+'.';
     save();render();}
   function fullCost(i){var base=BUILD_BASE*buildMult()*worldCostMult()*100,t=0,n=0;for(var k=village[i];k<STARS;k++){var bc=Math.round(base*Math.pow(ECON_BASE,totBuild+n));t+=Math.round(bc*(1+0.18*k));n++;}return t;}
-  function buildItemFull(i){if(village[i]>=STARS)return;var c=fullCost(i);if(coins<c)return;var before=Math.floor(villageSum()/STARS);var added=STARS-village[i];var _lv0=village[i];coins-=c;village[i]=STARS;totBuild+=added;addEvtProgress('quest',added);sPop();
+  function buildItemFull(i){if(village[i]>=STARS)return;var c=fullCost(i);if(coins<c)return;var before=Math.floor(villageSum()/STARS);var added=STARS-village[i];var _lv0=village[i];coins-=c;village[i]=STARS;totBuild+=added;addEvtProgress('quest',added);addEvtProgress('build',added);sPop();
     if(vLive())vAnimate(i,_lv0); else buildReveal(i);
     if(villageShopLive())renderVillageList();
     var after=Math.floor(villageSum()/STARS);if(after>before){stagePop();confetti(14);}

@@ -34,6 +34,15 @@ if errorlevel 1 (
 ) else (
   call node sync-game.mjs
   if errorlevel 1 goto :error
+
+  REM --- Tablets run a SEPARATE bundle. Without these two lines the tablet
+  REM     build silently keeps whatever game it was last baked with, so a
+  REM     phone fix never reaches tablet users. Do not remove.
+  echo Baking the tablet build...
+  call node ..\game\build-tablet-html.mjs
+  if errorlevel 1 goto :error
+  call node sync-game-tablet.mjs
+  if errorlevel 1 goto :error
 )
 
 REM --- Safety net: never ship a truncated bundle (this was the blank-screen bug). ---
@@ -41,6 +50,13 @@ findstr /C:"</html>" gameHtml.js >nul
 if errorlevel 1 (
   echo.
   echo *** SAFETY STOP: gameHtml.js looks truncated -- no closing tag found. ***
+  echo Nothing was pushed. Send this message to Claude.
+  goto :error
+)
+findstr /C:"</html>" gameHtmlTablet.js >nul
+if errorlevel 1 (
+  echo.
+  echo *** SAFETY STOP: gameHtmlTablet.js looks truncated -- no closing tag found. ***
   echo Nothing was pushed. Send this message to Claude.
   goto :error
 )

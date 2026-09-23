@@ -7,6 +7,7 @@ import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import appJson from './app.json';
 import { GAME_HTML } from './gameHtml';
 import { GAME_HTML_TABLET } from './gameHtmlTablet';
 
@@ -17,6 +18,12 @@ import { GAME_HTML_TABLET } from './gameHtmlTablet';
 // phone rotated to landscape never gets misclassified as a tablet.
 const { width: LH_SCR_W, height: LH_SCR_H } = Dimensions.get('screen');
 const LH_IS_TABLET = Math.min(LH_SCR_W, LH_SCR_H) >= 600;
+
+// Single source of truth for the version the game shows: app.json, the same
+// file EAS/Codemagic reads when it builds. Bump app.json and the label follows.
+const LH_VERSION_LABEL =
+  String(appJson?.expo?.version || '') +
+  ' (' + String(appJson?.expo?.android?.versionCode || '') + ')';
 
 // app.json's native orientation lock had to become "default" (unlocked) so a
 // tablet can be forced into landscape here - a single manifest-level setting
@@ -421,8 +428,14 @@ export default function App() {
 
   // Tell the game the native money bridge is present so it routes buys/ads to us
   // (web build lacks this and keeps its demo fallback).
+  // Version label comes straight out of app.json so the in-game "v1.0.3 (38)"
+  // can never drift from what the store is actually serving. The game keeps a
+  // baked fallback for the web build and exposes lhSetVersion() because this
+  // script is injected after the page has already parsed.
   const nativeFlags =
     "window.LH_NATIVE=true;" +
+    "window.LH_APP_VERSION='" + LH_VERSION_LABEL + "';" +
+    "if(window.lhSetVersion)window.lhSetVersion(window.LH_APP_VERSION);" +
     (Purchases && RC_ANDROID_KEY.indexOf('PLACEHOLDER') === -1 ? "window.LH_PAY=true;" : "") +
     (AdMob && AdMob.RewardedAd ? "window.LH_ADS=true;" : "") +
     (Platform.OS === 'android' ? "window.LH_REDEEM=true;" : "");
