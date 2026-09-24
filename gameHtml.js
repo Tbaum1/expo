@@ -360,7 +360,7 @@ export const GAME_HTML = `<!DOCTYPE html>
 
   #bgLayer{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;transition:opacity .5s;}
   #bgLayer::after{content:'';position:absolute;inset:0;background:radial-gradient(125% 72% at 50% 16%, rgba(21,10,38,.08), rgba(21,10,38,.4) 58%, rgba(10,5,22,.82) 100%);}
-  .spots{display:flex;gap:6px;justify-content:center;margin:2px 0 4px;flex:0 1 auto;min-height:0;}
+  .spots{display:flex;gap:6px;justify-content:center;align-items:center;margin:2px 0 4px;flex:0 1 auto;min-height:0;}
   .spot{flex:1;max-width:84px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:12px;padding:7px 4px;text-align:center;}
   .spot .spi{font-size:24px;line-height:1;}
   .spot .spl{font-size:9px;font-weight:700;margin-top:3px;opacity:.85;}
@@ -403,10 +403,10 @@ export const GAME_HTML = `<!DOCTYPE html>
   .maprow.cur{border-color:var(--gold);box-shadow:0 0 12px rgba(255,206,77,.3);} .maprow.cur .mn{color:var(--gold);}
   .maprow.done{opacity:.7;} .maprow.done .ms{color:var(--teal);}
   .maprow.lock{opacity:.5;}
-  .vcard{flex:1;max-width:80px;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(180deg,#3a2068,#1c0e3a);border:2px solid rgba(255,213,110,.45);border-radius:11px;padding:4px 2px;text-align:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.35);}
+  .vcard{flex:1;max-width:92px;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(180deg,#3a2068,#1c0e3a);border:2px solid rgba(255,213,110,.45);border-radius:11px;padding:4px 2px;text-align:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.35);}
   .vcard.cant{opacity:.5;cursor:default;} .vcard.max{border-color:var(--teal);box-shadow:0 0 0 1px rgba(0,0,0,.35),0 0 9px rgba(47,214,196,.4);cursor:default;}
   /* When the panel is squeezed the icon gives up its space first, so the star row and the upgrade price stay readable instead of being clipped off the bottom of the card. */
-  .vcard .vi{font-size:19px;line-height:1;height:38px;flex:0 1 auto;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;} .vcard .vstars{font-size:7px;color:var(--gold);letter-spacing:-.5px;margin-top:1px;line-height:1;}
+  .vcard .vi{font-size:26px;line-height:1;height:44px;flex:0 1 auto;min-height:34px;overflow:hidden;display:flex;align-items:center;justify-content:center;} .vcard .vstars{font-size:7px;color:var(--gold);letter-spacing:-.5px;margin-top:1px;line-height:1;}
   .pcimg{max-width:100%;max-height:100%;object-fit:contain;display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45));} .pcem{display:none;} .noimg .pcimg{display:none;} .noimg .pcem{display:inline;} 
   .vcard .vc{font-size:8px;font-weight:700;color:var(--gold);margin-top:1px;} .vcard.max .vc{color:var(--teal);}
   /* ---- village celebration (alive glow + chest) ---- */
@@ -695,7 +695,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
     .charge{margin:0 2px 2px;}
     .nembar{margin:0 0 3px;padding:2px 8px;}
     .piggy{margin:0 0 3px;padding:3px 9px;}
-    .vcard .vi{height:26px;font-size:17px;}
+    .vcard .vi{height:34px;font-size:22px;min-height:30px;}
     .vcard .vstars{font-size:6px;}
   }
 
@@ -2661,7 +2661,14 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
       if(!maxed&&coins>=c)el.onclick=()=>buildItem(i);box.appendChild(el);}wirePcImgs(box);}
   // The shop = diorama (kept alive across builds so animations are not killed)
   // + a list below it that re-renders on its own.
-  function renderVillageShop(){const box=$('villageList');if(!box)return;box.innerHTML='';
+  function vCelebReset(){
+    if(window.__vLockSeq)return;            // a real sequence is running - leave it alone
+    _vCeleb=false;
+    try{vAlive(false);}catch(e){}
+    var junk=document.querySelectorAll('.vchestWrap,.vflash,.vdone,.vloot');
+    for(var i=0;i<junk.length;i++)junk[i].remove();
+  }
+  function renderVillageShop(){vCelebReset();const box=$('villageList');if(!box)return;box.innerHTML='';
     var dio=document.createElement('div');box.appendChild(dio);buildDiorama(dio);
     requestAnimationFrame(vLayout);
     var list=document.createElement('div');list.id='villageRows';box.appendChild(list);
@@ -2679,7 +2686,7 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
         if(rem>1){const fc=fullCost(i);const fb=document.createElement('button');fb.className='vfull';fb.textContent='Buy 5★ '+fmt(fc);fb.disabled=coins<fc;fb.onclick=()=>{buildItemFull(i);};grp.appendChild(fb);}}
       row.appendChild(grp);box.appendChild(row);});
     wirePcImgs(box);
-    if(villageSum()>=ITEMS*STARS){const d=document.createElement('button');d.className='bigbtn vdoneBtn';d.textContent='Village Complete — Move to New World →';d.onclick=()=>{d.disabled=true;window.__vLockSeq=true;var _vx=$('villageModal').querySelector('.x');if(_vx)_vx.style.display='none';if(vLive()){villageDoneAnim(advanceWorld);}else{$('villageModal').classList.remove('show');villageDoneAnim(advanceWorld);}};box.insertBefore(d, box.firstChild);}
+    if(villageSum()>=ITEMS*STARS){const d=document.createElement('button');d.className='bigbtn vdoneBtn';d.textContent='Village Complete — Move to New World →';d.onclick=()=>{if(_vCeleb)return;d.disabled=true;window.__vLockSeq=true;var _vx=$('villageModal').querySelector('.x');if(_vx)_vx.style.display='none';if(vLive()){villageDoneAnim(advanceWorld);}else{$('villageModal').classList.remove('show');villageDoneAnim(advanceWorld);}};box.insertBefore(d, box.firstChild);}
   }
   let foeT=null;
   function showFoe(face,name,mult){const b=$('foeBanner');if(!b)return;b.innerHTML='<span class="ff">'+face+'</span><span class="fn">'+name+'</span><span class="fw">WIN ×'+mult+'</span>';b.classList.add('show');clearTimeout(foeT);foeT=setTimeout(()=>b.classList.remove('show'),2600);}
