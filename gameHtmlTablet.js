@@ -2320,7 +2320,7 @@ function showLevelUp(list){
   h+='</div><button class="luBtn" data-close="1">Collect</button></div>';
   d.innerHTML=h; d.classList.add('show');
   if(typeof sBig==='function')sBig(); if(typeof confetti==='function')confetti(24); if(typeof coinRain==='function')coinRain(18); if(typeof sLevelUp==='function')sLevelUp();
-  d.onclick=function(e){ if(e.target===d||e.target.closest('[data-close]')){ d.classList.remove('show'); window.__vLockSeq=false; } };
+  d.onclick=function(e){ if(e.target===d||e.target.closest('[data-close]')){ d.classList.remove('show'); if(window.__vUnlock)window.__vUnlock(); else window.__vLockSeq=false; } };
 }
 
 /* ==== end ==== */
@@ -2667,8 +2667,14 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
       if(!maxed&&coins>=c)el.onclick=()=>buildItem(i);box.appendChild(el);}wirePcImgs(box);}
   // The shop = diorama (kept alive across builds so animations are not killed)
   // + a list below it that re-renders on its own.
+  // Put the sheet's close button back. It is hidden inline while a completion
+  // sequence runs and nothing else ever restores it, so every path that ends
+  // the lock has to call this or the shop becomes a room with no door.
+  function vShowClose(){var x=document.querySelector('#villageModal .x');if(x)x.style.display='';}
+  window.__vUnlock=function(){window.__vLockSeq=false;vShowClose();};
   function vCelebReset(){
     if(window.__vLockSeq)return;            // a real sequence is running - leave it alone
+    vShowClose();
     _vCeleb=false;
     try{vAlive(false);}catch(e){}
     var junk=document.querySelectorAll('.vchestWrap,.vflash,.vdone,.vloot');
@@ -3075,7 +3081,7 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
     var _gp=$('gemPlus');if(_gp)_gp.onclick=function(){openModal('gemModal',renderGems);};
     $('dailyClaim').onclick=function(){if(dailyAvailable())claimDaily();else $('dailyModal').classList.remove('show');};
     var _dd=$('digDone');if(_dd)_dd.onclick=closeDig;
-    $('unlockBtn').onclick=function(){clearInterval(buildT);$('unlockModal').classList.remove('show');if(_pendingLU){var _r=_pendingLU;_pendingLU=null;showLevelUp(_r);}else{window.__vLockSeq=false;}};
+    $('unlockBtn').onclick=function(){clearInterval(buildT);$('unlockModal').classList.remove('show');if(_pendingLU){var _r=_pendingLU;_pendingLU=null;showLevelUp(_r);}else{window.__vUnlock();}};
     $('bragBtn').onclick=brag;
     var _rt=$('rating');if(_rt)_rt.onclick=function(){popup('⭐','Fortune Score '+fmt(rating()),'Your overall progress, earned from worlds reached, village stars built, relic sets completed, and pets collected. The higher it climbs, the further your lair has come.','Got it');};
     var _mq=$('marquee');if(_mq)_mq.onclick=function(){var wr=worldRule();popup(specialWorld?'✨':wr.icon,(specialWorld?'Special World - ':'')+wr.name,(specialWorld?'2x coin payouts, +50% free spins, boosted pets while you build here. ':'')+wr.blurb,'Got it');};
