@@ -2306,12 +2306,15 @@ function lhLevelUpRewards(){
 function showLevelUp(list){
   var d=document.getElementById('luModal');
   if(!d){ d=document.createElement('div'); d.id='luModal'; d.className='cardDetailWrap'; document.body.appendChild(d); }
-  var h='<div class="luCard"><div class="luBanner">LEVEL UP!</div><div class="luWorld">World '+world+(specialWorld?' — SPECIAL!':'')+'</div><div class="luGrid">';
+  // Everywhere else shows world+1, but this window opens AFTER advanceWorld()
+  // has already incremented, so the bare 'world' here is the number of the
+  // village they just finished - which is whose rewards these are.
+  var h='<div class="luCard"><div class="luBanner">LEVEL UP!</div><div class="luWorld">World '+world+' Rewards'+(specialWorld?' — SPECIAL!':'')+'</div><div class="luGrid">';
   for(var i=0;i<list.length;i++){ h+='<div class="luChip"><div class="luI">'+list[i].i+'</div><div class="luT">'+list[i].t+'</div></div>'; }
   h+='</div><button class="luBtn" data-close="1">Collect</button></div>';
   d.innerHTML=h; d.classList.add('show');
   if(typeof sBig==='function')sBig(); if(typeof confetti==='function')confetti(24); if(typeof coinRain==='function')coinRain(18); if(typeof sLevelUp==='function')sLevelUp();
-  d.onclick=function(e){ if(e.target===d||e.target.closest('[data-close]'))d.classList.remove('show'); };
+  d.onclick=function(e){ if(e.target===d||e.target.closest('[data-close]')){ d.classList.remove('show'); window.__vLockSeq=false; } };
 }
 
 /* ==== end ==== */
@@ -2676,7 +2679,7 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
         if(rem>1){const fc=fullCost(i);const fb=document.createElement('button');fb.className='vfull';fb.textContent='Buy 5★ '+fmt(fc);fb.disabled=coins<fc;fb.onclick=()=>{buildItemFull(i);};grp.appendChild(fb);}}
       row.appendChild(grp);box.appendChild(row);});
     wirePcImgs(box);
-    if(villageSum()>=ITEMS*STARS){const d=document.createElement('button');d.className='bigbtn vdoneBtn';d.textContent='Village Complete — Move to New World →';d.onclick=()=>{d.disabled=true;if(vLive()){villageDoneAnim(advanceWorld);}else{$('villageModal').classList.remove('show');villageDoneAnim(advanceWorld);}};box.insertBefore(d, box.firstChild);}
+    if(villageSum()>=ITEMS*STARS){const d=document.createElement('button');d.className='bigbtn vdoneBtn';d.textContent='Village Complete — Move to New World →';d.onclick=()=>{d.disabled=true;window.__vLockSeq=true;var _vx=$('villageModal').querySelector('.x');if(_vx)_vx.style.display='none';if(vLive()){villageDoneAnim(advanceWorld);}else{$('villageModal').classList.remove('show');villageDoneAnim(advanceWorld);}};box.insertBefore(d, box.firstChild);}
   }
   let foeT=null;
   function showFoe(face,name,mult){const b=$('foeBanner');if(!b)return;b.innerHTML='<span class="ff">'+face+'</span><span class="fn">'+name+'</span><span class="fw">WIN ×'+mult+'</span>';b.classList.add('show');clearTimeout(foeT);foeT=setTimeout(()=>b.classList.remove('show'),2600);}
@@ -2794,11 +2797,11 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
   function build(){
     // Whether the village was finished on the strip or in the shop, always open
     // the diorama and play the completion celebration before advancing.
-    if(maxedWorld()){
-      openModal('villageModal',renderVillageShop);
-      setTimeout(function(){villageDoneAnim(advanceWorld);},380);
-      return;
-    }
+    // A finished village just OPENS the shop. It used to start the completion
+    // sequence 380ms later, which meant simply looking at your finished village
+    // committed you to leaving it. Now nothing happens until the player presses
+    // 'Village Complete - Move to New World', and until they do they can close
+    // the shop and carry on playing this world.
     openModal('villageModal',renderVillageShop);
   }
   function vLive(){if(!(_vdio&&_vdio.host&&document.body.contains(_vdio.host)&&_vdio.rg===vreg()))return false;
@@ -3059,13 +3062,13 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
     var _gp=$('gemPlus');if(_gp)_gp.onclick=function(){openModal('gemModal',renderGems);};
     $('dailyClaim').onclick=function(){if(dailyAvailable())claimDaily();else $('dailyModal').classList.remove('show');};
     var _dd=$('digDone');if(_dd)_dd.onclick=closeDig;
-    $('unlockBtn').onclick=function(){clearInterval(buildT);$('unlockModal').classList.remove('show');if(_pendingLU){var _r=_pendingLU;_pendingLU=null;showLevelUp(_r);}};
+    $('unlockBtn').onclick=function(){clearInterval(buildT);$('unlockModal').classList.remove('show');if(_pendingLU){var _r=_pendingLU;_pendingLU=null;showLevelUp(_r);}else{window.__vLockSeq=false;}};
     $('bragBtn').onclick=brag;
     var _rt=$('rating');if(_rt)_rt.onclick=function(){popup('⭐','Fortune Score '+fmt(rating()),'Your overall progress, earned from worlds reached, village stars built, relic sets completed, and pets collected. The higher it climbs, the further your lair has come.','Got it');};
     var _mq=$('marquee');if(_mq)_mq.onclick=function(){var wr=worldRule();popup(specialWorld?'✨':wr.icon,(specialWorld?'Special World - ':'')+wr.name,(specialWorld?'2x coin payouts, +50% free spins, boosted pets while you build here. ':'')+wr.blurb,'Got it');};
     var _ac=$('adClose');if(_ac)_ac.onclick=function(){if(adTimer){clearInterval(adTimer);adTimer=null;}$('adPlayer').classList.remove('show');};
-    document.querySelectorAll('[data-close]').forEach(function(b){b.onclick=function(){var m=b.closest('.modal');if(m)m.classList.remove('show');};});
-    document.querySelectorAll('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target!==m)return;/* The raid dig is paid for with spins and pays out through closeDig(): a backdrop tap used to just hide it, forfeiting the unused picks and the Raid Complete popup and leaving digState stale. It has its own Dig/Collect button, so there is no way to get stuck. */if(m.id==='digModal')return;m.classList.remove('show');});});
+    document.querySelectorAll('[data-close]').forEach(function(b){b.onclick=function(){var m=b.closest('.modal');if(!m)return;if(window.__vLockSeq&&(m.id==='villageModal'||m.id==='unlockModal'))return;m.classList.remove('show');};});
+    document.querySelectorAll('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target!==m)return;/* The raid dig is paid for with spins and pays out through closeDig(): a backdrop tap used to just hide it, forfeiting the unused picks and the Raid Complete popup and leaving digState stale. It has its own Dig/Collect button, so there is no way to get stuck. */if(m.id==='digModal')return;/* Once the completion sequence is running, the village sheet and the new-world   window stay put - a backdrop tap here would drop the player out mid-flow and   strand the reward chest they have already been promised. */if(window.__vLockSeq&&(m.id==='villageModal'||m.id==='unlockModal'))return;m.classList.remove('show');});});
     document.querySelectorAll('.railbtn').forEach(function(b){b.onclick=function(){openModal(b.getAttribute('data-open'),HUB_FN[b.getAttribute('data-fn')]);};});
     document.addEventListener('keydown',function(e){if(e.code==='Space'){e.preventDefault();spin();}});
     setInterval(function(){if(typeof syncEvents==='function')syncEvents();var before=spins;regenSpins();if(spins!==before)save();render();},1000);
