@@ -412,9 +412,9 @@ export const GAME_HTML_TABLET = `<!DOCTYPE html>
   .vcard{flex:1;max-width:92px;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(180deg,#3a2068,#1c0e3a);border:2px solid rgba(255,213,110,.45);border-radius:11px;padding:4px 2px;text-align:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.35);}
   .vcard.cant{opacity:.5;cursor:default;} .vcard.max{border-color:var(--teal);box-shadow:0 0 0 1px rgba(0,0,0,.35),0 0 9px rgba(47,214,196,.4);cursor:default;}
   /* When the panel is squeezed the icon gives up its space first, so the star row and the upgrade price stay readable instead of being clipped off the bottom of the card. */
-  .vcard .vi{font-size:26px;line-height:1;height:44px;flex:0 1 auto;min-height:34px;overflow:hidden;display:flex;align-items:center;justify-content:center;} .vcard .vstars{font-size:7px;color:var(--gold);letter-spacing:-.5px;margin-top:1px;line-height:1;}
+  .vcard .vi{font-size:26px;line-height:1;height:44px;flex:0 1 auto;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;} .vcard .vstars{font-size:7px;color:var(--gold);letter-spacing:-.5px;margin-top:1px;line-height:1;flex:0 0 auto;}
   .pcimg{max-width:100%;max-height:100%;object-fit:contain;display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45));} .pcem{display:none;} .noimg .pcimg{display:none;} .noimg .pcem{display:inline;} 
-  .vcard .vc{font-size:8px;font-weight:700;color:var(--gold);margin-top:1px;} .vcard.max .vc{color:var(--teal);}
+  .vcard .vc{font-size:8px;font-weight:700;color:var(--gold);margin-top:1px;flex:0 0 auto;} .vcard.max .vc{color:var(--teal);}
   /* ---- village celebration (alive glow + chest) ---- */
   .vdio .vglow{position:absolute;border-radius:50%;pointer-events:none;opacity:0;transition:opacity 1.1s ease;mix-blend-mode:screen;}
   .vdio .vglow.on{opacity:1;}
@@ -701,7 +701,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
     .charge{margin:0 2px 2px;}
     .nembar{margin:0 0 3px;padding:2px 8px;}
     .piggy{margin:0 0 3px;padding:3px 9px;}
-    .vcard .vi{height:34px;font-size:22px;min-height:30px;}
+    .vcard .vi{height:34px;font-size:22px;min-height:0;}
     .vcard .vstars{font-size:6px;}
   }
 
@@ -2740,7 +2740,7 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
   $('buyYes').onclick=()=>{if(pendingAction){var _f=pendingAction;pendingAction=null;$('buyPop').classList.remove('show');_f();}else if(pendingGemPack){doBuyGemPack();}else{doBuyPack();}};
   $('buyNo').onclick=()=>{pendingBuy=null;pendingAction=null;$('buyPop').classList.remove('show');sTap();};
 
-  async function spin(){const b=bet();if(busy||spins<b||overlayOpen())return;busy=true;spins-=b;goldenNow=((typeof CP==='function')&&CP().goldenHour&&(++cardSpinCount%25===0));racGainXP(1);sSpin();haptic(8);save();render();$('msg').textContent='Spinning…';
+  async function spin(){if(digState){if(digUnfinished())digAutoPick();closeDig();}const b=bet();if(busy||spins<b||overlayOpen())return;busy=true;spins-=b;goldenNow=((typeof CP==='function')&&CP().goldenHour&&(++cardSpinCount%25===0));racGainXP(1);sSpin();haptic(8);save();render();$('msg').textContent='Spinning…';
     let a,bb,c;
     if(Math.random()<0.08){a=bb=c=weightedSym();}else{a=weightedSym();bb=weightedSym();c=weightedSym();if(a===bb&&bb===c)c=SYMS[(SYMS.indexOf(c)+1)%SYMS.length];}
     const antic=(a===bb&&bb!==c);
@@ -2809,8 +2809,20 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
     const g=$('digGrid');g.innerHTML='';d.spots.forEach((v,i)=>{const el=document.createElement('div');const dug=d.opened[i];el.className='digspot'+(dug?' dug':(d.picks>=(d.maxPicks||3)?' spent':''));
       el.innerHTML=dug?('🪙<div class="dv">+'+v.toLocaleString()+'</div>'):'🕳️';if(!dug&&d.picks<(d.maxPicks||3))el.onclick=()=>digSpot(i);g.appendChild(el);});
     $('digDone').textContent=d.picks>=(d.maxPicks||3)?'Collect':('Dig '+(d.maxPicks||3)+' spots');}
+  // Fallback so a raid can never pay nothing. If the sheet is dismissed by any
+  // route with picks left, the remaining digs are made for the player at random
+  // and paid out - the spins were already spent on the raid.
+  function digAutoPick(){
+    var d=digState;if(!d)return;var mp=d.maxPicks||3,guard=0;
+    while(d.picks<mp&&guard++<24){
+      var free=[],i;for(i=0;i<d.spots.length;i++)if(!d.opened[i])free.push(i);
+      if(!free.length)break;
+      digSpot(free[Math.floor(Math.random()*free.length)]);
+    }
+  }
+  function digUnfinished(){var d=digState;return !!(d&&d.picks<(d.maxPicks||3));}
   function digSpot(i){const d=digState;if(!d||d.opened[i]||d.picks>=(d.maxPicks||3))return;d.opened[i]=true;d.picks++;const v=d.spots[i];d.found+=v;coins+=v;feedBank(v);sCoin();coinRain(6);renderDig();save();render();}
-  function closeDig(){const d=digState;$('digModal').classList.remove('show');if(d&&d.found>0){popup('🕳️','Raid Complete!','You raided '+d.target.n+"'s lair for "+d.found.toLocaleString()+' coins!');$('msg').textContent='Raided '+d.target.n+'! +'+d.found;}digState=null;save();render();}
+  function closeDig(){if(digUnfinished())digAutoPick();const d=digState;$('digModal').classList.remove('show');if(d&&d.found>0){popup('🕳️','Raid Complete!','You raided '+d.target.n+"'s lair for "+d.found.toLocaleString()+' coins!');$('msg').textContent='Raided '+d.target.n+'! +'+d.found;}digState=null;save();render();}
 
   function stagePop(){const s=$('stage');if(!s)return;s.classList.remove('pop');void s.offsetWidth;s.classList.add('pop');setTimeout(()=>s.classList.remove('pop'),420);}
   function build(){
@@ -3080,13 +3092,15 @@ function save(){const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_wor
     var _sp=$('spinPlus');if(_sp)_sp.onclick=function(){openModal('shopModal',renderShop);};
     var _gp=$('gemPlus');if(_gp)_gp.onclick=function(){openModal('gemModal',renderGems);};
     $('dailyClaim').onclick=function(){if(dailyAvailable())claimDaily();else $('dailyModal').classList.remove('show');};
-    var _dd=$('digDone');if(_dd)_dd.onclick=closeDig;
+    // 'Dig 3 spots' is a label, not an exit: it only collects once the digging
+    // is done, so the button cannot be used to skip the raid.
+    var _dd=$('digDone');if(_dd)_dd.onclick=function(){if(digUnfinished()){if(typeof haptic==='function')haptic(8);return;}closeDig();};
     $('unlockBtn').onclick=function(){clearInterval(buildT);$('unlockModal').classList.remove('show');if(_pendingLU){var _r=_pendingLU;_pendingLU=null;showLevelUp(_r);}else{window.__vUnlock();}};
     $('bragBtn').onclick=brag;
     var _rt=$('rating');if(_rt)_rt.onclick=function(){popup('⭐','Fortune Score '+fmt(rating()),'Your overall progress, earned from worlds reached, village stars built, relic sets completed, and pets collected. The higher it climbs, the further your lair has come.','Got it');};
     var _mq=$('marquee');if(_mq)_mq.onclick=function(){var wr=worldRule();popup(specialWorld?'✨':wr.icon,(specialWorld?'Special World - ':'')+wr.name,(specialWorld?'2x coin payouts, +50% free spins, boosted pets while you build here. ':'')+wr.blurb,'Got it');};
     var _ac=$('adClose');if(_ac)_ac.onclick=function(){if(adTimer){clearInterval(adTimer);adTimer=null;}$('adPlayer').classList.remove('show');};
-    document.querySelectorAll('[data-close]').forEach(function(b){b.onclick=function(){var m=b.closest('.modal');if(!m)return;if(window.__vLockSeq&&(m.id==='villageModal'||m.id==='unlockModal'))return;m.classList.remove('show');};});
+    document.querySelectorAll('[data-close]').forEach(function(b){b.onclick=function(){var m=b.closest('.modal');if(!m)return;if(window.__vLockSeq&&(m.id==='villageModal'||m.id==='unlockModal'))return;if(m.id==='digModal'&&digUnfinished())return;m.classList.remove('show');};});
     document.querySelectorAll('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target!==m)return;/* The raid dig is paid for with spins and pays out through closeDig(): a backdrop tap used to just hide it, forfeiting the unused picks and the Raid Complete popup and leaving digState stale. It has its own Dig/Collect button, so there is no way to get stuck. */if(m.id==='digModal')return;/* Once the completion sequence is running, the village sheet and the new-world   window stay put - a backdrop tap here would drop the player out mid-flow and   strand the reward chest they have already been promised. */if(window.__vLockSeq&&(m.id==='villageModal'||m.id==='unlockModal'))return;m.classList.remove('show');});});
     document.querySelectorAll('.railbtn').forEach(function(b){b.onclick=function(){openModal(b.getAttribute('data-open'),HUB_FN[b.getAttribute('data-fn')]);};});
     document.addEventListener('keydown',function(e){if(e.code==='Space'){e.preventDefault();spin();}});
