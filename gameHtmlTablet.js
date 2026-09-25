@@ -366,7 +366,7 @@ export const GAME_HTML_TABLET = `<!DOCTYPE html>
 
   #bgLayer{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;transition:opacity .5s;}
   #bgLayer::after{content:'';position:absolute;inset:0;background:radial-gradient(125% 72% at 50% 16%, rgba(21,10,38,.08), rgba(21,10,38,.4) 58%, rgba(10,5,22,.82) 100%);}
-  .spots{display:flex;gap:6px;justify-content:center;align-items:center;margin:2px 0 4px;flex:0 1 auto;min-height:0;}
+  .spots{display:flex;gap:6px;justify-content:center;margin:2px 0 4px;flex:0 1 auto;min-height:0;max-height:64px;}
   .spot{flex:1;max-width:84px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:12px;padding:7px 4px;text-align:center;}
   .spot .spi{font-size:24px;line-height:1;}
   .spot .spl{font-size:9px;font-weight:700;margin-top:3px;opacity:.85;}
@@ -412,7 +412,7 @@ export const GAME_HTML_TABLET = `<!DOCTYPE html>
   .vcard{flex:1;max-width:92px;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(180deg,#3a2068,#1c0e3a);border:2px solid rgba(255,213,110,.45);border-radius:11px;padding:4px 2px;text-align:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.35);}
   .vcard.cant{opacity:.5;cursor:default;} .vcard.max{border-color:var(--teal);box-shadow:0 0 0 1px rgba(0,0,0,.35),0 0 9px rgba(47,214,196,.4);cursor:default;}
   /* When the panel is squeezed the icon gives up its space first, so the star row and the upgrade price stay readable instead of being clipped off the bottom of the card. */
-  .vcard .vi{font-size:26px;line-height:1;height:44px;flex:0 1 auto;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;} .vcard .vstars{font-size:7px;color:var(--gold);letter-spacing:-.5px;margin-top:1px;line-height:1;flex:0 0 auto;}
+  .vcard .vi{font-size:26px;line-height:1;height:auto;flex:1 1 auto;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;} .vcard .vstars{font-size:7px;color:var(--gold);letter-spacing:-.5px;margin-top:1px;line-height:1;flex:0 0 auto;}
   .pcimg{max-width:100%;max-height:100%;object-fit:contain;display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45));} .pcem{display:none;} .noimg .pcimg{display:none;} .noimg .pcem{display:inline;} 
   .vcard .vc{font-size:8px;font-weight:700;color:var(--gold);margin-top:1px;flex:0 0 auto;} .vcard.max .vc{color:var(--teal);}
   /* ---- village celebration (alive glow + chest) ---- */
