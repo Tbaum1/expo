@@ -1306,7 +1306,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   // Fallback only. The native shell injects the real version/build straight out
   // of app.json and calls lhSetVersion(), so the label can never drift from the
   // store listing again. Injection lands after parse, hence the setter.
-  var APP_VERSION='1.0.5 (40)';
+  var APP_VERSION='1.0.6 (41)';
   window.lhSetVersion=function(v){if(v)APP_VERSION=v;var el=document.getElementById('appVersion');if(el)el.textContent='v'+APP_VERSION;};
   window.lhSetVersion(window.LH_APP_VERSION||'');
   // ===== Real-money gem packs + native money bridge (ads + IAP). =====
@@ -1620,7 +1620,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function renderAds(){adReset();const box=$('adList');box.innerHTML='';const rem=adsRemaining();
     $('adLead').textContent=rem>0?('Watch a full ad to earn spins — '+rem+' of '+AD_MAX+' left today.'):('All '+AD_MAX+' ads watched today. Come back tomorrow!');
     AD_OFFERS.forEach((o,i)=>{const el=document.createElement('div');el.className='adrow';
-      el.innerHTML='<div class="ae">🎬</div><div class="at"><b>+'+fmt(o.reward*1000)+' spins</b><span>'+o.sec+'-second video</span></div>';
+      el.innerHTML='<div class="ae">🎬</div><div class="at"><b>+'+fmt(o.reward*1000)+' spins</b><span>'+'Rewarded Ad</span></div>';
       const b=document.createElement('button');
       if(i<adWatches){b.textContent='Watched ✓';b.disabled=true;}
       else if(i===adWatches){b.textContent='Watch';b.onclick=()=>playAd(i);}
