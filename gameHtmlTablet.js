@@ -97,8 +97,15 @@ export const GAME_HTML_TABLET = `<!DOCTYPE html>
   .chip .val.bump{transform:scale(1.25);}
 
   .machine{flex:0 0 auto;margin:10px 0 6px;background:linear-gradient(180deg,#4a2585 0%,#321963 55%,#20104a 100%);border:3px solid #ffce4d;border-radius:24px;box-shadow:inset 0 2px 0 rgba(255,255,255,.3),inset 0 0 26px rgba(0,0,0,.45),0 10px 0 #160a32,0 16px 28px rgba(0,0,0,.5);padding:10px 16px 8px;position:relative;z-index:2;overflow:visible;}
-  .machine .mrac{position:absolute;bottom:-18px;left:-16px;width:74px;height:auto;z-index:20;pointer-events:none;filter:drop-shadow(0 5px 5px rgba(0,0,0,.45));animation:mracBob 2.8s ease-in-out infinite;}
-  .machine .mfoe{position:absolute;bottom:-18px;right:-26px;width:74px;height:auto;z-index:20;pointer-events:none;transform:scaleX(-1);filter:drop-shadow(0 5px 5px rgba(0,0,0,.45));animation:mfoeBob 3.1s ease-in-out infinite;}
+  .machine .mrac{position:absolute;bottom:-18px;left:-16px;width:74px;height:auto;z-index:20;pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent;filter:drop-shadow(0 5px 5px rgba(0,0,0,.45));animation:mracBob 2.8s ease-in-out infinite;}
+  .machine .mfoe{position:absolute;bottom:-18px;right:-26px;width:74px;height:auto;z-index:20;pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent;transform:scaleX(-1);filter:drop-shadow(0 5px 5px rgba(0,0,0,.45));animation:mfoeBob 3.1s ease-in-out infinite;}
+  .machine .mrac.hint{animation:mracBob 2.8s ease-in-out infinite,chint 1.6s ease-in-out infinite;}
+  .machine .mfoe.hint{animation:mfoeBob 3.1s ease-in-out infinite,chint 1.6s ease-in-out infinite;}
+  @keyframes chint{0%,100%{filter:drop-shadow(0 0 2px rgba(255,210,77,.35)) drop-shadow(0 5px 5px rgba(0,0,0,.45));}50%{filter:drop-shadow(0 0 10px rgba(255,210,77,.95)) drop-shadow(0 5px 5px rgba(0,0,0,.45));}}
+  .machine .cbub{position:absolute;z-index:30;bottom:-60px;max-width:150px;padding:5px 9px;border-radius:12px;background:rgba(20,10,50,.94);border:1.5px solid #ffd24d;color:#fff;font-size:11px;line-height:1.25;font-weight:700;opacity:0;transform:translateY(4px);transition:opacity .25s,transform .25s;pointer-events:none;}
+  .machine .cbub.show{opacity:1;transform:none;}
+  .machine .cbub.l{left:30px;}
+  .machine .cbub.r{right:30px;text-align:right;}
   @keyframes mfoeBob{0%,100%{transform:scaleX(-1) translateY(0) rotate(2deg);}50%{transform:scaleX(-1) translateY(-5px) rotate(-2deg);}}
   @keyframes mracBob{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-5px) rotate(2deg);}}
   .machine .mcrown{position:absolute;top:-15px;left:50%;transform:translateX(-50%);width:52px;height:25px;background:linear-gradient(180deg,#fff0b0,#ffce4d 55%,#d98f12);border:2px solid #fff6d8;border-radius:34px 34px 5px 5px;box-shadow:0 3px 0 #a86a0c;display:flex;align-items:flex-start;justify-content:center;padding-top:5px;font-size:14px;z-index:5;}
@@ -459,9 +466,10 @@ export const GAME_HTML_TABLET = `<!DOCTYPE html>
   .vdio .vrw{position:absolute;left:50%;top:56%;font-size:26px;pointer-events:none;z-index:61;filter:drop-shadow(0 2px 4px #000a);}
   @keyframes vfly{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}15%{opacity:1}100%{transform:translate(calc(-50% + var(--fx)),calc(-50% + var(--fy))) scale(1.05) rotate(var(--fr));opacity:0}}
   .vdio .vdone{position:absolute;left:50%;top:20%;transform:translate(-50%,-50%) scale(.6);text-align:center;pointer-events:none;opacity:0;z-index:62;}
-  .vdio .vdone .t{font-family:'Lilita One',cursive;font-size:19px;font-weight:900;color:#ffd76e;letter-spacing:.4px;text-shadow:0 2px 8px #000,0 0 18px #f5c54288;}
+  .vdio .vdone{padding:8px 18px 9px;border-radius:16px;background:rgba(14,8,32,.72);border:1.5px solid rgba(255,215,110,.55);box-shadow:0 4px 18px rgba(0,0,0,.55);white-space:nowrap;}
+  .vdio .vdone .t{font-family:'Lilita One',cursive;font-size:27px;font-weight:900;color:#ffd76e;letter-spacing:.5px;text-shadow:0 2px 6px #000,0 0 14px #f5c54288;}
   .vdio .vdone.ms .t{color:#fff;text-shadow:0 2px 10px #000,0 0 22px #f5c542,0 0 40px #ff7ba8aa;}
-  .vdio .vdone .s{font-size:11px;font-weight:700;color:#fff;opacity:.75;margin-top:2px;text-shadow:0 1px 4px #000;}
+  .vdio .vdone .s{font-size:15px;font-weight:800;color:#fff;opacity:1;margin-top:3px;text-shadow:0 1px 4px #000;}
   @keyframes vpop{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.10)}75%{transform:translate(-50%,-50%) scale(.98)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
   .vdio .vloot{position:absolute;left:50%;bottom:7%;transform:translateX(-50%);display:none;flex-direction:column;gap:5px;align-items:center;z-index:62;background:rgba(12,6,26,.72);border:1px solid #ffd76e44;border-radius:12px;padding:9px 14px;backdrop-filter:blur(3px);}
   .vdio .vloot .li{font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 3px #000;opacity:0;transform:translateY(6px);white-space:nowrap;}
@@ -1025,8 +1033,8 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   <div class="modal" id="passModal"><div class="sheet"><button class="x" data-close>✕</button><h2>🎵 Season Pass</h2><p class="lead">Earn XP as you play. Claim free rewards every tier — unlock Premium for the pro track. Resets each season.</p><div id="passHeader"></div><div id="passList" class="passListWrap"></div></div></div>
 
   <div class="modal" id="relicModal"><div class="sheet">
-    <button class="x" data-close>✕</button><h2>🃏 Relic Collections</h2>
-    <p class="lead">Open chests for relics. Complete a set for spins, coins &amp; a pet!</p>
+    <button class="x" data-close>✕</button><h2>🃏 Card Collections</h2>
+    <p class="lead">Open chests for cards. Complete a card set for spins, coins &amp; a pet!</p>
     <div class="collBoost" id="collBoost"></div>
     <div class="chests" id="chestRow"></div>
     <div id="setList"></div>
@@ -1034,7 +1042,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
 
   <div class="modal" id="petModal"><div class="sheet">
     <button class="x" data-close>✕</button><h2>🐾 Pets</h2>
-    <p class="lead">Unlock pets by completing relic sets. One can be active at a time.</p>
+    <p class="lead">Unlock pets by completing card sets. One can be active at a time.</p>
     <div class="petlist" id="petList"></div>
   </div></div>
 
@@ -1111,9 +1119,9 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
       <div class="faqq">🎡 The reels</div><div class="faqa">Match three symbols for a win. ⭐ stars pay out free spins, the 🔨 hammer lets you build your village, and raid and attack symbols let you take coins from rival lairs.</div>
       <div class="faqq">⚡ Charge and 🔥 Frenzy</div><div class="faqa">Every spin fills the Charge bar above SPIN. When it is full, Frenzy kicks in and multiplies your wins for a streak of spins.</div>
       <div class="faqq">🏗️ Village and ★ stars</div><div class="faqa">Open the Village Shop to spend coins upgrading each of the 5 items, up to 5 ★ each. More stars means a higher payout multiplier. Fill all 25 stars to complete the village and unlock the next world.</div>
-      <div class="faqq">⭐ Fortune Score</div><div class="faqa">The star at the top center is your overall progress score, earned from worlds reached, village stars, relic sets, and pets. Tap it any time to see it. It is your bragging number — the higher, the further you have come.</div>
+      <div class="faqq">⭐ Fortune Score</div><div class="faqa">The star at the top center is your overall progress score, earned from worlds reached, village stars, card sets, and pets. Tap it any time to see it. It is your bragging number — the higher, the further you have come.</div>
       <div class="faqq">💰 Currencies</div><div class="faqa">🪙 Coins build your village. 🎰 Spins play the slot. 💎 Gems are premium currency for spins, shields, and chests. 🛡️ Shields each block one incoming rival attack.</div>
-      <div class="faqq">🃏 Cards, sets & ✨ gold</div><div class="faqa">Collect relic cards by opening chests. Complete a full set for a big reward (and to unlock a Pet). Chests now favour cards you don't own yet, and only sell when they can still give you something new. ✨ GOLD cards are rare drops from Golden, Magical, and Gem chests — collect the gold version of every card in a set to claim its Gold reward (double spins & coins). Reach new worlds to unlock more sets.</div>
+      <div class="faqq">🃏 Cards, sets & ✨ gold</div><div class="faqa">Collect cards by opening chests. Complete a full set for a big reward (and to unlock a Pet). Chests now favour cards you don't own yet, and only sell when they can still give you something new. ✨ GOLD cards are rare drops from Golden, Magical, and Gem chests — collect the gold version of every card in a set to claim its Gold reward (double spins & coins). Reach new worlds to unlock more sets.</div>
       <div class="faqq">🐾 Pets & 🦴 treats</div><div class="faqa">Unlocked by completing card sets. Feed a pet 🦴 Treats to keep it awake — an awake pet gives a steady bonus such as extra coins. Energy tops up to 12 hours; when it's full the Feed button locks so you never waste treats.</div>
       <div class="faqq">👥 Rivals and 🔥 Nemesis</div><div class="faqa">Open the Rivals list and STRIKE or RAID any rival for coins (costs spins). Keep hitting one to topple their lair for a spin reward; the toughest becomes your Nemesis — beat them in a duel for bonus dust and coins. Rivals strike back, so keep Shields and Defenses up.</div>
       <div class="faqq">🧱 Defenses</div><div class="faqa">Place defenses on your lair to reduce or block incoming raids and attacks. Manage them from the Defenses menu.</div>
@@ -1122,7 +1130,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
       <div class="faqq">🌳 Wishing Tree</div><div class="faqa">A little tree that grows coins while you are away. Tap the 🌳 button, then Collect when it is full. Water it to level it up for faster growth and a bigger bucket - it keeps growing even when the game is closed.</div>
       <div class="faqq">🦝 Raccoon Level</div><div class="faqa">Every spin levels up your raccoon. The higher its level, the bigger ALL your coin payouts (spins, raids, wheel, tree). Tap the 🦝 badge at the top to see your current boost.</div>
       <div class="faqq">🌟 Jackpot Upgrade</div><div class="faqa">On the daily 🎡 Wheel you can spend 💎 gems to upgrade the 🌟 Jackpot - each upgrade makes the jackpot payout bigger for when you land it.</div>
-      <div class="faqq">📈 Collection Boost</div><div class="faqa">Completing relic card sets does not just pay out once - each completed set also permanently boosts your coin earnings. Check the Relic Collections screen to see your current boost.</div>
+      <div class="faqq">📈 Collection Boost</div><div class="faqa">Completing card sets does not just pay out once - each completed set also permanently boosts your coin earnings. Check the Cards screen to see your current boost.</div>
       <div class="faqq">🗺️ Worlds</div><div class="faqa">250 unique worlds across 8 regions, each with its own look, sounds, and a special rule — tap the world name on the reel to read it.</div>
     </div>
   </div></div>
@@ -1256,7 +1264,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   const EVENT={name:'Treasure Hunt',icon:'🗺️',dur:24*3600*1000,miles:[{p:25,i:'🪙',t:'800 coins',f:()=>coins+=bonus(800)},{p:60,i:'🎰',t:'15,000 spins',f:()=>spins+=15},{p:120,i:'🦴',t:'2 treats',f:()=>grantTreat(2)},{p:200,i:'💎',t:'4K coins +10💎',f:()=>{coins+=bonus(4000);gems+=10;}}]};
   const PETS={magpie:{name:'Pip the Magpie',icon:'🐦‍⬛',desc:'+25% coins from raids (⚒️)'},tortoise:{name:'Shelby the Tortoise',icon:'🐢',desc:'30% chance to block a raid for free'},mole:{name:'Digby the Mole',icon:'🦫',desc:'+15% on all coin wins'}};
   const SETS=[
-    {key:'woodland',name:'Woodland Relics',icon:'🌿',unlock:0,cards:[['🌰',1],['🍄',1],['🪶',1],['🦌',2],['🍯',2],['🦔',2]],reward:{spins:30,coins:1000,gems:3},pet:'magpie'},
+    {key:'woodland',name:'Woodland Finds',icon:'🌿',unlock:0,cards:[['🌰',1],['🍄',1],['🪶',1],['🦌',2],['🍯',2],['🦔',2]],reward:{spins:30,coins:1000,gems:3},pet:'magpie'},
     {key:'tides',name:'Tide Treasures',icon:'🌊',unlock:15,cards:[['🐚',1],['🦀',1],['🪸',2],['🐠',2],['⚓',3],['🦑',4]],reward:{spins:45,coins:3000,gems:4},pet:'tortoise'},
     {key:'cosmos',name:'Cosmic Curios',icon:'✨',unlock:32,cards:[['🪐',1],['☄️',1],['🛰️',2],['👾',2],['🌙',3],['🔭',4]],reward:{spins:60,coins:8000,gems:5},pet:'mole'},
     {key:'city',name:'City Lights',icon:'🏙️',unlock:52,cards:[['🚕',1],['🏬',1],['🎭',2],['🌆',2],['🎡',3],['🗽',4]],reward:{spins:75,coins:20000,gems:6}},
@@ -1442,7 +1450,11 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   // Tune this single number for pacing (higher = slower).
   const BUILD_BASE=358;
   function worldCostMult(){return SPW_BASE*Math.pow(1+SPW_STEP,Math.floor(world/SPW_BAND));}
-  function buildCost(){return Math.round(BUILD_BASE*Math.pow(ECON_BASE,totBuild)*buildMult()*worldCostMult()*100);}
+  // Build-cost ramp: x4 at world 0 rising in a straight line to x11 at world 250 (held at x11 after).
+  // Players who already existed when this shipped keep x1 on every world they had reached (costGF).
+  let costGF=store.get('ll_costGF',null);if(typeof costGF!=='number'||!(costGF>=0))costGF=(world>0||totBuild>0)?world+1:0;
+  function buildRamp(w){if(w<costGF)return 1;return 4+7*Math.min(w,250)/250;}
+  function buildCost(){return Math.round(BUILD_BASE*Math.pow(ECON_BASE,totBuild)*buildMult()*worldCostMult()*buildRamp(world)*100);}
   function villageSum(){return village.reduce((a,b)=>a+b,0);}
   function worldItems(){return WORLD_ITEMS[world%WORLD_ITEMS.length];}
   function itemCost(i){return Math.round(buildCost()*(1+0.18*village[i]));}
@@ -1598,7 +1610,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
 
   function pruneJokers(){const before=jokers.length;jokers=jokers.filter(j=>j.exp>Date.now());if(jokers.length!==before)save();}
   function goldComplete(s){return setActive(s)&&!goldSetsDone[s.key]&&cardEmojis(s).every(function(r){return (goldOwned[r]||0)>=1;});}
-  function useJokerOn(r){if(jokers.length<=0)return;jokers.shift();relicsOwned[r]=(relicsOwned[r]||0)+1;jokerChoosing=false;sBig();coinRain(8);popup('🃏','Joker Used!','Created relic '+r+'. Complete the set to claim its reward!');renderRelics();save();render();}
+  function useJokerOn(r){if(jokers.length<=0)return;jokers.shift();relicsOwned[r]=(relicsOwned[r]||0)+1;jokerChoosing=false;sBig();coinRain(8);popup('🃏','Joker Used!','Created card '+r+'. Complete the card set to claim its reward!');renderRelics();save();render();}
 
   let actx=null;
   function audio(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(actx&&actx.state==='suspended')actx.resume();return actx;}
@@ -1678,7 +1690,8 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
     {id:'bill',i:'🤑',n:'Tycoon',t:'Tycoon',d:'Held a billion coins at once.',h:'A big enough pile changes you.'},
     {id:'dragon',i:'🐲',n:'Hoard Dragon',t:'Hoard Dragon',d:'Sat on 1,000 gems.',h:'Dragons never spend. They sit.'},
     {id:'pets',i:'🐾',n:'Beastmaster',t:'Beastmaster',d:'Befriended every pet.',h:'Gotta collect them all.'},
-    {id:'back',i:'🪃',n:'Boomerang',t:'Boomerang',d:'Came back after a week away.',h:'Walk away. We will wait.'}
+    {id:'back',i:'🪃',n:'Boomerang',t:'Boomerang',d:'Came back after a week away.',h:'Walk away. We will wait.'},
+    {id:'fox',i:'🦊',n:'Fox Friend',t:'Fox Friend',d:'Tapped the fox 25 times.',h:'Someone on the machine loves attention.'}
   ];
   function secObj(){if(!proF.sec||typeof proF.sec!=='object')proF.sec={};return proF.sec;}
   function secCount(){var o=secObj(),n=0;SEC_DEFS.forEach(function(d){if(o[d.id])n++;});return n;}
@@ -2460,7 +2473,7 @@ function dailyMilestone(st){var M={14:function(){gems+=100;freezes=Math.min(2,fr
 /* ==== VILLAGE COMPLETE SPLASH ==== */
 var _vcFire=null;
 /* ==== end ==== */
-function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secCheck();}}catch(e){}const m={ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_world:world,ll_tier:tier,ll_prog:progress,ll_tb:totBuild,ll_tt:totTier,ll_pig:pig,ll_esr:earnSinceRaid,ll_last:lastClaim,ll_streak:streak,ll_evtS:evtStart,ll_evtP:evtPoints,ll_evtC:evtClaimed,ll_rev:revenge,ll_mute:muted,ll_bet:betIdx,ll_relics:relicsOwned,ll_sets:setsDone,ll_pets:petsOwned,ll_active:activePet,ll_rivals2:rivalState,ll_nem:nemesisId,ll_def:defense,ll_aev:activeEvents,ll_loginDay:lastLoginDay,ll_gold:goldOwned,ll_goldsets:goldSetsDone,ll_jok:jokers,ll_treats:treats,ll_awake:petAwake,ll_special:specialWorld,ll_gems:gems,ll_firstbuy:firstBuy,ll_charge:charge,ll_frenzy:frenzy,ll_regenAnchor:regenAnchor,ll_village:village,ll_adW:adWatches,ll_adDay:adDay,ll_wheelday:wheelDay,ll_wheelextra:wheelExtra,ll_treeLvl:treeLvl,ll_treeXP:treeXP,ll_treeBucket:treeBucket,ll_treeTs:treeTs,ll_treeWater:treeWater,ll_treeWaterDay:treeWaterDay,ll_racLvl:racLvl,ll_racXP:racXP,ll_wheelJackLvl:wheelJackLvl,ll_cards:cardState,ll_chal:chalState,ll_skin:skinSel,ll_skinOwned:skinOwned,ll_pass:passState,ll_seenReveal:seenReveal,ll_freezes:freezes,ll_lastms:lastClaimMs,ll_msdone:msDone,ll_troS:troS,ll_troC:troC,ll_proF:proF};store.setMany(m);}
+function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secCheck();}}catch(e){}const m={ll_costGF:costGF,ll_coins:coins,ll_spins:spins,ll_shields:shields,ll_world:world,ll_tier:tier,ll_prog:progress,ll_tb:totBuild,ll_tt:totTier,ll_pig:pig,ll_esr:earnSinceRaid,ll_last:lastClaim,ll_streak:streak,ll_evtS:evtStart,ll_evtP:evtPoints,ll_evtC:evtClaimed,ll_rev:revenge,ll_mute:muted,ll_bet:betIdx,ll_relics:relicsOwned,ll_sets:setsDone,ll_pets:petsOwned,ll_active:activePet,ll_rivals2:rivalState,ll_nem:nemesisId,ll_def:defense,ll_aev:activeEvents,ll_loginDay:lastLoginDay,ll_gold:goldOwned,ll_goldsets:goldSetsDone,ll_jok:jokers,ll_treats:treats,ll_awake:petAwake,ll_special:specialWorld,ll_gems:gems,ll_firstbuy:firstBuy,ll_charge:charge,ll_frenzy:frenzy,ll_regenAnchor:regenAnchor,ll_village:village,ll_adW:adWatches,ll_adDay:adDay,ll_wheelday:wheelDay,ll_wheelextra:wheelExtra,ll_treeLvl:treeLvl,ll_treeXP:treeXP,ll_treeBucket:treeBucket,ll_treeTs:treeTs,ll_treeWater:treeWater,ll_treeWaterDay:treeWaterDay,ll_racLvl:racLvl,ll_racXP:racXP,ll_wheelJackLvl:wheelJackLvl,ll_cards:cardState,ll_chal:chalState,ll_skin:skinSel,ll_skinOwned:skinOwned,ll_pass:passState,ll_seenReveal:seenReveal,ll_freezes:freezes,ll_lastms:lastClaimMs,ll_msdone:msDone,ll_troS:troS,ll_troC:troC,ll_proF:proF};store.setMany(m);}
 
   function render(){racRender();
     setCoins(); $('spins').textContent=fmt(spins*1000); $('shields').textContent=shields; $('gems').textContent=fmt(gems); $('rating').textContent='⭐ '+fmt(rating());
@@ -2945,7 +2958,7 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
     if(villageSum()>=ITEMS*STARS){sBig();coinRain(18);stagePop();$('msg').textContent='Village complete! Open the Village Shop to advance.';}
     else $('msg').textContent='Built! Village '+villageSum()+'/'+(ITEMS*STARS)+'.';
     save();render();}
-  function fullCost(i){var base=BUILD_BASE*buildMult()*worldCostMult()*100,t=0,n=0;for(var k=village[i];k<STARS;k++){var bc=Math.round(base*Math.pow(ECON_BASE,totBuild+n));t+=Math.round(bc*(1+0.18*k));n++;}return t;}
+  function fullCost(i){var base=BUILD_BASE*buildMult()*worldCostMult()*buildRamp(world)*100,t=0,n=0;for(var k=village[i];k<STARS;k++){var bc=Math.round(base*Math.pow(ECON_BASE,totBuild+n));t+=Math.round(bc*(1+0.18*k));n++;}return t;}
   function buildItemFull(i){if(village[i]>=STARS)return;var c=fullCost(i);if(coins<c)return;var before=Math.floor(villageSum()/STARS);var added=STARS-village[i];var _lv0=village[i];coins-=c;village[i]=STARS;totBuild+=added;addEvtProgress('quest',added);addEvtProgress('build',added);sPop();
     if(vLive())vAnimate(i,_lv0); else buildReveal(i);
     if(villageShopLive())renderVillageList();
@@ -3069,7 +3082,7 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
   function grantChest(ch){var pool=chestPool(ch);if(!pool.length)pool=SETS[0].cards;var n=Math.round(ch.n*chestMult());var got=[];for(var i=0;i<n;i++){var c=drawCard(pool),em=c[0];if(ch.gold>0&&Math.random()<ch.gold){goldOwned[em]=(goldOwned[em]||0)+1;got.push('✨'+em);}else{relicsOwned[em]=(relicsOwned[em]||0)+1;got.push(em);}}
     if(Math.random()<0.15){grantTreat(1);got.push('🦴');}
     sBig();coinRain(10);confetti(14);popup(ch.icon,ch.name+' Chest!'+(chestMult()>1?' · Cards Boom!':''),'You found: '+got.join(' '));renderRelics();}
-  function openChest(idx){const ch=CHESTS[idx];if(!chestUseful(ch)){popup(ch.icon,'Nothing new in here','You already own every relic this chest can offer. Reach a new world to unlock more sets'+(ch.gold>0?'':' — or open a Golden/Magical chest to chase the ✨ gold versions')+'.','Got it');return;}const c=chestCost(ch);if(coins<c)return;coins-=c;grantChest(ch);save();render();}
+  function openChest(idx){const ch=CHESTS[idx];if(!chestUseful(ch)){popup(ch.icon,'Nothing new in here','You already own every card this chest can offer. Reach a new world to unlock more sets'+(ch.gold>0?'':' — or open a Golden/Magical chest to chase the ✨ gold versions')+'.','Got it');return;}const c=chestCost(ch);if(coins<c)return;coins-=c;grantChest(ch);save();render();}
   function openGemChest(){if(!chestUseful(GEM_CHEST)){popup(GEM_CHEST.icon,'Nothing new in here','You already own everything this chest can offer right now — no point spending gems. Reach a new world to unlock more sets.','Got it');return;}if(gems<GEM_CHEST.cost)return;gems-=GEM_CHEST.cost;grantChest(GEM_CHEST);save();render();}
   function renderShop(){const p=$('shopPacks');p.innerHTML='';
     SPIN_PACKS.forEach(pk=>{const bonus=firstBuy,total=bonus?pk.spins*2:pk.spins;const el=document.createElement('div');el.className='shopcard';
@@ -3090,7 +3103,7 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
   function completeGoldSet(key){const s=SETS.find(x=>x.key===key);if(!s||!goldComplete(s))return;goldSetsDone[key]=true;const sp=s.reward.spins*2,co=s.reward.coins*2,gg=(s.reward.gems||3)*3;spins+=sp;coins+=bonus(co);grantTreat(3);gems+=gg;sBig();coinRain(26);bigPop('🌟','Gold Set Complete!','The '+s.name+' gold collection! +'+fmt(sp*1000)+' spins, +'+fmt(bonus(co))+' coins, +3 treats, +'+gg+'💎.');renderRelics();save();render();}
   function renderRelics(){pruneJokers();var _cb=$('collBoost');if(_cb)_cb.textContent=collSets()>0?('📈 Collection boost: +'+Math.round((collMult()-1)*100)+'% coins ('+collSets()+' sets done)'):'Complete sets to permanently boost your coins!';const row=$('chestRow');row.innerHTML='';CHESTS.forEach((ch,i)=>{const cc=chestCost(ch);const el=document.createElement('div');el.className='chest'+(coins<cc?' cant':'');const n=Math.round(ch.n*chestMult());el.innerHTML='<div class="ci">'+ch.icon+'</div><div class="cn">'+ch.name+'</div><div class="cc">'+fmt(cc)+'c · '+n+(chestMult()>1?' 🔥':'')+'</div>';el.onclick=()=>openChest(i);row.appendChild(el);});var ge=document.createElement('div');ge.className='chest'+(gems<GEM_CHEST.cost?' cant':'');ge.innerHTML='<div class="ci">'+GEM_CHEST.icon+'</div><div class="cn">'+GEM_CHEST.name+'</div><div class="cc">'+GEM_CHEST.cost+'💎 · '+GEM_CHEST.n+'</div>';ge.onclick=openGemChest;row.appendChild(ge);
       const list=$('setList');list.innerHTML='';
-      if(jokers.length>0){const jb=document.createElement('div');jb.className='jokerbar';jb.innerHTML='<div class="ji">🃏</div><div class="jinfo"><div class="jn">Jokers: '+jokers.length+'</div><div class="jd">'+(jokerChoosing?'Pick any missing relic below to create it.':'A Joker becomes any relic you need — use before it expires.')+'</div></div>';const jbn=document.createElement('button');jbn.textContent=jokerChoosing?'Cancel':'Use a Joker';jbn.onclick=()=>{jokerChoosing=!jokerChoosing;renderRelics();};jb.appendChild(jbn);list.appendChild(jb);}
+      if(jokers.length>0){const jb=document.createElement('div');jb.className='jokerbar';jb.innerHTML='<div class="ji">🃏</div><div class="jinfo"><div class="jn">Jokers: '+jokers.length+'</div><div class="jd">'+(jokerChoosing?'Pick any missing card below to create it.':'A Joker becomes any card you need — use before it expires.')+'</div></div>';const jbn=document.createElement('button');jbn.textContent=jokerChoosing?'Cancel':'Use a Joker';jbn.onclick=()=>{jokerChoosing=!jokerChoosing;renderRelics();};jb.appendChild(jbn);list.appendChild(jb);}
       SETS.forEach(s=>{const cards=cardEmojis(s);const have=cards.filter(r=>(relicsOwned[r]||0)>0).length;const goldHave=cards.filter(r=>(goldOwned[r]||0)>0).length;const done=!!setsDone[s.key];const gdone=!!goldSetsDone[s.key];const locked=!setActive(s);const card=document.createElement('div');card.className='setcard'+(done?' done':'')+(locked?' locked':'');
         card.innerHTML='<div class="seth"><span class="si">'+s.icon+'</span><span class="sn">'+s.name+'</span><span class="sp">'+(locked?('🔒 W'+s.unlock):have+'/'+cards.length+(goldHave>0?' · ✨'+goldHave+'/'+cards.length:''))+'</span></div>';
         if(locked){const ln=document.createElement('div');ln.className='goldnote';ln.textContent='Unlocks at World '+s.unlock+(s.pet?' · unlocks a pet':'');card.appendChild(ln);list.appendChild(card);return;}
@@ -3112,7 +3125,7 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
       Object.keys(PETS).forEach(key=>{const p=PETS[key],owned=petsOwned.includes(key),active=activePet===key;var lvl=petLvl[key]||1,xp=petXP[key]||0,nd=lvl*5;const el=document.createElement('div');el.className='petcard'+(active?' active':'')+(owned?'':' locked');el.innerHTML='<div class="pi2">'+p.icon+'</div><div class="pinfo"><div class="pn">'+p.name+(owned?' · Lv '+lvl:'')+(active&&!awake?' 😴':'')+'</div><div class="pd">'+p.desc+(owned&&lvl>1?(' · +'+Math.round(8*(lvl-1))+'% from levels'):'')+'</div>'+(owned?('<div class="pxp"><i style="width:'+Math.round(100*xp/nd)+'%"></i></div>'):'')+'</div>';const bn=document.createElement('button');
         if(!owned){bn.textContent='Locked';bn.disabled=true;}else if(active){bn.textContent='Active';bn.disabled=true;}else{bn.textContent='Set Active';bn.onclick=()=>{activePet=key;sPop();renderPets();save();render();};}
         el.appendChild(bn);box.appendChild(el);});
-      if(petsOwned.length===0){const n=document.createElement('p');n.className='lead';n.textContent='No pets yet — complete a relic set to unlock one.';box.appendChild(n);}}
+      if(petsOwned.length===0){const n=document.createElement('p');n.className='lead';n.textContent='No pets yet — complete a card set to unlock one.';box.appendChild(n);}}
   
   /* ===== Showdown (v2 raid duel): read the rival, pick a counter, win 2 of 3 rounds ===== */
   var bossFoe=null,duelRes=null;
@@ -3188,7 +3201,24 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
         el.innerHTML='<div class="si2">'+gp.icon+'</div><div class="sinfo"><div class="sn">'+gp.name+'</div><div class="sd">'+desc+'</div></div>';
         const bn=document.createElement('button');bn.className='gembtn';bn.textContent='💎 '+gp.cost;bn.disabled=gems<gp.cost;bn.onclick=()=>buyGem(gp.key);el.appendChild(bn);g.appendChild(el);});}
   function openModal(id,fn){try{fn&&fn();}catch(e){}$(id).classList.add('show');}
+  // ===== Tappable characters: raccoon = player card, fox = Rivals & Nemesis hub =====
+  var _cbT={l:null,r:null},_cbLast=0;
+  function charSay(side,txt,ms){var m=document.querySelector('.machine');if(!m)return;var id='cbub_'+side,b=$(id);if(!b){b=document.createElement('div');b.id=id;b.className='cbub '+side;m.appendChild(b);}b.textContent=txt;void b.offsetWidth;b.classList.add('show');clearTimeout(_cbT[side]);_cbT[side]=setTimeout(function(){b.classList.remove('show');},ms||3200);_cbLast=Date.now();}
+  function charTapMark(){try{var a=$('mrac'),f=$('mfoe');if(a)a.classList.remove('hint');if(f)f.classList.remove('hint');if(!proF.ct){proF.ct=1;save();}}catch(e){}}
+  (function(){try{var a=$('mrac'),f=$('mfoe');
+    if(!proF.ct){if(a)a.classList.add('hint');if(f)f.classList.add('hint');}
+    if(a)a.addEventListener('click',function(ev){ev.stopPropagation();if(overlayOpen())return;charTapMark();openModal('trophyModal',renderTrophies);});
+    if(f)f.addEventListener('click',function(ev){ev.stopPropagation();if(overlayOpen())return;charTapMark();proF.ft=(proF.ft||0)+1;save();
+      if(proF.ft>=25&&!secObj().fox){secUnlock('fox');return;}
+      var rb=document.querySelector('.railbtn[data-open="rosterModal"]');if(rb)rb.click();else openModal('rosterModal',renderRoster);});
+    // Gentle, rare hints: only when something is actually waiting, never over a menu, never while auto-spinning.
+    setInterval(function(){try{if(overlayOpen()||autoActive||busy)return;if(Date.now()-_cbLast<90000)return;
+      if(troClaimable()){charSay('l','🏆 A trophy is ready to claim!');return;}
+      if(nemesisId){var ow=owedOf(nemesisId);if(ow>0){charSay('r',nemesisId+' owes you '+fmt(ow)+'. Strike back!');return;}}
+    }catch(e){}},15000);
+  }catch(e){}})();
   function toggleAuto(){if(overlayOpen())return;autoActive=!autoActive;if(autoActive){autoLoop();}else{$('spinBtn').classList.remove('auto');}render();}
+  var _azPaused=false;
   async function autoLoop(){if(autoRunning)return;autoRunning=true;$('spinBtn').classList.add('auto');render();
     var wasMaxed=maxedWorld();
     while(autoActive){
@@ -3199,9 +3229,10 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
       // popup (so auto-play keeps flowing); for any other overlay, wait for the player.
       if(overlayOpen()){
         if($('pop').classList.contains('show')){await waitMs(3000);if(!autoActive)break;$('pop').classList.remove('show');const _c=document.querySelector('.pop .card');if(_c)_c.classList.remove('bigwin');render();}
-        else{await waitMs(300);}
+        else{var _as=$('autoState');if(_as&&_as.textContent!=='paused')_as.textContent='paused';_azPaused=true;await waitMs(300);}
         continue;
       }
+      if(_azPaused){_azPaused=false;render();}
       if(spins<b)break;
       await spin();
       // pause auto only at the MOMENT the village completes (so the 5-star popup isn't blown
@@ -3232,7 +3263,7 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
     var _dd=$('digDone');if(_dd)_dd.onclick=function(){if(digUnfinished()){if(typeof haptic==='function')haptic(8);return;}closeDig();};
     $('unlockBtn').onclick=function(){clearInterval(buildT);$('unlockModal').classList.remove('show');if(_pendingLU){var _r=_pendingLU;_pendingLU=null;showLevelUp(_r);}else{window.__vUnlock();}};
     $('bragBtn').onclick=brag;
-    var _rt=$('rating');if(_rt)_rt.onclick=function(){popup('⭐','Fortune Score '+fmt(rating()),'Your overall progress, earned from worlds reached, village stars built, relic sets completed, and pets collected. The higher it climbs, the further your lair has come.','Got it');};
+    var _rt=$('rating');if(_rt)_rt.onclick=function(){popup('⭐','Fortune Score '+fmt(rating()),'Your overall progress, earned from worlds reached, village stars built, card sets completed, and pets collected. The higher it climbs, the further your lair has come.','Got it');};
     var _mq=$('marquee');if(_mq)_mq.onclick=function(){var wr=worldRule();popup(specialWorld?'✨':wr.icon,(specialWorld?'Special World - ':'')+wr.name,(specialWorld?'2x coin payouts, +50% free spins, boosted pets while you build here. ':'')+wr.blurb,'Got it');};
     var _ac=$('adClose');if(_ac)_ac.onclick=function(){if(adTimer){clearInterval(adTimer);adTimer=null;}$('adPlayer').classList.remove('show');};
     document.querySelectorAll('[data-close]').forEach(function(b){b.onclick=function(){var m=b.closest('.modal');if(!m)return;if(window.__vLockSeq&&(m.id==='villageModal'||m.id==='unlockModal'))return;if(m.id==='digModal'&&digUnfinished())return;m.classList.remove('show');};});
