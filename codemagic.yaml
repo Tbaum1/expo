@@ -111,6 +111,15 @@ workflows:
     #     - pattern: main
     #       include: true
     scripts:
+      - name: Refuse to build iOS with placeholder store keys
+        script: |
+          if grep -q "appl_PLACEHOLDER" App.js; then
+            echo "ERROR: RC_IOS_KEY in App.js is still the placeholder. Purchases would be disabled/free on iOS."
+            exit 1
+          fi
+          if grep -q "const IOS_REWARDED_UNIT = '';" App.js; then
+            echo "WARNING: IOS_REWARDED_UNIT is empty, iOS will show Google test ads."
+          fi
       - name: Install npm dependencies
         script: |
           npm install --legacy-peer-deps

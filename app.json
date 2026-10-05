@@ -62,7 +62,7 @@
         "react-native-google-mobile-ads",
         {
           "androidAppId": "ca-app-pub-4697898246674003~4586396629",
-          "iosAppId": "ca-app-pub-3940256099942544~1458002511"
+          "iosAppId": "ca-app-pub-4697898246674003~9736501124"
         }
       ],
       "./plugins/withGameCategory"

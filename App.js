@@ -58,15 +58,24 @@ const PLAY_REDEEM_URL = 'https://play.google.com/redeem';
 // RevenueCat public SDK key (Android). Public/publishable by design - it ships in
 // the client binary. Project "Loot Hollow", app "Loot Hollow (Play Store)".
 const RC_ANDROID_KEY = 'goog_HruBjSADPBeuocKnIurdWmMibrR';
+// RevenueCat public SDK key (iOS, app "Loot Hollow (App Store)"). Starts with appl_.
+// While it still contains PLACEHOLDER, iOS runs with purchases OFF (the Codemagic
+// iOS workflow refuses to build with the placeholder, so it can never ship).
+const RC_IOS_KEY = 'appl_PLACEHOLDER';
+const RC_KEY = Platform.OS === 'ios' ? RC_IOS_KEY : RC_ANDROID_KEY;
+const STORE_NAME = Platform.OS === 'ios' ? 'the App Store' : 'Google Play';
 
 // AdMob rewarded ad unit - real unit "Free Spins Rewarded" on publisher
 // pub-4697898246674003. Set LH_USE_TEST_ADS=true to fall back to Google's test
 // ad while developing, so you never click a live ad on your own account.
 const LH_USE_TEST_ADS = false;
+// iOS rewarded unit (AdMob app "Loot Hollow (iOS)"). Empty = Google test ad on iOS.
+const IOS_REWARDED_UNIT = 'ca-app-pub-4697898246674003/1553924623';
+const ANDROID_REWARDED_UNIT = 'ca-app-pub-4697898246674003/5116879667';
 const REWARDED_UNIT_ID =
-  LH_USE_TEST_ADS && AdMob && AdMob.TestIds
+  (LH_USE_TEST_ADS || (Platform.OS === 'ios' && !IOS_REWARDED_UNIT)) && AdMob && AdMob.TestIds
     ? AdMob.TestIds.REWARDED
-    : 'ca-app-pub-4697898246674003/5116879667';
+    : (Platform.OS === 'ios' ? IOS_REWARDED_UNIT : ANDROID_REWARDED_UNIT);
 
 // Product IDs — must match Play Console + RevenueCat exactly (see MONETIZATION-PLAN.md).
 const PRODUCT_IDS = [
@@ -140,8 +149,8 @@ async function initSdks() {
     }
   } catch (e) { /* ads best-effort */ }
   try {
-    if (Purchases && RC_ANDROID_KEY.indexOf('PLACEHOLDER') === -1) {
-      Purchases.configure({ apiKey: RC_ANDROID_KEY });
+    if (Purchases && RC_KEY.indexOf('PLACEHOLDER') === -1) {
+      Purchases.configure({ apiKey: RC_KEY });
     }
   } catch (e) { /* iap best-effort */ }
 }
@@ -203,6 +212,10 @@ export default function App() {
   // loading | gate | blocked | game
   const [screen, setScreen] = useState('loading');
   const webRef = useRef(null);
+  // True while a store purchase sheet is open. The app returning to the foreground
+  // when the sheet closes must not run the owned-purchase sweep until buyProduct
+  // has recorded its own transaction, or the same purchase is granted twice.
+  const buyingRef = useRef(false);
 
   // Push a snippet of JS into the game (used for native->web callbacks).
   const inject = useCallback((js) => {
@@ -263,13 +276,34 @@ export default function App() {
         fail();
         Alert.alert(
           'Store unavailable',
-          'This item could not be loaded from Google Play (' + productId + '). Please try again later.'
+          'This item could not be loaded from ' + STORE_NAME + ' (' + productId + '). Please try again later.'
         );
         return;
       }
-      await Purchases.purchaseStoreProduct(p);
+      buyingRef.current = true;
+      const res = await Purchases.purchaseStoreProduct(p);
+      // This purchase is delivered right here, so record its transaction as
+      // granted. Otherwise grantOwnedEntitlements() finds it in the customer's
+      // transaction list on the next foreground and grants it a second time.
+      try {
+        const granted = await loadGrantedTx();
+        const seen = {};
+        granted.forEach((k) => { seen[k] = true; });
+        const list = (res && res.customerInfo && res.customerInfo.nonSubscriptionTransactions) || [];
+        let best = null;
+        for (let i = 0; i < list.length; i++) {
+          if (txProductId(list[i]) !== productId) continue;
+          const id = txId(list[i]);
+          if (!id || seen[id]) continue;
+          if (!best || String(list[i].purchaseDate || '') >= String(best.purchaseDate || '')) best = list[i];
+        }
+        const recId = (best && txId(best)) || txId(res && res.transaction);
+        if (recId && !seen[recId]) { granted.push(recId); await saveGrantedTx(granted); }
+      } catch (e2) { /* best-effort */ }
+      buyingRef.current = false;
       ok();
     } catch (e) {
+      buyingRef.current = false;
       fail();
       // A player backing out of the Play sheet is not an error - the game's own
       // 'Purchase canceled' popup covers it. Anything else used to be swallowed
@@ -278,7 +312,7 @@ export default function App() {
       if (!(e && e.userCancelled)) {
         Alert.alert(
           'Purchase failed',
-          'Google Play could not complete this purchase' +
+          STORE_NAME.charAt(0).toUpperCase() + STORE_NAME.slice(1) + ' could not complete this purchase' +
             (e && e.code ? ' (code ' + e.code + ')' : '') +
             '. You have not been charged.'
         );
@@ -291,7 +325,7 @@ export default function App() {
   // to the foreground - a player can redeem a promo code in the Play Store
   // while we are backgrounded, so coming back is exactly when to re-check.
   const grantOwnedEntitlements = useCallback(async () => {
-    if (!Purchases) return;
+    if (!Purchases || buyingRef.current) return;
     try {
       // Pull anything the store knows about but RevenueCat has not seen yet.
       try { await Purchases.syncPurchases(); } catch (e) { /* offline is fine */ }
@@ -436,7 +470,7 @@ export default function App() {
     "window.LH_NATIVE=true;" +
     "window.LH_APP_VERSION='" + LH_VERSION_LABEL + "';" +
     "if(window.lhSetVersion)window.lhSetVersion(window.LH_APP_VERSION);" +
-    (Purchases && RC_ANDROID_KEY.indexOf('PLACEHOLDER') === -1 ? "window.LH_PAY=true;" : "") +
+    (Purchases && RC_KEY.indexOf('PLACEHOLDER') === -1 ? "window.LH_PAY=true;" : "") +
     (AdMob && AdMob.RewardedAd ? "window.LH_ADS=true;" : "") +
     (Platform.OS === 'android' ? "window.LH_REDEEM=true;" : "");
 
