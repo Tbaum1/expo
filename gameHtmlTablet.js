@@ -1356,7 +1356,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   // Fallback only. The native shell injects the real version/build straight out
   // of app.json and calls lhSetVersion(), so the label can never drift from the
   // store listing again. Injection lands after parse, hence the setter.
-  var APP_VERSION='1.0.6 (41)';
+  var APP_VERSION='1.0.7 (42)';
   window.lhSetVersion=function(v){if(v)APP_VERSION=v;var el=document.getElementById('appVersion');if(el)el.textContent='v'+APP_VERSION;};
   window.lhSetVersion(window.LH_APP_VERSION||'');
   // ===== Real-money gem packs + native money bridge (ads + IAP). =====
