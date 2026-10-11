@@ -1356,7 +1356,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   // Fallback only. The native shell injects the real version/build straight out
   // of app.json and calls lhSetVersion(), so the label can never drift from the
   // store listing again. Injection lands after parse, hence the setter.
-  var APP_VERSION='1.0.7 (42)';
+  var APP_VERSION='1.0.8 (43)';
   window.lhSetVersion=function(v){if(v)APP_VERSION=v;var el=document.getElementById('appVersion');if(el)el.textContent='v'+APP_VERSION;};
   window.lhSetVersion(window.LH_APP_VERSION||'');
   // ===== Real-money gem packs + native money bridge (ads + IAP). =====
@@ -1681,23 +1681,23 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   const TRO_REW=[2,4,6,10,15];
   const TRO_CATS=[
     {k:'world',i:'🗺️',n:'Worldwalker',u:'worlds cleared',t:[5,25,50,100,250],title:'Worldwalker',v:function(){return world;}},
-    {k:'spin',i:'🎰',n:'Spinner',u:'spins',t:[100,1000,5000,20000,100000],title:'Reel Master',v:function(){return troS.sp||0;}},
-    {k:'trip',i:'💎',n:'Triple Threat',u:'triples',t:[10,50,200,500,2000],title:'Triple Crown',v:function(){return troS.tr||0;}},
-    {k:'frz',i:'🔥',n:'Frenzy Fan',u:'frenzies',t:[5,25,100,300,1000],title:'Frenzy Fiend',v:function(){return troS.fz||0;}},
-    {k:'raid',i:'⚔️',n:'Raider',u:'raids',t:[5,25,100,300,1000],title:'Raid Baron',v:function(){return troS.rd||0;}},
-    {k:'blk',i:'🛡️',n:'Defender',u:'raids blocked',t:[5,25,100,300,1000],title:'Iron Wall',v:function(){return troS.bl||0;}},
-    {k:'duel',i:'🥊',n:'Showdown',u:'duels won',t:[1,5,15,40,100],title:'Duelist',v:function(){return troS.dw||0;}},
-    {k:'card',i:'🃏',n:'Collector',u:'cards owned',t:[5,20,50,100,200],title:'Curator',v:function(){return Object.keys((cardState&&cardState.own)||{}).length;}},
-    {k:'bld',i:'🏗️',n:'Builder',u:'buildings',t:[25,100,500,2000,6000],title:'Master Builder',v:function(){return totBuild;}},
+    {k:'spin',i:'🎰',n:'Spinner',u:'spins',t:[500,3000,12000,40000,100000],title:'Reel Master',v:function(){return troS.sp||0;}},
+    {k:'trip',i:'💎',n:'Triple Threat',u:'triples',t:[40,150,500,1200,3000],title:'Triple Crown',v:function(){return troS.tr||0;}},
+    {k:'frz',i:'🔥',n:'Frenzy Fan',u:'frenzies',t:[50,200,750,1800,3500],title:'Frenzy Fiend',v:function(){return troS.fz||0;}},
+    {k:'raid',i:'⚔️',n:'Raider',u:'raids',t:[10,30,100,250,600],title:'Raid Baron',v:function(){return troS.rd||0;}},
+    {k:'blk',i:'🛡️',n:'Defender',u:'raids blocked',t:[15,60,250,800,1800],title:'Iron Wall',v:function(){return troS.bl||0;}},
+    {k:'duel',i:'🥊',n:'Showdown',u:'duels won',t:[3,8,20,40,100],title:'Duelist',v:function(){return troS.dw||0;}},
+    {k:'card',i:'🃏',n:'Collector',u:'cards owned',t:[15,40,80,150,250],title:'Curator',v:function(){return Object.keys((cardState&&cardState.own)||{}).length;}},
+    {k:'bld',i:'🏗️',n:'Builder',u:'buildings',t:[75,200,600,2000,6000],title:'Master Builder',v:function(){return totBuild;}},
     {k:'str',i:'📅',n:'Streak Keeper',u:'day streak',t:[3,7,14,30,60],title:'Streak Keeper',v:function(){return troBestStreak();}},
-    {k:'rac',i:'🦝',n:'Raccoon Rank',u:'raccoon level',t:[5,10,15,20,25],title:'Raccoon Royalty',v:function(){return racLvl;}}
+    {k:'rac',i:'🦝',n:'Raccoon Rank',u:'raccoon level',t:[10,14,17,21,25],title:'Raccoon Royalty',v:function(){return racLvl;}}
   ];
   const SEC_REW=8;
   const SEC_DEFS=[
     {id:'owl',i:'🦉',n:'Night Owl',t:'Night Owl',d:'Spun the reels deep in the night (2-5 AM).',h:'Some treasure only shows itself while the world sleeps.'},
     {id:'early',i:'🐓',n:'Early Bird',t:'Early Bird',d:'Spun the reels at the crack of dawn (5-7 AM).',h:'The early raccoon gets the coin.'},
     {id:'hat',i:'🎩',n:'Hat Trick',t:'Hat-Trick Hero',d:'Landed three triples in a row.',h:'Luck, but three times in a row.'},
-    {id:'flaw',i:'🔮',n:'Mind Reader',t:'Mind Reader',d:'Won a Showdown without losing a single round.',h:'Know your rival better than they know themselves.'},
+    {id:'flaw',i:'🔮',n:'Mind Reader',t:'Mind Reader',d:'Won 3 Showdowns without losing a single round.',h:'Know your rival better than they know themselves.'},
     {id:'broke',i:'🪙',n:'Pocket Lint',t:'Pocket Lint',d:'Went completely broke after World 5.',h:'Even the richest raccoon can hit rock bottom.'},
     {id:'bill',i:'🤑',n:'Tycoon',t:'Tycoon',d:'Held a billion coins at once.',h:'A big enough pile changes you.'},
     {id:'dragon',i:'🐲',n:'Hoard Dragon',t:'Hoard Dragon',d:'Sat on 1,000 gems.',h:'Dragons never spend. They sit.'},
@@ -3193,7 +3193,7 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
     if(win){var rem=owedOf(foe.n),got=0;if(rem>0){got=payOwed(foe.n,rem);coins+=got;feedBank(got);}var bonus=round3(be*DUEL_BONUS[st-1]);spins=round3(spins+bonus);var jt='';if(isN){cardState.dust=(cardState.dust||0)+300;jt=' +300 dust 🧪';}s.g=0;recomputeNemesis();var cd=duelCardRoll(st,flaw);
       ttl=(flaw?'FLAWLESS! ':'')+(isN?'Duel Won — '+duelName(st)+'!':'Lair Toppled!');
       html='<div class="bsRes win"><div class="bsResT">🏆 '+ttl+'</div><div>'+dl.ok+' of 3 rounds won'+(got>0?(' · final '+fmt(got)+' coins reclaimed'):'')+'</div><div>Total reclaimed this duel: <b>'+fmt(dl.paid+got)+'</b> coins</div><div>Victory bonus: +'+fmt(bonus*1000)+' spins'+jt+'</div>'+(cr>0?'<div class="bsCr">⚔️ Counts as '+cr+' attack'+(cr>1?'s':'')+' for events</div>':'')+(cd?'<div class="bsCard">✨ Rival’s spoils: a '+CARD_TIER_NAME[cd.rarity]+' card!</div>':'')+'</div>';
-      tcnt('dw');if(flaw){tcnt('fl');secUnlock('flaw');}s.dl=null;sBig();coinRain(18);stagePop();confetti(18);$('msg').textContent='Toppled '+foe.n+'!';duelRes={html:html,log:dl.log,L:dl.L,paid:dl.paid+got};save();render();renderBoss();
+      tcnt('dw');if(flaw){tcnt('fl');if((troS.fl||0)>=3)secUnlock('flaw');}s.dl=null;sBig();coinRain(18);stagePop();confetti(18);$('msg').textContent='Toppled '+foe.n+'!';duelRes={html:html,log:dl.log,L:dl.L,paid:dl.paid+got};save();render();renderBoss();
       if(cd){try{if(typeof cardCheckAlbums==='function')cardCheckAlbums();if(typeof cardsRefresh==='function')cardsRefresh();}catch(e){}save();showChestReveal([cd],'Rival’s Spoils');}
       return;}
     html='<div class="bsRes"><div class="bsResT">💨 Duel lost</div><div>'+dl.ok+' of 3 rounds won — you need 2 to topple.</div><div>Reclaimed so far: <b>'+fmt(dl.paid)+'</b> coins'+(owedOf(foe.n)>0?(' · <b>'+fmt(owedOf(foe.n))+'</b> still owed to you'):'')+'</div>'+(cr>0?'<div class="bsCr">⚔️ Counts as '+cr+' attack'+(cr>1?'s':'')+' for events</div>':'')+'</div>';
