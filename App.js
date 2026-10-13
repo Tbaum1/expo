@@ -82,6 +82,7 @@ const PRODUCT_IDS = [
   'spins_small', 'spins_medium', 'spins_large', 'spins_mega',
   'gems_small', 'gems_medium', 'gems_large', 'gems_mega',
   'bank_break',
+  'realm_skip',
 ];
 
 // Show a banner if a scheduled notification fires while the app is open.
