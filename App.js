@@ -141,19 +141,32 @@ async function scheduleSpinsFull(mins) {
 
 // One-time SDK init. Safe to call when the modules are missing (web/dev).
 let _sdkInit = false;
+let _rcConfigured = false;
+// Idempotent and synchronous. RevenueCat used to be configured only AFTER the
+// slow AdMob init finished, so on a cold start the WebView's onLoadEnd could
+// run grantOwnedEntitlements() first: getCustomerInfo() threw 'not configured',
+// the catch swallowed it, and a redeemed promo code was never handed to the
+// game. Every caller that needs Purchases now calls this first.
+function configurePurchases() {
+  if (_rcConfigured) return true;
+  try {
+    if (Purchases && RC_KEY.indexOf('PLACEHOLDER') === -1) {
+      Purchases.configure({ apiKey: RC_KEY });
+      _rcConfigured = true;
+    }
+  } catch (e) { /* iap best-effort */ }
+  return _rcConfigured;
+}
+
 async function initSdks() {
   if (_sdkInit) return;
   _sdkInit = true;
+  configurePurchases();
   try {
     if (AdMob && AdMob.default && typeof AdMob.default === 'function') {
       await AdMob.default().initialize();
     }
   } catch (e) { /* ads best-effort */ }
-  try {
-    if (Purchases && RC_KEY.indexOf('PLACEHOLDER') === -1) {
-      Purchases.configure({ apiKey: RC_KEY });
-    }
-  } catch (e) { /* iap best-effort */ }
 }
 
 // --- Owned-entitlement grant ------------------------------------------------
@@ -217,6 +230,9 @@ export default function App() {
   // when the sheet closes must not run the owned-purchase sweep until buyProduct
   // has recorded its own transaction, or the same purchase is granted twice.
   const buyingRef = useRef(false);
+  // True while a grantOwnedEntitlements() sweep is running, so a foreground
+  // event during a retry cannot start a second sweep and double-grant.
+  const grantingRef = useRef(false);
 
   // Push a snippet of JS into the game (used for native->web callbacks).
   const inject = useCallback((js) => {
@@ -261,7 +277,7 @@ export default function App() {
   const buyProduct = useCallback(async (productId) => {
     const fail = () => inject("window.LH_onPurchase && window.LH_onPurchase('" + productId + "',false)");
     const ok = () => inject("window.LH_onPurchase && window.LH_onPurchase('" + productId + "',true)");
-    if (!Purchases || PRODUCT_IDS.indexOf(productId) === -1) { fail(); return; }
+    if (!Purchases || !configurePurchases() || PRODUCT_IDS.indexOf(productId) === -1) { fail(); return; }
     try {
       // NON_SUBSCRIPTION is required. getProducts() defaults to SUBSCRIPTION,
       // and every Loot Hollow product is a one-time consumable, so without it
@@ -325,14 +341,16 @@ export default function App() {
   // Runs when the WebView finishes loading and again whenever the app returns
   // to the foreground - a player can redeem a promo code in the Play Store
   // while we are backgrounded, so coming back is exactly when to re-check.
-  const grantOwnedEntitlements = useCallback(async () => {
-    if (!Purchases || buyingRef.current) return;
+  // One pass. Returns 'granted' (handed >=1 purchase to the game), 'empty'
+  // (RevenueCat answered but there was nothing new) or 'error' (not ready /
+  // offline - worth retrying).
+  const sweepOwned = useCallback(async () => {
     try {
       // Pull anything the store knows about but RevenueCat has not seen yet.
       try { await Purchases.syncPurchases(); } catch (e) { /* offline is fine */ }
       const info = await Purchases.getCustomerInfo();
       const txs = (info && info.nonSubscriptionTransactions) || [];
-      if (!txs.length) return;
+      if (!txs.length) return 'empty';
       const granted = await loadGrantedTx();
       const seen = {};
       granted.forEach((k) => { seen[k] = true; });
@@ -355,9 +373,29 @@ export default function App() {
           'if(++n<40)setTimeout(go,250);}go();})()'
         );
       }
-      if (changed) await saveGrantedTx(granted);
-    } catch (e) { /* best-effort - never block the game on this */ }
+      if (changed) { await saveGrantedTx(granted); return 'granted'; }
+      return 'empty';
+    } catch (e) { return 'error'; }
   }, [inject]);
+
+  const grantOwnedEntitlements = useCallback(async () => {
+    if (!Purchases || buyingRef.current || grantingRef.current) return;
+    if (!configurePurchases()) return;
+    grantingRef.current = true;
+    try {
+      // A freshly redeemed promo code can take a few seconds to show up in the
+      // store's purchase list, and the first call after a cold start can fail
+      // while the network/billing client comes up, so try a few times.
+      const waits = [0, 4000, 12000];
+      for (let i = 0; i < waits.length; i++) {
+        if (waits[i]) await new Promise((r) => setTimeout(r, waits[i]));
+        if (buyingRef.current) return;
+        const res = await sweepOwned();
+        if (res === 'granted') return;
+      }
+    } catch (e) { /* best-effort - never block the game on this */ }
+    finally { grantingRef.current = false; }
+  }, [sweepOwned]);
 
   // Google Play owns code redemption; we just open its flow.
   const openRedeem = useCallback(() => {
