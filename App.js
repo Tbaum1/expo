@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import appJson from './app.json';
+import LhCloud from './modules/lh-cloud';
 import { GAME_HTML } from './gameHtml';
 import { GAME_HTML_TABLET } from './gameHtmlTablet';
 
@@ -410,6 +411,42 @@ export default function App() {
     return () => { try { sub && sub.remove(); } catch (e) {} };
   }, [grantOwnedEntitlements]);
 
+
+  // ---- Cloud save (Google Play Games saved games, Android only) ----
+  // The game owns the rules (which save has more progress wins); native only reads/writes the one snapshot.
+  const cloudReply = useCallback((o) => {
+    inject('window.__lhCloud&&window.__lhCloud(' + JSON.stringify(o) + ')');
+  }, [inject]);
+
+  const cloudPull = useCallback(async () => {
+    if (!LhCloud) return;
+    try {
+      const r = await LhCloud.load();
+      if (!r || r.signed === false) cloudReply({ k: 'error', signed: false });
+      else cloudReply({ k: 'found', data: r.data || null });
+    } catch (e) {
+      cloudReply({ k: 'error' });
+    }
+  }, [cloudReply]);
+
+  const cloudPush = useCallback(async (data) => {
+    if (!LhCloud) return;
+    try {
+      await LhCloud.save(data);
+      cloudReply({ k: 'saved' });
+    } catch (e) {
+      cloudReply({ k: 'error' });
+    }
+  }, [cloudReply]);
+
+  const cloudSignIn = useCallback(async () => {
+    if (!LhCloud) return;
+    try {
+      const ok = await LhCloud.signIn();
+      if (ok) cloudPull();
+    } catch (e) { /* the game shows its own message */ }
+  }, [cloudPull]);
+
   // Messages posted by the game (window.ReactNativeWebView.postMessage).
   const onWebMessage = useCallback((event) => {
     try {
@@ -423,9 +460,15 @@ export default function App() {
         buyProduct(d.productId);
       } else if (d.t === 'redeem') {
         openRedeem();
+      } else if (d.t === 'cloud_pull') {
+        cloudPull();
+      } else if (d.t === 'cloud_push' && typeof d.data === 'string') {
+        cloudPush(d.data);
+      } else if (d.t === 'cloud_signin') {
+        cloudSignIn();
       }
     } catch (e) { /* ignore malformed messages */ }
-  }, [showRewarded, buyProduct, openRedeem]);
+  }, [showRewarded, buyProduct, openRedeem, cloudPull, cloudPush, cloudSignIn]);
 
   useEffect(() => {
     (async () => {
@@ -511,7 +554,8 @@ export default function App() {
     "if(window.lhSetVersion)window.lhSetVersion(window.LH_APP_VERSION);" +
     (Purchases && RC_KEY.indexOf('PLACEHOLDER') === -1 ? "window.LH_PAY=true;" : "") +
     (AdMob && AdMob.RewardedAd ? "window.LH_ADS=true;" : "") +
-    (Platform.OS === 'android' ? "window.LH_REDEEM=true;" : "");
+    (Platform.OS === 'android' ? "window.LH_REDEEM=true;" : "") +
+    (Platform.OS === 'android' && LhCloud ? "window.LH_CLOUD=true;if(window.lhCloudInit)window.lhCloudInit();" : "");
 
   return (
     <View style={styles.root}>

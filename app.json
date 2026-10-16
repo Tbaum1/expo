@@ -37,7 +37,8 @@
         "VIBRATE",
         "com.google.android.gms.permission.AD_ID",
         "com.android.vending.BILLING"
-      ]
+      ],
+      "allowBackup": true
     },
     "plugins": [
       [
@@ -65,12 +66,14 @@
           "iosAppId": "ca-app-pub-4697898246674003~9736501124"
         }
       ],
-      "./plugins/withGameCategory"
+      "./plugins/withGameCategory",
+      "./plugins/withPlayGames"
     ],
     "extra": {
       "eas": {
         "projectId": "51aeadeb-73c5-4d81-b95d-7e7762257e0c"
-      }
+      },
+      "playGamesAppId": "117023476360"
     }
   }
 }

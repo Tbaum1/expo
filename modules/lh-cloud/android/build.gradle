@@ -1,0 +1,20 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'expo.modules.lhcloud'
+version = '0.1.0'
+
+android {
+  namespace "expo.modules.lhcloud"
+  defaultConfig {
+    versionCode 1
+    versionName "0.1.0"
+  }
+}
+
+dependencies {
+  // Play Games Services v2 (sign-in + saved games). A range is used so Gradle takes the newest published 21+ release.
+  implementation 'com.google.android.gms:play-services-games-v2:[21.0.0,)'
+}
