@@ -52,6 +52,11 @@ const AGE_KEY = 'lh_age_ok_v1';
 // Transaction ids we have already handed to the game. Prevents a relaunch from
 // granting the same pre-registration reward / promo code twice.
 const GRANTED_TX_KEY = 'lh_granted_tx_v1';
+// TESTING ONLY. While true, a grant check that finds nothing to hand the game
+// pops an Alert listing what Google Play / RevenueCat actually returned, so a
+// promo code that "redeems but does nothing" can be diagnosed from one launch.
+// SET TO false BEFORE THE PUBLIC PRODUCTION RELEASE.
+const PROMO_DIAG = true;
 // Where the 'Redeem code' menu item sends the player. Google Play owns the
 // redemption flow; we only open it.
 const PLAY_REDEEM_URL = 'https://play.google.com/redeem';
@@ -345,23 +350,40 @@ export default function App() {
   // One pass. Returns 'granted' (handed >=1 purchase to the game), 'empty'
   // (RevenueCat answered but there was nothing new) or 'error' (not ready /
   // offline - worth retrying).
-  const sweepOwned = useCallback(async () => {
+  const sweepOwned = useCallback(async (mode, d) => {
+    d = d || {};
+    const errText = (e) => String((e && (e.message || e.code || e.userInfo && e.userInfo.readableErrorCode)) || e).slice(0, 140);
     try {
       // Pull anything the store knows about but RevenueCat has not seen yet.
-      try { await Purchases.syncPurchases(); } catch (e) { /* offline is fine */ }
+      // 'restore' re-queries every purchase the store still reports as owned
+      // (a promo-code item is exactly that: owned, never consumed), which is
+      // the stronger of the two calls.
+      try {
+        if (mode === 'restore' && Purchases.restorePurchases) {
+          const ci = await Purchases.restorePurchases();
+          d.restoreTx = ((ci && ci.nonSubscriptionTransactions) || []).length;
+        } else {
+          await Purchases.syncPurchases();
+        }
+      } catch (e) { d.syncErr = errText(e); }
+      try { if (Purchases.invalidateCustomerInfoCache) await Purchases.invalidateCustomerInfoCache(); } catch (e) {}
+      try { d.uid = String(await Purchases.getAppUserID()); } catch (e) {}
       const info = await Purchases.getCustomerInfo();
       const txs = (info && info.nonSubscriptionTransactions) || [];
+      d.txCount = txs.length;
+      d.txProducts = txs.map(txProductId).join(',');
       if (!txs.length) return 'empty';
       const granted = await loadGrantedTx();
       const seen = {};
       granted.forEach((k) => { seen[k] = true; });
       let changed = false;
+      let already = 0;
       for (let i = 0; i < txs.length; i++) {
         const pid = txProductId(txs[i]);
         const id = txId(txs[i]);
         if (!pid || !id) continue;
         if (PRODUCT_IDS.indexOf(pid) === -1) continue;
-        if (seen[id]) continue;
+        if (seen[id]) { already++; continue; }
         seen[id] = true;
         granted.push(id);
         changed = true;
@@ -370,37 +392,68 @@ export default function App() {
         inject(
           '(function(){var n=0;function go(){' +
           'if(window.LH_onPurchase){window.LH_onPurchase(' +
-          "'" + pid + "'" + ',true);return;}' +
+          "'" + pid + "'" + ',true,true);return;}' +
           'if(++n<40)setTimeout(go,250);}go();})()'
         );
       }
+      d.alreadyGranted = already;
       if (changed) { await saveGrantedTx(granted); return 'granted'; }
       return 'empty';
-    } catch (e) { return 'error'; }
+    } catch (e) { d.infoErr = errText(e); return 'error'; }
   }, [inject]);
 
   const grantOwnedEntitlements = useCallback(async () => {
     if (!Purchases || buyingRef.current || grantingRef.current) return;
     if (!configurePurchases()) return;
     grantingRef.current = true;
+    const log = [];
+    let done = false;
     try {
       // A freshly redeemed promo code can take a few seconds to show up in the
       // store's purchase list, and the first call after a cold start can fail
-      // while the network/billing client comes up, so try a few times.
+      // while the network/billing client comes up, so try a few times. The
+      // first pass uses syncPurchases, later passes restorePurchases.
       const waits = [0, 4000, 12000];
+      const modes = ['sync', 'restore', 'restore'];
       for (let i = 0; i < waits.length; i++) {
         if (waits[i]) await new Promise((r) => setTimeout(r, waits[i]));
-        if (buyingRef.current) return;
-        const res = await sweepOwned();
-        if (res === 'granted') return;
+        if (buyingRef.current) { done = true; return; }
+        const d = { n: i + 1, mode: modes[i] };
+        const res = await sweepOwned(modes[i], d);
+        d.res = res;
+        log.push(d);
+        if (res === 'granted') { done = true; return; }
       }
     } catch (e) { /* best-effort - never block the game on this */ }
-    finally { grantingRef.current = false; }
+    finally {
+      grantingRef.current = false;
+      if (PROMO_DIAG && !done && log.length) {
+        try {
+          const last = log[log.length - 1];
+          const lines = log.map((d) =>
+            d.n + ') ' + d.mode + ': ' + d.res +
+            ' tx=' + (d.txCount === undefined ? '?' : d.txCount) +
+            (d.txProducts ? ' [' + d.txProducts + ']' : '') +
+            (d.restoreTx !== undefined ? ' restored=' + d.restoreTx : '') +
+            (d.alreadyGranted ? ' already=' + d.alreadyGranted : '') +
+            (d.syncErr ? ' syncErr=' + d.syncErr : '') +
+            (d.infoErr ? ' infoErr=' + d.infoErr : '')
+          );
+          Alert.alert(
+            'Purchase check (test build)',
+            'Nothing new to grant.\n' + lines.join('\n') + '\nid: ' + (last.uid || '?')
+          );
+        } catch (e) { /* diagnostics must never break the game */ }
+      }
+    }
   }, [sweepOwned]);
 
   // Google Play owns code redemption; we just open its flow.
   const openRedeem = useCallback(() => {
-    try { Linking.openURL(PLAY_REDEEM_URL).catch(() => {}); } catch (e) {}
+    // Try the Play Store app's own redeem screen first (market://redeem); if
+    // nothing handles it, fall back to the web redeem page.
+    const web = () => { try { Linking.openURL(PLAY_REDEEM_URL).catch(() => {}); } catch (e) {} };
+    try { Linking.openURL('market://redeem').catch(web); } catch (e) { web(); }
   }, []);
 
   // Re-check owned purchases each time the app comes back to the foreground.
