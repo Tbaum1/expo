@@ -1291,7 +1291,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function setActive(s){return world>=s.unlock;}
   function cardEmojis(s){return s.cards.map(function(c){return c[0];});}
   function worldMaxR(){return Math.min(5,2+Math.floor(world/25));}
-  function chestCost(ch){return Math.round(ch.base*Math.pow(ECON_BASE,totBuild)*100);}
+  function chestCost(ch){return Math.round(ch.base*econPow(0)*COINX);}
   function chestPool(ch){var cap=Math.min(ch.maxR,worldMaxR()),pool=[];SETS.forEach(function(s){if(world<s.unlock)return;s.cards.forEach(function(c){if(c[1]<=cap)pool.push(c);});});return pool;}
   // Owner-aware draw: heavily favours relics you DON'T own yet, so chests actually fill sets.
   function drawCard(pool){var w=[],tot=0,i;for(i=0;i<pool.length;i++){var rar=pool[i][1],owned=(relicsOwned[pool[i][0]]||0)>0;var ww=(6-rar)*(owned?1:5);w.push(ww);tot+=ww;}var r=Math.random()*tot;for(i=0;i<pool.length;i++){r-=w[i];if(r<=0)return pool[i];}return pool[pool.length-1];}
@@ -1361,13 +1361,14 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function bgIndex(w){return (((w%250)+250)%250)%WORLD_BG.length;}
   {const _f=new Image();_f.src=bgUrl(world);}
   const DEFENSE_TYPES=[
-    {key:'snare',name:'Snare Trap',icon:'🪤',desc:'~22% chance per trap to fully block a raid.',cost:150000},
-    {key:'barricade',name:'Barricade',icon:'🧱',desc:'Cuts coins lost to a raid by 25% each.',cost:250000},
-    {key:'watch',name:'Watch-Beast',icon:'🐕',desc:'~25% chance per beast to claw back half a raid.',cost:400000}
+    {key:'snare',name:'Snare Trap',icon:'🪤',desc:'~22% chance per trap to fully block a raid.',get cost(){return defPrice(0.75);}},
+    {key:'barricade',name:'Barricade',icon:'🧱',desc:'Cuts coins lost to a raid by 25% each.',get cost(){return defPrice(1.25);}},
+    {key:'watch',name:'Watch-Beast',icon:'🐕',desc:'~25% chance per beast to claw back half a raid.',get cost(){return defPrice(2);}}
   ];
+  function defPrice(k){return Math.max(1,Math.round(buildCost()/buildMult()*k));}
   const NEM_THRESH=4;
   const SPECIAL_CHANCE=0.04;
-  const ECON_BASE=1.0044;
+  const ECON_BASE=1.0015,REALM_BUILDS=6250,COINX=1; /* coin rebase: growth 1.0015/build, restarts each realm (6250 builds). COINX replaces the old literal x100 */
   const CHARGE_MAX=100,CHARGE_PER=9,FRENZY_SPINS=8,FRENZY_MULT=1.5;
   const SPIN_PACKS=[
     {key:'sm',name:'Small Pack',icon:'🎰',spins:50,price:'$1.99'},
@@ -1390,7 +1391,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   // Fallback only. The native shell injects the real version/build straight out
   // of app.json and calls lhSetVersion(), so the label can never drift from the
   // store listing again. Injection lands after parse, hence the setter.
-  var APP_VERSION='1.0.10 (48)';
+  var APP_VERSION='1.0.10 (49)';
   window.lhSetVersion=function(v){if(v)APP_VERSION=v;var el=document.getElementById('appVersion');if(el)el.textContent='v'+APP_VERSION;};
   window.lhSetVersion(window.LH_APP_VERSION||'');
   // ===== Real-money gem packs + native money bridge (ads + IAP). =====
@@ -1528,15 +1529,16 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   // Players who already existed when this shipped keep x1 on every world they had reached in Realm I (costGF).
   let costGF=store.get('ll_costGF',null);if(typeof costGF!=='number'||!(costGF>=0))costGF=(world>0||totBuild>0)?world+1:0;
   function buildRamp(w){if(realmOf(w)===0&&w<costGF)return 1;return 4+7*Math.min(rwOf(w),250)/250;}
-  function buildCost(){return Math.round(BUILD_BASE*Math.pow(ECON_BASE,totBuild)*buildMult()*worldCostMult()*buildRamp(world)*100);}
+  function buildCost(){return Math.round(BUILD_BASE*econPow(0)*buildMult()*worldCostMult()*buildRamp(world)*COINX);}
   function villageSum(){return village.reduce((a,b)=>a+b,0);}
   function worldItems(){if(B3_ART&&world>=500&&world<750)return WORLD_ITEMS3[(world-500)%25];return WORLD_ITEMS[vreg()];}
   function itemCost(i){return Math.round(buildCost()*(1+0.18*village[i]));}
   function stars(n){let s='';for(let i=0;i<STARS;i++)s+=(i<n?'★':'☆');return s;}
   function maxedWorld(){return villageSum()>=ITEMS*STARS;}
-  function econScale(){return Math.pow(ECON_BASE,totBuild);}
+  function econPow(n){return Math.pow(ECON_BASE,Math.max(0,totBuild+(n||0)-REALM_BUILDS*realmOf(world)));}
+  function econScale(){return econPow(0);}
   function flatFS(){return realmOf(world)>=1?worldPayRamp():1;}
-  function bonus(x){return Math.round(x*econScale()*flatFS()*100);}
+  function bonus(x){return Math.round(x*econScale()*flatFS()*COINX);}
   // Build costs climb 1.2x every 25 worlds (worldCostMult) while coin income
   // did not, so the two curves diverged 8.7x over 250 worlds and progress
   // stalled dead around world 150-200. Income now tracks that ramp to the
@@ -1545,7 +1547,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   // becomes unfinishable.
   function worldPayRamp(){return Math.pow(worldCostMult()/SPW_BASE,0.4);}
   function payMult(){return econScale()*worldPayRamp()*(specialWorld?2:1)*(frenzy>0?FRENZY_MULT:1)*((typeof CP==='function')?CP().coinMult:1)*(goldenNow?2:1)*boostMult()*crownMult();}
-  function pigCap(){return Math.round(4000*econScale()*100*(worldCostMult()/(SPW_BASE*REALM_D[realmOf(world)]))*((4+7*Math.min(rwOf(world),250)/250)/4));}
+  function pigCap(){return Math.round(4000*econScale()*COINX*(worldCostMult()/(SPW_BASE*REALM_D[realmOf(world)]))*((4+7*Math.min(rwOf(world),250)/250)/4));}
   // Daily Boost: the first 100 spins of each local day pay +50% coins. Casual players spend most of their spins inside it.
   const BOOST_N=100,BOOST_M=1.5;
   function boostActive(){return locDay(Date.now())!==boostD||boostN<=BOOST_N;}
@@ -1558,8 +1560,8 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   // Event coin rewards are paid x2 (EVT_COIN_MULT) so a ladder rung is worth a few minutes of play.
   const EVT_COIN_MULT=2;
   function evBonus(x){return Math.round(bonus(x)*EVT_COIN_MULT);}
-  function gainCoins(base){let m=payMult();if(activePet==='mole')m*=1+0.15*petPow();const w=Math.round(base*m*100);coins+=w;feedBank(w);return w;}
-  function awardCoins(n){n=Math.round(n*racMult()*collMult()*100);coins+=n;feedBank(n);return n;}
+  function gainCoins(base){let m=payMult();if(activePet==='mole')m*=1+0.15*petPow();const w=Math.round(base*m*COINX);coins+=w;feedBank(w);return w;}
+  function awardCoins(n){n=Math.round(n*racMult()*collMult()*COINX);coins+=n;feedBank(n);return n;}
   const SAFE_FRAC=0.50;
   // Incoming rival raids. Used to hit on 23% of spins (felt constant). Now 5%,
   // about one attempt per 20 spins instead of one per 4, but each one that gets
@@ -1581,7 +1583,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function maxBetIdx(){var ceil=world<80?4:world<160?5:world<230?6:7;var cap=spins*0.05,bi=0,i;for(i=0;i<BET_LEVELS.length;i++){if(BET_LEVELS[i]<=cap)bi=i;}return Math.max(0,Math.min(ceil,bi));}
   function bet(){betIdx=Math.min(betIdx,maxBetIdx());return BET_LEVELS[betIdx];}
   function setCompletable(s){return setActive(s)&&!setsDone[s.key]&&cardEmojis(s).every(function(r){return (relicsOwned[r]||0)>=1;});}
-  const UNITS=(function(){var u=['K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc'],l='abcdefghijklmnopqrstuvwxyz';for(var a=0;a<26;a++)for(var b=0;b<26;b++)u.push(l.charAt(a)+l.charAt(b));return u;})();
+  const UNITS=(function(){var u=['K','M','B','T'];return u;})();
   function trimZ(x){let s=x.toFixed(2);while(s.indexOf('.')>=0&&(s.charAt(s.length-1)==='0'||s.charAt(s.length-1)==='.'))s=s.substring(0,s.length-1);return s;}
   function fmt(n){n=Math.round(n);const a=Math.abs(n);if(a<1e5)return n.toLocaleString();const u=UNITS;let v=a,i=-1;while(v>=1000&&i<u.length-1){v/=1000;i++;}if(v>=1000)return n.toExponential(2);return (n<0?'-':'')+trimZ(v)+u[i];}
   function rating(){return world*40+totBuild*3+Object.keys(setsDone).length*40+Object.keys(goldSetsDone).length*60+petsOwned.length*15;}
@@ -1765,11 +1767,11 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function completeReveal(rg,onDone,w){if(rg>=5&&!b2CompleteWanted(w)){onDone();return;}if(hasCompleteVid(rg)){playAnimVideo(rg>=5?b2CompleteVid(rg):VIDEO_BASE+'complete_r'+rg+'.mp4',onDone,onDone);}else{onDone();}}
   function playBuildAnim(idx){var items=worldItems();var it=items[idx];if(!it)return;var rg=vreg(),src=pieceSrc(rg,idx);var host=$('buildAnim');if(!host){host=document.createElement('div');host.id='buildAnim';document.body.appendChild(host);}host.className='bpn';host.classList.remove('show');host.classList.remove('done');host.innerHTML='<div class="bpn-plot"></div><div class="bpn-bwrap"><img class="bpn-img" alt="" src="'+src+'"></div><div class="bpn-stars" id="bpnStars"><b>★</b><b>★</b><b>★</b><b>★</b><b>★</b></div><div class="bpn-title" id="bpnTitle">Building '+it.n+'…</div><div class="bpn-fx" id="bpnFx"></div><button class="bpn-skip" id="bpnSkip">Tap to continue</button>';_baTO.forEach(clearTimeout);_baTO=[];if(_baSpark){clearInterval(_baSpark);_baSpark=null;}requestAnimationFrame(function(){host.classList.add('show');});sBig();haptic(14);var fx=$('bpnFx'),W=host.clientWidth||360,H=host.clientHeight||640,cx=W/2,base=H*0.56;function mk(cls){var p=document.createElement('div');p.className='p '+cls;fx.appendChild(p);return p;}function dust(n){for(var i=0;i<n;i++){var p=mk('dust');var a=Math.random()*6.283,dd=34+Math.random()*48;p.style.setProperty('--dx',(Math.cos(a)*dd)+'px');p.style.setProperty('--dy',(-Math.abs(Math.sin(a))*dd-8)+'px');p.style.left=cx+'px';p.style.top=base+'px';p.style.animation='bpn-dust '+(600+Math.random()*300)+'ms ease-out forwards';(function(pp){setTimeout(function(){pp.remove();},950);})(p);}}function coins(){for(var i=0;i<16;i++){var p=mk('coin');p.textContent='🪙';p.style.left=cx+'px';p.style.top=(base-40)+'px';var ang=-1.57+(Math.random()-0.5)*2.3,sp=80+Math.random()*100;p.style.setProperty('--cx',(Math.cos(ang)*sp)+'px');p.style.setProperty('--cy',(Math.sin(ang)*sp-24)+'px');p.style.setProperty('--cr',(Math.random()*720-360)+'deg');p.style.animation='bpn-coin '+(760+Math.random()*450)+'ms cubic-bezier(.2,.7,.3,1) forwards';(function(pp){setTimeout(function(){pp.remove();},1300);})(p);}}function conf(){var co=['#f5c542','#e8654f','#4b8ef0','#7fae6b','#b06bf0','#ffffff'];for(var i=0;i<28;i++){var p=mk('conf');p.style.background=co[i%co.length];p.style.left=cx+'px';p.style.top=(base-90)+'px';p.style.setProperty('--fx',((Math.random()-0.5)*280)+'px');p.style.setProperty('--fy',(70+Math.random()*190)+'px');p.style.setProperty('--fr',(Math.random()*720)+'deg');p.style.animation='bpn-conf '+(950+Math.random()*550)+'ms ease-in forwards';(function(pp){setTimeout(function(){pp.remove();},1550);})(p);}}function glow(){var g=mk('glow');g.style.left=cx+'px';g.style.top=(base-56)+'px';g.style.animation='bpn-glow 700ms ease-out forwards';setTimeout(function(){g.remove();},720);}_baTO.push(setTimeout(function(){dust(14);haptic(22);},430));_baTO.push(setTimeout(function(){glow();coins();conf();var t=$('bpnTitle');if(t)t.textContent=it.n+' Complete!';var st=$('bpnStars');if(st){var bs=st.children;for(var s=0;s<5;s++){(function(k){_baTO.push(setTimeout(function(){if(bs[k])bs[k].classList.add('on');sPop();},k*120));})(s);}}confetti(24);coinRain(8);haptic(34);host.classList.add('done');},1000));_baTO.push(setTimeout(closeBuildAnim,3000));var sk=$('bpnSkip');if(sk)sk.onclick=closeBuildAnim;host.onclick=function(){if(host.classList.contains('done'))closeBuildAnim();};}
   function closeBuildAnim(){var host=$('buildAnim');if(!host)return;_baTO.forEach(clearTimeout);_baTO=[];if(_baSpark){clearInterval(_baSpark);_baSpark=null;}host.classList.remove('show');setTimeout(function(){if(host)host.classList.remove('done');},400);}
-  const HUB_ITEMS=[{i:'📖',l:'How to Play',m:'faqModal'},{i:'🏘️',l:'Village',m:'villageModal',f:'renderVillageShop'},{i:'🎁',l:'Daily',m:'dailyModal',f:'renderDaily',k:'daily'},{i:'🎪',l:'Events',m:'eventModal',f:'renderEvents',k:'event'},{i:'🎯',l:'Challenges',m:'chalModal',f:'renderChallenges',k:'chal'},{i:'🎵',l:'Season Pass',m:'passModal',f:'renderPass',k:'pass'},{i:'🃏',l:'Cards',m:'relicModal',f:'renderCards',k:'relic'},{i:'🐾',l:'Pets',m:'petModal',f:'renderPets',k:'pet'},{i:'⚔️',l:'Rivals',m:'rosterModal',f:'renderRoster',k:'roster'},{i:'🛡️',l:'Defenses',m:'defModal',f:'renderDef',k:'def'},{i:'📺',l:'Free Spins',m:'adModal',f:'renderAds',k:'ad'},{i:'🎰',l:'Spin Shop',m:'shopModal',f:'renderShop'},{i:'💎',l:'Gems',m:'gemModal',f:'renderGems'},{i:'🗺️',l:'Map',m:'mapModal',f:'renderMap'},{i:'🎡',l:'Wheel',m:'wheelModal',f:'renderWheel',k:'wheel'},{i:'🎨',l:'Skins',m:'skinModal',f:'renderSkins',k:'skin'},{i:'🎟️',l:'Redeem Code',act:'redeem',need:'redeem'},{i:'☁️',l:'Cloud Save',act:'cloud',need:'cloud'},{i:'🏆',l:'Trophies',m:'trophyModal',f:'renderTrophies',k:'tro'},{i:'📊',l:'Leaderboard',soon:1},{i:'👫',l:'Friends',soon:1},{i:'📰',l:'News',soon:1}];
+  const HUB_ITEMS=[{i:'📖',l:'How to Play',m:'faqModal'},{i:'🏘️',l:'Village',m:'villageModal',f:'renderVillageShop'},{i:'🎁',l:'Daily',m:'dailyModal',f:'renderDaily',k:'daily'},{i:'🎪',l:'Events',m:'eventModal',f:'renderEvents',k:'event'},{i:'🎯',l:'Challenges',m:'chalModal',f:'renderChallenges',k:'chal'},{i:'🎵',l:'Season Pass',m:'passModal',f:'renderPass',k:'pass'},{i:'🃏',l:'Cards',m:'relicModal',f:'renderCards',k:'relic'},{i:'🐾',l:'Pets',m:'petModal',f:'renderPets',k:'pet'},{i:'⚔️',l:'Rivals',m:'rosterModal',f:'renderRoster',k:'roster'},{i:'🛡️',l:'Defenses',m:'defModal',f:'renderDef',k:'def'},{i:'📺',l:'Free Spins',m:'adModal',f:'renderAds',k:'ad'},{i:'🎰',l:'Spin Shop',m:'shopModal',f:'renderShop'},{i:'💎',l:'Gems',m:'gemModal',f:'renderGems'},{i:'🗺️',l:'Map',m:'mapModal',f:'renderMap'},{i:'🎡',l:'Wheel',m:'wheelModal',f:'renderWheel',k:'wheel'},{i:'🎨',l:'Skins',m:'skinModal',f:'renderSkins',k:'skin'},{i:'🎟️',l:'Redeem Code',act:'redeem',need:'redeem'},{i:'🔄',l:'Restore Purchases',act:'restore',need:'redeem'},{i:'☁️',l:'Cloud Save',act:'cloud',need:'cloud'},{i:'🏆',l:'Trophies',m:'trophyModal',f:'renderTrophies',k:'tro'},{i:'📊',l:'Leaderboard',soon:1},{i:'👫',l:'Friends',soon:1},{i:'📰',l:'News',soon:1}];
   const HUB_FN={renderVillageShop:()=>renderVillageShop(),renderDaily:()=>renderDaily(),renderEvents:()=>renderEvents(),renderChallenges:()=>renderChallenges(),renderPass:()=>renderPass(),renderRelics:()=>renderRelics(),renderCards:()=>renderCards(),renderPets:()=>renderPets(),renderRoster:()=>renderRoster(),renderDef:()=>renderDef(),renderShop:()=>renderShop(),renderGems:()=>renderGems(),renderMap:()=>renderMap(),renderAds:()=>renderAds(),renderSkins:()=>renderSkins(),renderWheel:()=>renderWheel(),renderTree:()=>renderTree(),renderTrophies:()=>renderTrophies()};
   function renderHub(){const g=$('hubGrid');g.innerHTML='';HUB_ITEMS.forEach(it=>{if(it.need==='redeem'&&!window.LH_REDEEM)return;if(it.need==='cloud'&&!window.LH_CLOUD)return;const el=document.createElement('div');el.className='hubcell'+(it.soon?' soon':'');
     el.innerHTML='<i class="hd'+(it.k&&hubNotif[it.k]?' on':'')+'"></i><div class="hi">'+it.i+'</div><div class="hl">'+it.l+'</div>'+(it.soon?'<div class="soontag">soon</div>':'');
-    if(!it.soon)el.onclick=()=>{$('hubModal').classList.remove('show');if(it.act==='redeem'){lhPost({t:'redeem'});return;}if(it.act==='cloud'){lhCloudSync();return;}openModal(it.m,HUB_FN[it.f]);};g.appendChild(el);});}
+    if(!it.soon)el.onclick=()=>{$('hubModal').classList.remove('show');if(it.act==='redeem'){lhPost({t:'redeem'});return;}if(it.act==='restore'){lhPost({t:'restore'});return;}if(it.act==='cloud'){lhCloudSync();return;}openModal(it.m,HUB_FN[it.f]);};g.appendChild(el);});}
 
 
   /* ===== Trophies, Titles & Profile Card ===== */
@@ -2214,7 +2216,7 @@ function cardChestPetRoll(){
 
 /* one-time album completion rewards (coins scaled to world, gems, free magical chest) */
 function cardAlbumRewardCoins(){
-  var base=1500*(typeof econScale==='function'?econScale():1)*(typeof worldCostMult==='function'?worldCostMult():1)*100;
+  var base=1500*(typeof econScale==='function'?econScale():1)*(typeof worldCostMult==='function'?worldCostMult():1)*COINX;
   return Math.round(base);
 }
 function cardCheckAlbums(){
@@ -2518,7 +2520,7 @@ function lhLevelUpRewards(){
   list.rar=-1;  // best card rarity actually rolled - the chest skin follows this
   var sp=12+(specialWorld?8:0)+((typeof CP==='function')?CP().spinFree:0);
   spins+=sp; list.push({i:'🎰',t:'+'+fmt(sp*1000)+' spins'});
-  var co=Math.round(1500*econScale()*worldCostMult()*100); coins+=co; feedBank(co);
+  var co=Math.round(1500*econScale()*worldCostMult()*COINX); coins+=co; feedBank(co);
   list.push({i:'🪙',t:'+'+fmt(co)+' coins'});
   var du=30+world;
   if(typeof cardState!=='undefined'){ cardState.dust=(cardState.dust||0)+du; }
@@ -3008,7 +3010,7 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
     else if(pair){pair.forEach(i=>$('r'+i).classList.add('near'));setTimeout(()=>pair.forEach(i=>$('r'+i).classList.remove('near')),700);sTick();$('msg').textContent='So close!';}
     else{$('msg').textContent='No match. Spin again!';}
     const wr=worldRule(),incChance=RAID_CHANCE+(wr.incomingChance||0);
-    if(coins>100&&Math.random()<incChance){const nem=nemesisRival();const r=(nem&&Math.random()<0.5)?nem:pickRival();const isNem=nem&&r.n===nem.n;
+    if(coins>Math.max(1,Math.round(buildCost()/buildMult()*0.0005))&&Math.random()<incChance){const nem=nemesisRival();const r=(nem&&Math.random()<0.5)?nem:pickRival();const isNem=nem&&r.n===nem.n;
       if(activePet==='tortoise'&&Math.random()<0.30*petPow()){sPop();tcnt('bl');$('msg').textContent=r.n+' tried to raid you — Shelby blocked it free!';}
       else if(snareBlocks()){sPop();tcnt('bl');$('msg').textContent=r.n+' hit your Snare Trap — raid blocked!';}
       else if(cardRaidBlock()){sPop();tcnt('bl');$('msg').textContent=r.n+' raid blocked by your cards!';}else if(shields>0){shields--;sPop();tcnt('bl');$('msg').textContent=r.n+' raid BLOCKED! (−1 shield)';}
@@ -3019,8 +3021,8 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
         // tracks BET, so a patient 1x player was losing ~39% of everything they
         // earned deep in the game while a 10x player lost ~12% for the same
         // income. Now both pay about the same share.
-        var earned=Math.round(earnSinceRaid*RAID_TAKE*(isNem?1.3:1));let loss=Math.min(stealable,Math.max(120,Math.min(earned,Math.round(coins*rate))));loss=applyBarricade(loss);coins-=loss;earnSinceRaid=0;sHit();addGrudge(r.n,2);revenge.push({n:r.n,f:r.f,amt:loss});dx().lastL=loss;if(revenge.length>6)revenge.shift();
-        let cb=watchCounter(loss),ctxt='';if(cb>0){coins+=cb;feedBank(cb);ctxt=' Your Watch-Beast clawed back '+cb.toLocaleString()+'!';}
+        var earned=Math.round(earnSinceRaid*RAID_TAKE*(isNem?1.3:1));let loss=Math.min(stealable,Math.max(Math.max(1,Math.round(buildCost()/buildMult()*0.0006)),Math.min(earned,Math.round(coins*rate))));loss=applyBarricade(loss);coins-=loss;earnSinceRaid=0;sHit();addGrudge(r.n,2);revenge.push({n:r.n,f:r.f,amt:loss});dx().lastL=loss;if(revenge.length>6)revenge.shift();
+        let cb=watchCounter(loss),ctxt='';if(cb>0){coins+=cb;feedBank(cb);ctxt=' Your Watch-Beast clawed back '+fmt(cb)+'!';}
         popup('💥',(isNem?'Nemesis ':'')+r.n+' Raided You!','They skimmed '+loss.toLocaleString()+' coins (most of your stash is safe). Strike them back in Rivals to topple their lair and reclaim it!'+ctxt);$('msg').textContent=r.n+' stole '+loss+'!';}}
     save();render();
   }
@@ -3029,25 +3031,25 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
 
   function attack(be){const wr=worldRule();const base=atkBase(be);addEvtProgress('attacks',1);addEvtProgress('quest',1);
     if(revenge.length){const v=revenge.shift();const rec=Math.round(v.amt*0.4);const _bg=awardCoins(base);coins+=rec;feedBank(rec);const tot=_bg+rec;addGrudge(v.n,1);const s=rs(v.n);s.hp=Math.max(0,s.hp-1);sBig();coinRain(16);
-      popup('😤','Revenge Attack!','You smashed '+v.n+"'s lair and took back "+tot.toLocaleString()+' coins!');$('msg').textContent='Revenge on '+v.n+'!';save();render();return;}
+      popup('😤','Revenge Attack!','You smashed '+v.n+"'s lair and took back "+fmt(tot)+' coins!');$('msg').textContent='Revenge on '+v.n+'!';save();render();return;}
     const nem=nemesisRival();const target=nem||pickRival();const isNem=nem&&target.n===nem.n;const s=rs(target.n);
     showFoe(target.f,target.n,be);
     const dmg=1+(wr.atkBonus||0)+(be>=3?1:0)+((activePet==='cinder'&&Math.random()<0.2*petPow())?1:0);s.hp=Math.max(0,s.hp-dmg);awardCoins(base);addGrudge(target.n,1);sBig();coinRain(14);
     if(s.hp<=0){s.hp=25;let m2=payMult();const bonus=Math.round(500*be*m2);
-      if(isNem){const st=duelStage(s.g);const rw=bonus+800*st,sp=10*st;spins+=sp;var _rwg=awardCoins(rw);s.g=0;recomputeNemesis();
-        popup('🏆','Nemesis Toppled!','You crushed '+target.n+"'s lair and won the "+duelName(st)+'! +'+rw.toLocaleString()+' coins, +'+fmt(sp*1000)+' spins.');$('msg').textContent='Defeated nemesis '+target.n+'!';}
+      if(isNem){const st=duelStage(s.g);const rw=bonus+Math.round(0.4*st*buildCost()/buildMult()),sp=10*st;spins+=sp;var _rwg=awardCoins(rw);s.g=0;recomputeNemesis();
+        popup('🏆','Nemesis Toppled!','You crushed '+target.n+"'s lair and won the "+duelName(st)+'! +'+fmt(rw)+' coins, +'+fmt(sp*1000)+' spins.');$('msg').textContent='Defeated nemesis '+target.n+'!';}
       else{var _bg=awardCoins(bonus);s.g=Math.max(0,s.g-2);recomputeNemesis();
         popup('💥','Lair Toppled!','You levelled '+target.n+"'s lair for a bonus +"+fmt(_bg)+' coins!');$('msg').textContent='Toppled '+target.n+'!';}}
-    else{popup('⚒️',(isNem?'Nemesis Attack!':'Attack!'),'You hit '+target.n+"'s lair (−"+dmg+'★) and took '+base.toLocaleString()+' coins.');$('msg').textContent='Attacked '+target.n+'! +'+base;}
+    else{popup('⚒️',(isNem?'Nemesis Attack!':'Attack!'),'You hit '+target.n+"'s lair (−"+dmg+'★) and took '+fmt(base)+' coins.');$('msg').textContent='Attacked '+target.n+'! +'+base;}
     save();render();}
 
   function startRaid(be){const wr=worldRule();const nem=nemesisRival();const target=nem||pickRival();const m=payMult(),mult=(wr.raidMult||1)*(realmOf(world)===2?1.25:1);
     var _lm=((typeof CP==='function')&&CP().lootMagnet)?1:0;var _ns=4+_lm;
-    const spots=[],_op=[];for(let i=0;i<_ns;i++){spots.push(Math.round((120+Math.random()*260)*be*m*mult*CP().raidMult*racMult()*collMult()*100));_op.push(false);}
+    const spots=[],_op=[];for(let i=0;i<_ns;i++){spots.push(Math.round((120+Math.random()*260)*be*m*mult*CP().raidMult*racMult()*collMult()*COINX));_op.push(false);}
     digState={target:target,spots:spots,picks:0,found:0,opened:_op,maxPicks:3+_lm,isNem:!!(nem&&target.n===nem.n)};
     showFoe(target.f,target.n,be);addGrudge(target.n,digState.isNem?1:0);addEvtProgress('raids',1);addEvtProgress('quest',1);sPop();renderDig();$('digModal').classList.add('show');$('msg').textContent='Raiding '+target.n+'…';save();render();}
   function renderDig(){const d=digState;if(!d)return;$('digTitle').textContent='🕳️ '+(d.isNem?'Nemesis Raid':'Raid');
-    var _mp=d.maxPicks||3;$('digLead').textContent=d.picks<_mp?('Digging '+d.target.n+"'s lair — pick "+(_mp-d.picks)+' more spot'+((_mp-d.picks)===1?'':'s')+'.'):('You dug up '+d.found.toLocaleString()+' coins!');
+    var _mp=d.maxPicks||3;$('digLead').textContent=d.picks<_mp?('Digging '+d.target.n+"'s lair — pick "+(_mp-d.picks)+' more spot'+((_mp-d.picks)===1?'':'s')+'.'):('You dug up '+fmt(d.found)+' coins!');
     const g=$('digGrid');g.innerHTML='';d.spots.forEach((v,i)=>{const el=document.createElement('div');const dug=d.opened[i];el.className='digspot'+(dug?' dug':(d.picks>=(d.maxPicks||3)?' spent':''));
       el.innerHTML=dug?('🪙<div class="dv">+'+v.toLocaleString()+'</div>'):'🕳️';if(!dug&&d.picks<(d.maxPicks||3))el.onclick=()=>digSpot(i);g.appendChild(el);});
     $('digDone').textContent=d.picks>=(d.maxPicks||3)?'Collect':('Dig '+(d.maxPicks||3)+' spots');}
@@ -3064,7 +3066,7 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
   }
   function digUnfinished(){var d=digState;return !!(d&&d.picks<(d.maxPicks||3));}
   function digSpot(i){const d=digState;if(!d||d.opened[i]||d.picks>=(d.maxPicks||3))return;d.opened[i]=true;d.picks++;const v=d.spots[i];d.found+=v;coins+=v;feedBank(v);sCoin();coinRain(6);renderDig();save();render();}
-  function closeDig(){if(digUnfinished())digAutoPick();const d=digState;$('digModal').classList.remove('show');if(d&&d.found>0){popup('🕳️','Raid Complete!','You raided '+d.target.n+"'s lair for "+d.found.toLocaleString()+' coins!');$('msg').textContent='Raided '+d.target.n+'! +'+d.found;}digState=null;save();render();}
+  function closeDig(){if(digUnfinished())digAutoPick();const d=digState;$('digModal').classList.remove('show');if(d&&d.found>0){popup('🕳️','Raid Complete!','You raided '+d.target.n+"'s lair for "+fmt(d.found)+' coins!');$('msg').textContent='Raided '+d.target.n+'! +'+d.found;}digState=null;save();render();}
 
   function stagePop(){const s=$('stage');if(!s)return;s.classList.remove('pop');void s.offsetWidth;s.classList.add('pop');setTimeout(()=>s.classList.remove('pop'),420);}
   function build(){
@@ -3087,7 +3089,7 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
     if(villageSum()>=ITEMS*STARS){sBig();coinRain(18);stagePop();$('msg').textContent='Village complete! Open the Village Shop to advance.';}
     else $('msg').textContent='Built! Village '+villageSum()+'/'+(ITEMS*STARS)+'.';
     save();render();}
-  function fullCost(i){var base=BUILD_BASE*buildMult()*worldCostMult()*buildRamp(world)*100,t=0,n=0;for(var k=village[i];k<STARS;k++){var bc=Math.round(base*Math.pow(ECON_BASE,totBuild+n));t+=Math.round(bc*(1+0.18*k));n++;}return t;}
+  function fullCost(i){var base=BUILD_BASE*buildMult()*worldCostMult()*buildRamp(world)*COINX,t=0,n=0;for(var k=village[i];k<STARS;k++){var bc=Math.round(base*econPow(n));t+=Math.round(bc*(1+0.18*k));n++;}return t;}
   function buildItemFull(i){if(village[i]>=STARS)return;var c=fullCost(i);if(coins<c)return;var before=Math.floor(villageSum()/STARS);var added=STARS-village[i];var _lv0=village[i];coins-=c;village[i]=STARS;totBuild+=added;addEvtProgress('quest',added);addEvtProgress('build',added);sPop();
     if(vLive())vAnimate(i,_lv0); else buildReveal(i);
     if(villageShopLive())renderVillageList();
@@ -3361,7 +3363,7 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
   function renderDef(){const slotBox=$('defSlots');slotBox.innerHTML='';defense.forEach(d=>{const el=document.createElement('div');el.className='slot'+(d?' filled':'');const t=d?DEFENSE_TYPES.find(x=>x.key===d):null;el.textContent=t?t.icon:'＋';slotBox.appendChild(el);});
       const shop=$('defShop');shop.innerHTML='';DEFENSE_TYPES.forEach(t=>{const have=defCount(t.key);const el=document.createElement('div');el.className='defcard';
         el.innerHTML='<div class="di">'+t.icon+'</div><div class="dinfo"><div class="dn">'+t.name+(have?' <span class="dq">x'+have+'</span>':'')+'</div><div class="dd">'+t.desc+'</div></div>';
-        const bn=document.createElement('button');const slot=emptySlot();if(slot<0){bn.textContent='No slot';bn.disabled=true;}else if(coins<t.cost){bn.textContent=t.cost.toLocaleString()+'c';bn.disabled=true;}else{bn.textContent='Buy '+t.cost.toLocaleString()+'c';bn.onclick=()=>buyDef(t.key);}
+        const bn=document.createElement('button');const slot=emptySlot();if(slot<0){bn.textContent='No slot';bn.disabled=true;}else if(coins<t.cost){bn.textContent=fmt(t.cost)+'c';bn.disabled=true;}else{bn.textContent='Buy '+fmt(t.cost)+'c';bn.onclick=()=>buyDef(t.key);}
         el.appendChild(bn);shop.appendChild(el);});}
   function buyDef(key){const t=DEFENSE_TYPES.find(x=>x.key===key);const slot=emptySlot();if(slot<0||coins<t.cost)return;coins-=t.cost;defense[slot]=key;sPop();renderDef();save();render();}
   function renderGems(){const g=$('gemList');if(!g)return;g.innerHTML='';
@@ -3447,7 +3449,7 @@ function save(){try{if(typeof secCheck==='function'){proF.seen=Date.now();secChe
     setInterval(function(){if(typeof syncEvents==='function')syncEvents();var before=spins;regenSpins();if(spins!==before)save();render();},1000);
     document.addEventListener('visibilitychange',function(){if(!document.hidden){regenSpins();save();render();}else{try{save();}catch(e){}try{var _cap=spinCap(),_m=Math.max(0,Math.ceil((_cap-spins)*(SPIN_REGEN_MS/60000)));if(window.ReactNativeWebView&&window.ReactNativeWebView.postMessage)window.ReactNativeWebView.postMessage(JSON.stringify({t:'notif',spinsFullMin:_m}));}catch(e){}}});
     $('muteBtn').textContent=muted?'🔇':'🔊';
-    if(typeof syncEvents==='function')syncEvents();if(!store.get('ll_coinx100',false)){coins=Math.round(coins*100);pig=Math.round(pig*100);store.set('ll_coinx100',true);}if(typeof cardEnsureSeeds==='function')cardEnsureSeeds();if(typeof applySkin==='function')applySkin();try{fetch(VIDEO_BASE+'manifest.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){animManifest=j;}).catch(function(){});}catch(e){}recomputeNemesis();regenSpins();if(typeof evLoginTick==='function')evLoginTick();save();render();
+    if(typeof syncEvents==='function')syncEvents();if(!store.get('ll_coinx100',false)){coins=Math.round(coins*100);pig=Math.round(pig*100);store.set('ll_coinx100',true);}if(!store.get('ll_rebase1',false)){try{var _os=100*Math.pow(1.0044,totBuild),_nf=econScale()/_os;coins=Math.round(coins*_nf);pig=Math.round(pig*_nf);earnSinceRaid=Math.round(earnSinceRaid*_nf);if(Array.isArray(revenge))revenge.forEach(function(v){if(v&&typeof v.amt==='number')v.amt=(v.amt>0?Math.max(1,Math.round(v.amt*_nf)):0);});try{var _x=dx();if(_x&&_x.lastL)_x.lastL=Math.round(_x.lastL*_nf);}catch(e){}store.set('ll_rebase1',true);save();}catch(e){}}if(typeof cardEnsureSeeds==='function')cardEnsureSeeds();if(typeof applySkin==='function')applySkin();try{fetch(VIDEO_BASE+'manifest.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){animManifest=j;}).catch(function(){});}catch(e){}recomputeNemesis();regenSpins();if(typeof evLoginTick==='function')evLoginTick();save();render();
     function placeRails(){var a=document.querySelector('.app'),mc=document.querySelector('.evtrow'),rl=$('railL'),rr=$('railR');if(!a||!mc||!rl||!rr)return;var t=Math.max(0,mc.getBoundingClientRect().top-a.getBoundingClientRect().top);rl.style.top=t+'px';rr.style.top=t+'px';}
     placeRails();window.addEventListener('resize',placeRails);setTimeout(placeRails,400);setTimeout(placeRails,1200);setTimeout(function(){try{cardFetchRemote();}catch(e){}},1500);setTimeout(function(){try{evtFetchRemote();}catch(e){}},1600);
     // iOS boots onto the Village so the builder is the first thing you see.
