@@ -509,7 +509,13 @@ export default function App() {
     redeemUntilRef.current = Date.now() + 5 * 60 * 1000;
     setRedeemAt(Date.now());
     const web = () => { try { Linking.openURL(PLAY_REDEEM_URL).catch(() => {}); } catch (e) {} };
-    try { Linking.openURL('market://redeem').catch(web); } catch (e) { web(); }
+    // Chain: market://redeem -> explicit Play Store intent -> web page.
+    const viaIntent = () => {
+      try {
+        Linking.openURL('intent://redeem#Intent;scheme=market;package=com.android.vending;end').catch(web);
+      } catch (e) { web(); }
+    };
+    try { Linking.openURL('market://redeem').catch(viaIntent); } catch (e) { viaIntent(); }
   }, []);
 
   // Re-check owned purchases each time the app comes back to the foreground.
@@ -675,6 +681,7 @@ export default function App() {
     (Purchases && RC_KEY.indexOf('PLACEHOLDER') === -1 ? "window.LH_PAY=true;" : "") +
     (AdMob && AdMob.RewardedAd ? "window.LH_ADS=true;" : "") +
     (Platform.OS === 'android' ? "window.LH_REDEEM=true;" : "") +
+    (Platform.OS === 'android' && PROMO_DIAG ? "window.LH_DIAG=true;" : "") +
     (Platform.OS === 'android' && LhCloud ? "window.LH_CLOUD=true;if(window.lhCloudInit)window.lhCloudInit();" : "");
 
   return (
