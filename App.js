@@ -251,6 +251,8 @@ export default function App() {
   // loading | gate | blocked | game
   const [screen, setScreen] = useState('loading');
   const webRef = useRef(null);
+  // Bumping this remounts the WebView (a clean reload). The page can't use location.reload(): its source is an HTML string with a fake baseUrl, so a reload tries to fetch that host and shows ERR_NAME_NOT_RESOLVED.
+  const [wvKey, setWvKey] = useState(0);
   // True while a store purchase sheet is open. The app returning to the foreground
   // when the sheet closes must not run the owned-purchase sweep until buyProduct
   // has recorded its own transaction, or the same purchase is granted twice.
@@ -592,6 +594,8 @@ export default function App() {
         cloudPush(d.data);
       } else if (d.t === 'cloud_signin') {
         cloudSignIn();
+      } else if (d.t === 'reload') {
+        setWvKey((k) => k + 1);
       }
     } catch (e) { /* ignore malformed messages */ }
   }, [showRewarded, buyProduct, openRedeem, cloudPull, cloudPush, cloudSignIn]);
@@ -688,6 +692,7 @@ export default function App() {
     <View style={styles.root}>
       <StatusBar barStyle="light-content" backgroundColor="#150a26" />
       <WebView
+        key={wvKey}
         ref={webRef}
         style={styles.web}
         source={{ html: LH_IS_TABLET ? GAME_HTML_TABLET : GAME_HTML, baseUrl: 'https://loothollow.local/' }}
