@@ -3,3 +3,6 @@
 import { requireOptionalNativeModule } from 'expo-modules-core';
 
 export default requireOptionalNativeModule('LhCloud');
+
+// Native "open the Play Store app's redeem screen" helper (null when the native module is missing).
+export const LhRedeem = requireOptionalNativeModule('LhRedeem');

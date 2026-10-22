@@ -1,6 +1,11 @@
 {
-  "platforms": ["android"],
+  "platforms": [
+    "android"
+  ],
   "android": {
-    "modules": ["expo.modules.lhcloud.LhCloudModule"]
+    "modules": [
+      "expo.modules.lhcloud.LhCloudModule",
+      "expo.modules.lhcloud.LhRedeemModule"
+    ]
   }
 }

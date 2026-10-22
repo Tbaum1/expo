@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import appJson from './app.json';
-import LhCloud from './modules/lh-cloud';
+import LhCloud, { LhRedeem } from './modules/lh-cloud';
 import { GAME_HTML } from './gameHtml';
 import { GAME_HTML_TABLET } from './gameHtmlTablet';
 
@@ -262,6 +262,8 @@ export default function App() {
   const grantingRef = useRef(false);
   const pendingLongRef = useRef(false);
   const redeemUntilRef = useRef(0);
+  const redeemNoteRef = useRef(0);   // time of the Redeem tap, until the reminder note has been shown
+  const lastGrantRef = useRef(0);
   const silentRef = useRef(false);
   const grantFnRef = useRef(null);
 
@@ -462,6 +464,7 @@ export default function App() {
         log.push(d);
         if (res === 'granted') {
           done = true;
+          lastGrantRef.current = Date.now();
           if (PROMO_DIAG && !silentRef.current) {
             try {
               const at = await getRedeemAt();
@@ -509,21 +512,38 @@ export default function App() {
     // Try the Play Store app's own redeem screen first (market://redeem); if
     // nothing handles it, fall back to the web redeem page.
     redeemUntilRef.current = Date.now() + 5 * 60 * 1000;
+    redeemNoteRef.current = Date.now();
     setRedeemAt(Date.now());
     const web = () => { try { Linking.openURL(PLAY_REDEEM_URL).catch(() => {}); } catch (e) {} };
-    // Chain: market://redeem -> explicit Play Store intent -> web page.
-    const viaIntent = () => {
-      try {
-        Linking.openURL('intent://redeem#Intent;scheme=market;package=com.android.vending;end').catch(web);
-      } catch (e) { web(); }
+    // 1) native: open the Play Store app's redeem screen directly (package pinned to the Play Store);
+    // 2) if that's unavailable, market://redeem; 3) last resort, the web page.
+    const viaMarket = () => {
+      try { Linking.openURL('market://redeem').catch(web); } catch (e) { web(); }
     };
-    try { Linking.openURL('market://redeem').catch(viaIntent); } catch (e) { viaIntent(); }
+    if (LhRedeem && LhRedeem.open) {
+      try {
+        LhRedeem.open().then((ok) => { if (!ok) viaMarket(); }).catch(viaMarket);
+      } catch (e) { viaMarket(); }
+    } else {
+      viaMarket();
+    }
   }, []);
 
   // Re-check owned purchases each time the app comes back to the foreground.
   useEffect(() => {
     const sub = AppState.addEventListener('change', (st) => {
       if (st === 'active') {
+        // Back from the Play redeem screen: Play only hands the item over on a fresh app start.
+        const tapped = redeemNoteRef.current;
+        if (tapped && Date.now() - tapped > 2500) {
+          redeemNoteRef.current = 0;
+          setTimeout(() => {
+            if (lastGrantRef.current > tapped) return;
+            try {
+              Alert.alert('Almost there!', 'If you redeemed a code, close the game completely and reopen it to receive your item.');
+            } catch (e) {}
+          }, 1200);
+        }
         Promise.all([getRedeemAt(), getFirstRun()]).then(([at, first]) => {
           const now = Date.now();
           grantOwnedEntitlements(
