@@ -183,6 +183,19 @@ function configurePurchases() {
   return _rcConfigured;
 }
 
+// Build 54 experiment: Play only seems to surface a redeemed promo item to a NEW
+// billing connection. Configuring RevenueCat again replaces the SDK instance (and
+// its billing client) without killing the app; the anonymous user id is kept.
+function reconfigurePurchases() {
+  try {
+    if (Purchases && _rcConfigured && RC_KEY.indexOf('PLACEHOLDER') === -1) {
+      Purchases.configure({ apiKey: RC_KEY });
+      return true;
+    }
+  } catch (e) { /* best-effort */ }
+  return false;
+}
+
 async function initSdks() {
   if (_sdkInit) return;
   _sdkInit = true;
@@ -264,6 +277,7 @@ export default function App() {
   const redeemUntilRef = useRef(0);
   const redeemNoteRef = useRef(0);   // time of the Redeem tap, until the reminder note has been shown
   const lastGrantRef = useRef(0);
+  const reconfRef = useRef('no');
   const silentRef = useRef(false);
   const grantFnRef = useRef(null);
 
@@ -469,7 +483,7 @@ export default function App() {
             try {
               const at = await getRedeemAt();
               Alert.alert('Purchase check (test build)', 'Item received.\nSince redeem tap: ' + fmtSince(at) +
-                '\nPass ' + d.n + ' (' + d.mode + ') tx=' + d.txCount + (d.txProducts ? ' [' + d.txProducts + ']' : '') +
+                '\nReconnect: ' + reconfRef.current + '\nPass ' + d.n + ' (' + d.mode + ') tx=' + d.txCount + (d.txProducts ? ' [' + d.txProducts + ']' : '') +
                 '\nid: ' + (d.uid || '?'));
             } catch (e) {}
           }
@@ -499,7 +513,7 @@ export default function App() {
           );
           Alert.alert(
             'Purchase check (test build)',
-            'Nothing new to grant.\n' + lines.join('\n') + '\nid: ' + (last.uid || '?')
+            'Nothing new to grant.\nReconnect: ' + reconfRef.current + '\n' + lines.join('\n') + '\nid: ' + (last.uid || '?')
           );
         } catch (e) { /* diagnostics must never break the game */ }
       }
@@ -546,6 +560,11 @@ export default function App() {
         }
         Promise.all([getRedeemAt(), getFirstRun()]).then(([at, first]) => {
           const now = Date.now();
+          // Within 30 min of a Redeem tap: open a fresh billing connection first.
+          reconfRef.current = 'no';
+          if (at > 0 && now - at < 30 * 60 * 1000 && !buyingRef.current && !grantingRef.current) {
+            reconfRef.current = reconfigurePurchases() ? 'yes' : 'failed';
+          }
           grantOwnedEntitlements(
             now < redeemUntilRef.current ||
             (at > 0 && now - at < REDEEM_WATCH_MS) ||
