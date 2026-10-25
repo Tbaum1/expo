@@ -278,6 +278,7 @@ export default function App() {
   const redeemNoteRef = useRef(0);   // time of the Redeem tap, until the reminder note has been shown
   const lastGrantRef = useRef(0);
   const reconfRef = useRef('no');
+  const bgAtRef = useRef(0);   // when the app last went to the background
   const silentRef = useRef(false);
   const grantFnRef = useRef(null);
 
@@ -546,7 +547,11 @@ export default function App() {
   // Re-check owned purchases each time the app comes back to the foreground.
   useEffect(() => {
     const sub = AppState.addEventListener('change', (st) => {
+      if (st === 'background') { bgAtRef.current = Date.now(); }
       if (st === 'active') {
+        // Away 30 s or more (e.g. a promo code redeemed from a link): test builds also reconnect.
+        const awayMs = bgAtRef.current ? Date.now() - bgAtRef.current : 0;
+        bgAtRef.current = 0;
         // Back from the Play redeem screen: Play only hands the item over on a fresh app start.
         const tapped = redeemNoteRef.current;
         if (tapped && Date.now() - tapped > 2500) {
@@ -562,8 +567,10 @@ export default function App() {
           const now = Date.now();
           // Within 30 min of a Redeem tap: open a fresh billing connection first.
           reconfRef.current = 'no';
-          if (at > 0 && now - at < 30 * 60 * 1000 && !buyingRef.current && !grantingRef.current) {
-            reconfRef.current = reconfigurePurchases() ? 'yes' : 'failed';
+          const afterTap = at > 0 && now - at < 30 * 60 * 1000;
+          const afterAway = PROMO_DIAG && awayMs >= 30000;
+          if ((afterTap || afterAway) && !buyingRef.current && !grantingRef.current) {
+            reconfRef.current = reconfigurePurchases() ? (afterTap ? 'yes' : 'yes (away)') : 'failed';
           }
           grantOwnedEntitlements(
             now < redeemUntilRef.current ||

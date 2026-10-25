@@ -1488,7 +1488,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   // Fallback only. The native shell injects the real version/build straight out
   // of app.json and calls lhSetVersion(), so the label can never drift from the
   // store listing again. Injection lands after parse, hence the setter.
-  var APP_VERSION='1.0.10 (54)';
+  var APP_VERSION='1.0.10 (55)';
   window.lhSetVersion=function(v){if(v)APP_VERSION=v;var el=document.getElementById('appVersion');if(el)el.textContent='v'+APP_VERSION;};
   window.lhSetVersion(window.LH_APP_VERSION||'');
   // ===== Real-money gem packs + native money bridge (ads + IAP). =====
@@ -2736,12 +2736,13 @@ function save(){try{petBackup();}catch(e){}try{if(typeof secCheck==='function'){
     {id:'crown4',n:'Moonlit Crown',cost:0,crown:1,f:'saturate(.9) hue-rotate(215deg) brightness(.92) contrast(1.1)'}
   ];
   function skinById(id){for(var i=0;i<SKINS.length;i++)if(SKINS[i].id===id)return SKINS[i];return SKINS[0];}
-  function applySkin(){try{document.body.setAttribute('data-skin',skinSel||'none');}catch(e){}}
+  function applySkin(){try{document.body.setAttribute('data-skin',skinSel||'none');var _bg=document.getElementById('bgLayer');if(_bg)_bg.style.filter=skinFilter();}catch(e){}}
   function skinOwnedQ(id){return id==='none'||id==='winter'||(skinOwned&&skinOwned[id]);}
   function skinSelect(id){var sk=skinById(id);if(!skinOwnedQ(id)){if(gems<sk.cost){popup('🎨','Not enough gems','You need '+sk.cost+' gems to unlock '+sk.n+'.','OK');return;}gems-=sk.cost;if(!skinOwned)skinOwned={};skinOwned[id]=1;sBig();confetti(16);}skinSel=id;applySkin();save();render();renderSkins();}
   function renderSkins(){var box=$('skinList');if(!box)return;var h='';for(var i=0;i<SKINS.length;i++){var sk=SKINS[i],owned=skinOwnedQ(sk.id),on=skinSel===sk.id;if(sk.crown&&!owned)continue;var fil=sk.f==='none'?'':('filter:'+sk.f);h+='<div class="skinCard'+(on?' on':'')+'" data-skin="'+sk.id+'"><img class="skinPrev" style="'+fil+'" src="'+pieceSrc(0,0)+'" alt=""><div class="skinName">'+sk.n+'</div><div class="skinBtn">'+(on?'Equipped':(owned?'Equip':(sk.cost+' 💎')))+'</div></div>';}box.innerHTML=h;box.onclick=function(e){var t=e.target.closest&&e.target.closest('[data-skin]');if(t)skinSelect(t.getAttribute('data-skin'));};}
   function pieceSrc(rg,idx){if(rg>=5)return B2_BASE+'piece/'+B2_VIL[B2_REG[rg-5][1]].k+'_'+idx+'.png';var k='r'+rg+'_'+idx;return (PIECE_DATA&&PIECE_DATA[k])?PIECE_DATA[k]:('assets/pieces/'+k+'.png');}
-  function vpieceHTML(idx,em){return '<img class="pcimg" alt="" style="filter:'+b2Filter(vreg())+'" src="'+pieceSrc(vreg(),idx)+'"><span class="pcem">'+em+'</span>';}
+  function skinFilter(){var sk=skinById(skinSel);return (sk&&sk.f&&sk.f!=='none')?sk.f:'';}
+  function vpieceHTML(idx,em){var _f=(b2Filter(vreg())+' '+skinFilter()).trim();if(_f)_f+=' drop-shadow(0 2px 3px rgba(0,0,0,.45))';return '<img class="pcimg" alt="" style="filter:'+_f+'" src="'+pieceSrc(vreg(),idx)+'"><span class="pcem">'+em+'</span>';}
   function wirePcImgs(box){if(!box)return;box.querySelectorAll('.pcimg').forEach(function(im){im.onerror=function(){var p=im.parentElement;if(p)p.classList.add('noimg');};});}
   // ===== VILLAGE DIORAMA =====
   // Per-region piece layout in island-art coords (1536x2752). Locked by Anthony 2026-07-17.
