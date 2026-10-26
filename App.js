@@ -57,6 +57,8 @@ const GRANTED_TX_KEY = 'lh_granted_tx_v1';
 // promo code that "redeems but does nothing" can be diagnosed from one launch.
 // SET TO false BEFORE THE PUBLIC PRODUCTION RELEASE.
 const PROMO_DIAG = true;
+// The "Purchase check (test build)" popups. Off since build 56; flip to true to bring them back.
+const DIAG_ALERTS = false;
 // When the player last opened the Play redeem screen (ms). Persisted so the
 // diagnostics can say how long after a redeem the item showed up, and so
 // foreground checks keep looking for a day afterwards (Play can be slow).
@@ -480,7 +482,7 @@ export default function App() {
         if (res === 'granted') {
           done = true;
           lastGrantRef.current = Date.now();
-          if (PROMO_DIAG && !silentRef.current) {
+          if (DIAG_ALERTS && !silentRef.current) {
             try {
               const at = await getRedeemAt();
               Alert.alert('Purchase check (test build)', 'Item received.\nSince redeem tap: ' + fmtSince(at) +
@@ -500,7 +502,7 @@ export default function App() {
         return;
       }
       pendingLongRef.current = false;
-      if (PROMO_DIAG && !done && log.length) {
+      if (DIAG_ALERTS && !done && log.length) {
         try {
           const last = log[log.length - 1];
           const lines = log.map((d) =>
@@ -559,7 +561,7 @@ export default function App() {
           setTimeout(() => {
             if (lastGrantRef.current > tapped) return;
             try {
-              Alert.alert('Almost there!', 'If you redeemed a code, close the game completely and reopen it to receive your item.');
+              Alert.alert('Almost there!', 'If you redeemed a code, open the Menu and tap Claim Item, then choose the pack your code was for. (Tapping that pack in the Shop works too.) Google will say you already own it, and your item arrives.');
             } catch (e) {}
           }, 1200);
         }
@@ -567,11 +569,7 @@ export default function App() {
           const now = Date.now();
           // Within 30 min of a Redeem tap: open a fresh billing connection first.
           reconfRef.current = 'no';
-          const afterTap = at > 0 && now - at < 30 * 60 * 1000;
-          const afterAway = PROMO_DIAG && awayMs >= 30000;
-          if ((afterTap || afterAway) && !buyingRef.current && !grantingRef.current) {
-            reconfRef.current = reconfigurePurchases() ? (afterTap ? 'yes' : 'yes (away)') : 'failed';
-          }
+          // (build 56) the billing-reconnect experiment from 54/55 did not help and is off.
           grantOwnedEntitlements(
             now < redeemUntilRef.current ||
             (at > 0 && now - at < REDEEM_WATCH_MS) ||
