@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   StyleSheet, View, StatusBar, Text, TouchableOpacity,
-  ActivityIndicator, Platform, Linking, AppState, Dimensions, Alert,
+  ActivityIndicator, Platform, AppState, Dimensions, Alert,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import appJson from './app.json';
-import LhCloud, { LhRedeem } from './modules/lh-cloud';
+import LhCloud from './modules/lh-cloud';
 import { GAME_HTML } from './gameHtml';
 import { GAME_HTML_TABLET } from './gameHtmlTablet';
 
@@ -50,23 +50,11 @@ try { Purchases = require('react-native-purchases').default; } catch (e) { Purch
 
 const AGE_KEY = 'lh_age_ok_v1';
 // Transaction ids we have already handed to the game. Prevents a relaunch from
-// granting the same pre-registration reward / promo code twice.
+// granting the same pre-registration reward twice.
 const GRANTED_TX_KEY = 'lh_granted_tx_v1';
-// TESTING ONLY. While true, a grant check that finds nothing to hand the game
-// pops an Alert listing what Google Play / RevenueCat actually returned, so a
-// promo code that "redeems but does nothing" can be diagnosed from one launch.
-// SET TO false BEFORE THE PUBLIC PRODUCTION RELEASE.
-const PROMO_DIAG = true;
-// The "Purchase check (test build)" popups. Off since build 56; flip to true to bring them back.
-const DIAG_ALERTS = false;
-// When the player last opened the Play redeem screen (ms). Persisted so the
-// diagnostics can say how long after a redeem the item showed up, and so
-// foreground checks keep looking for a day afterwards (Play can be slow).
-const REDEEM_AT_KEY = 'lh_redeem_at_v1';
-const REDEEM_WATCH_MS = 24 * 60 * 60 * 1000;
-// First launch time of this install. A pre-registration reward arrives on a
-// brand-new install, so the first day after install gets the same patient
-// (long) checking as a redeem does.
+// Keep checking for a day after install: a pre-registration reward arrives on a
+// brand-new install and can take a while to show up.
+const FIRST_RUN_WATCH_MS = 24 * 60 * 60 * 1000;
 const FIRST_RUN_KEY = 'lh_first_run_v1';
 async function getFirstRun() {
   try {
@@ -107,13 +95,6 @@ async function redeemOwnCode(code) {
   } catch (e) { res = { ok: false, err: 'network' }; }
   return res;
 }
-async function getRedeemAt() { try { return parseInt(await AsyncStorage.getItem(REDEEM_AT_KEY), 10) || 0; } catch (e) { return 0; } }
-async function setRedeemAt(t) { try { await AsyncStorage.setItem(REDEEM_AT_KEY, String(t)); } catch (e) {} }
-function fmtSince(ms) { if (!ms) return 'n/a'; const m = Math.round((Date.now() - ms) / 60000); return m < 90 ? m + ' min' : (m / 60).toFixed(1) + ' h'; }
-// Where the 'Redeem code' menu item sends the player. Google Play owns the
-// redemption flow; we only open it.
-const PLAY_REDEEM_URL = 'https://play.google.com/redeem';
-
 // RevenueCat public SDK key (Android). Public/publishable by design - it ships in
 // the client binary. Project "Loot Hollow", app "Loot Hollow (Play Store)".
 const RC_ANDROID_KEY = 'goog_HruBjSADPBeuocKnIurdWmMibrR';
@@ -141,7 +122,6 @@ const PRODUCT_IDS = [
   'spins_small', 'spins_medium', 'spins_large', 'spins_mega',
   'gems_small', 'gems_medium', 'gems_large', 'gems_mega',
   'bank_break',
-  'realm_skip',
 ];
 
 // Show a banner if a scheduled notification fires while the app is open.
@@ -217,19 +197,6 @@ function configurePurchases() {
   return _rcConfigured;
 }
 
-// Build 54 experiment: Play only seems to surface a redeemed promo item to a NEW
-// billing connection. Configuring RevenueCat again replaces the SDK instance (and
-// its billing client) without killing the app; the anonymous user id is kept.
-function reconfigurePurchases() {
-  try {
-    if (Purchases && _rcConfigured && RC_KEY.indexOf('PLACEHOLDER') === -1) {
-      Purchases.configure({ apiKey: RC_KEY });
-      return true;
-    }
-  } catch (e) { /* best-effort */ }
-  return false;
-}
-
 async function initSdks() {
   if (_sdkInit) return;
   _sdkInit = true;
@@ -244,7 +211,7 @@ async function initSdks() {
 // --- Owned-entitlement grant ------------------------------------------------
 //
 // Some purchases never pass through buyProduct(): a Google Play
-// pre-registration reward, a redeemed Play promo code, a purchase that
+// pre-registration reward, a purchase that
 // completed while the app was being killed, or a reinstall. All of them land
 // on the account as an owned transaction that the app has to find for itself.
 //
@@ -308,12 +275,6 @@ export default function App() {
   // event during a retry cannot start a second sweep and double-grant.
   const grantingRef = useRef(false);
   const pendingLongRef = useRef(false);
-  const redeemUntilRef = useRef(0);
-  const redeemNoteRef = useRef(0);   // time of the Redeem tap, until the reminder note has been shown
-  const lastGrantRef = useRef(0);
-  const reconfRef = useRef('no');
-  const bgAtRef = useRef(0);   // when the app last went to the background
-  const silentRef = useRef(false);
   const grantFnRef = useRef(null);
 
   // Push a snippet of JS into the game (used for native->web callbacks).
@@ -513,15 +474,6 @@ export default function App() {
         log.push(d);
         if (res === 'granted') {
           done = true;
-          lastGrantRef.current = Date.now();
-          if (DIAG_ALERTS && !silentRef.current) {
-            try {
-              const at = await getRedeemAt();
-              Alert.alert('Purchase check (test build)', 'Item received.\nSince redeem tap: ' + fmtSince(at) +
-                '\nReconnect: ' + reconfRef.current + '\nPass ' + d.n + ' (' + d.mode + ') tx=' + d.txCount + (d.txProducts ? ' [' + d.txProducts + ']' : '') +
-                '\nid: ' + (d.uid || '?'));
-            } catch (e) {}
-          }
           return;
         }
       }
@@ -534,85 +486,21 @@ export default function App() {
         return;
       }
       pendingLongRef.current = false;
-      if (DIAG_ALERTS && !done && log.length) {
-        try {
-          const last = log[log.length - 1];
-          const lines = log.map((d) =>
-            d.n + ') ' + d.mode + ': ' + d.res +
-            ' tx=' + (d.txCount === undefined ? '?' : d.txCount) +
-            (d.txProducts ? ' [' + d.txProducts + ']' : '') +
-            (d.restoreTx !== undefined ? ' restored=' + d.restoreTx : '') +
-            (d.alreadyGranted ? ' already=' + d.alreadyGranted : '') +
-            (d.syncErr ? ' syncErr=' + d.syncErr : '') +
-            (d.infoErr ? ' infoErr=' + d.infoErr : '')
-          );
-          Alert.alert(
-            'Purchase check (test build)',
-            'Nothing new to grant.\nReconnect: ' + reconfRef.current + '\n' + lines.join('\n') + '\nid: ' + (last.uid || '?')
-          );
-        } catch (e) { /* diagnostics must never break the game */ }
-      }
     }
   }, [sweepOwned]);
   grantFnRef.current = grantOwnedEntitlements;
 
-  // Google Play owns code redemption; we just open its flow.
-  const openRedeem = useCallback(() => {
-    // Try the Play Store app's own redeem screen first (market://redeem); if
-    // nothing handles it, fall back to the web redeem page.
-    redeemUntilRef.current = Date.now() + 5 * 60 * 1000;
-    redeemNoteRef.current = Date.now();
-    setRedeemAt(Date.now());
-    const web = () => { try { Linking.openURL(PLAY_REDEEM_URL).catch(() => {}); } catch (e) {} };
-    // 1) native: open the Play Store app's redeem screen directly (package pinned to the Play Store);
-    // 2) if that's unavailable, market://redeem; 3) last resort, the web page.
-    const viaMarket = () => {
-      try { Linking.openURL('market://redeem').catch(web); } catch (e) { web(); }
-    };
-    if (LhRedeem && LhRedeem.open) {
-      try {
-        LhRedeem.open().then((ok) => { if (!ok) viaMarket(); }).catch(viaMarket);
-      } catch (e) { viaMarket(); }
-    } else {
-      viaMarket();
-    }
-  }, []);
-
   // Re-check owned purchases each time the app comes back to the foreground.
   useEffect(() => {
     const sub = AppState.addEventListener('change', (st) => {
-      if (st === 'background') { bgAtRef.current = Date.now(); }
       if (st === 'active') {
-        // Away 30 s or more (e.g. a promo code redeemed from a link): test builds also reconnect.
-        const awayMs = bgAtRef.current ? Date.now() - bgAtRef.current : 0;
-        bgAtRef.current = 0;
-        // Back from the Play redeem screen: Play only hands the item over on a fresh app start.
-        const tapped = redeemNoteRef.current;
-        if (tapped && Date.now() - tapped > 2500) {
-          redeemNoteRef.current = 0;
-          setTimeout(() => {
-            if (lastGrantRef.current > tapped) return;
-            try {
-              Alert.alert('Almost there!', 'If you redeemed a code, open the Menu and tap Claim Item, then choose the pack your code was for. (Tapping that pack in the Shop works too.) Google will say you already own it, and your item arrives.');
-            } catch (e) {}
-          }, 1200);
-        }
-        Promise.all([getRedeemAt(), getFirstRun()]).then(([at, first]) => {
-          const now = Date.now();
-          // Within 30 min of a Redeem tap: open a fresh billing connection first.
-          reconfRef.current = 'no';
-          // (build 56) the billing-reconnect experiment from 54/55 did not help and is off.
-          grantOwnedEntitlements(
-            now < redeemUntilRef.current ||
-            (at > 0 && now - at < REDEEM_WATCH_MS) ||
-            (first > 0 && now - first < REDEEM_WATCH_MS)
-          );
+        getFirstRun().then((first) => {
+          grantOwnedEntitlements(first > 0 && Date.now() - first < FIRST_RUN_WATCH_MS);
         });
       }
     });
     return () => { try { sub && sub.remove(); } catch (e) {} };
   }, [grantOwnedEntitlements]);
-
 
   // ---- Cloud save (Google Play Games saved games, Android only) ----
   // The game owns the rules (which save has more progress wins); native only reads/writes the one snapshot.
@@ -664,10 +552,6 @@ export default function App() {
         redeemOwnCode(d.code).then((res) => {
           inject('window.__lhCode&&window.__lhCode(' + JSON.stringify(res) + ')');
         });
-      } else if (d.t === 'redeem') {
-        openRedeem();
-      } else if (d.t === 'restore') {
-        grantFnRef.current && grantFnRef.current(true);
       } else if (d.t === 'cloud_pull') {
         cloudPull();
       } else if (d.t === 'cloud_push' && typeof d.data === 'string') {
@@ -678,7 +562,7 @@ export default function App() {
         setWvKey((k) => k + 1);
       }
     } catch (e) { /* ignore malformed messages */ }
-  }, [showRewarded, buyProduct, openRedeem, cloudPull, cloudPush, cloudSignIn]);
+  }, [showRewarded, buyProduct, cloudPull, cloudPush, cloudSignIn]);
 
   useEffect(() => {
     (async () => {
@@ -764,8 +648,7 @@ export default function App() {
     "if(window.lhSetVersion)window.lhSetVersion(window.LH_APP_VERSION);" +
     (Purchases && RC_KEY.indexOf('PLACEHOLDER') === -1 ? "window.LH_PAY=true;" : "") +
     (AdMob && AdMob.RewardedAd ? "window.LH_ADS=true;" : "") +
-    (Platform.OS === 'android' ? "window.LH_REDEEM=true;" : "") +
-    (Platform.OS === 'android' && PROMO_DIAG ? "window.LH_DIAG=true;" : "") +
+    (Platform.OS === 'android' ? "window.LH_CODES=true;" : "") +
     (Platform.OS === 'android' && LhCloud ? "window.LH_CLOUD=true;if(window.lhCloudInit)window.lhCloudInit();" : "");
 
   return (
@@ -781,7 +664,7 @@ export default function App() {
         domStorageEnabled
         allowFileAccess
         onMessage={onWebMessage}
-        onLoadEnd={() => { getFirstRun().then((first) => grantOwnedEntitlements(first > 0 && Date.now() - first < REDEEM_WATCH_MS)); }}
+        onLoadEnd={() => { getFirstRun().then((first) => grantOwnedEntitlements(first > 0 && Date.now() - first < FIRST_RUN_WATCH_MS)); }}
         scrollEnabled={false}
         overScrollMode="never"
         bounces={false}
