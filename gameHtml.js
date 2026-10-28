@@ -1147,6 +1147,14 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
     <div id="gemList"></div>
   </div></div>
 
+  <div class="modal" id="codeModal"><div class="sheet">
+    <button class="x" data-close>✕</button><h2>🔑 Enter Code</h2>
+    <p class="lead">Got a Loot Hollow promo code? Type it here to get your reward.</p>
+    <input id="codeInput" type="text" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX" style="width:100%;box-sizing:border-box;padding:12px;font-size:18px;text-align:center;letter-spacing:2px;text-transform:uppercase;border-radius:10px;border:2px solid #6b4fc7;background:#1b1233;color:#fff;margin:6px 0 10px;">
+    <button class="bigbtn" id="codeGo">Redeem</button>
+    <div id="codeMsg" style="text-align:center;margin-top:10px;min-height:20px;font-weight:700;color:#cdbdf5"></div>
+  </div></div>
+
   <div class="modal" id="claimModal"><div class="sheet">
     <button class="x" data-close>✕</button><h2>🎟️ Claim Redeemed Item</h2>
     <p class="lead">Redeemed a promo code on Google Play? Tap the pack your code was for. Google will say you already own it, and your item arrives here. If nothing arrives within a minute, try a different pack.</p>
@@ -1488,7 +1496,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   // Fallback only. The native shell injects the real version/build straight out
   // of app.json and calls lhSetVersion(), so the label can never drift from the
   // store listing again. Injection lands after parse, hence the setter.
-  var APP_VERSION='1.0.10 (57)';
+  var APP_VERSION='1.0.10 (58)';
   window.lhSetVersion=function(v){if(v)APP_VERSION=v;var el=document.getElementById('appVersion');if(el)el.textContent='v'+APP_VERSION;};
   window.lhSetVersion(window.LH_APP_VERSION||'');
   // ===== Real-money gem packs + native money bridge (ads + IAP). =====
@@ -1865,8 +1873,8 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function completeReveal(rg,onDone,w){if(rg>=5&&!b2CompleteWanted(w)){onDone();return;}if(hasCompleteVid(rg)){playAnimVideo(rg>=5?b2CompleteVid(rg):VIDEO_BASE+'complete_r'+rg+'.mp4',onDone,onDone);}else{onDone();}}
   function playBuildAnim(idx){var items=worldItems();var it=items[idx];if(!it)return;var rg=vreg(),src=pieceSrc(rg,idx);var host=$('buildAnim');if(!host){host=document.createElement('div');host.id='buildAnim';document.body.appendChild(host);}host.className='bpn';host.classList.remove('show');host.classList.remove('done');host.innerHTML='<div class="bpn-plot"></div><div class="bpn-bwrap"><img class="bpn-img" alt="" src="'+src+'"></div><div class="bpn-stars" id="bpnStars"><b>★</b><b>★</b><b>★</b><b>★</b><b>★</b></div><div class="bpn-title" id="bpnTitle">Building '+it.n+'…</div><div class="bpn-fx" id="bpnFx"></div><button class="bpn-skip" id="bpnSkip">Tap to continue</button>';_baTO.forEach(clearTimeout);_baTO=[];if(_baSpark){clearInterval(_baSpark);_baSpark=null;}requestAnimationFrame(function(){host.classList.add('show');});sBig();haptic(14);var fx=$('bpnFx'),W=host.clientWidth||360,H=host.clientHeight||640,cx=W/2,base=H*0.56;function mk(cls){var p=document.createElement('div');p.className='p '+cls;fx.appendChild(p);return p;}function dust(n){for(var i=0;i<n;i++){var p=mk('dust');var a=Math.random()*6.283,dd=34+Math.random()*48;p.style.setProperty('--dx',(Math.cos(a)*dd)+'px');p.style.setProperty('--dy',(-Math.abs(Math.sin(a))*dd-8)+'px');p.style.left=cx+'px';p.style.top=base+'px';p.style.animation='bpn-dust '+(600+Math.random()*300)+'ms ease-out forwards';(function(pp){setTimeout(function(){pp.remove();},950);})(p);}}function coins(){for(var i=0;i<16;i++){var p=mk('coin');p.textContent='🪙';p.style.left=cx+'px';p.style.top=(base-40)+'px';var ang=-1.57+(Math.random()-0.5)*2.3,sp=80+Math.random()*100;p.style.setProperty('--cx',(Math.cos(ang)*sp)+'px');p.style.setProperty('--cy',(Math.sin(ang)*sp-24)+'px');p.style.setProperty('--cr',(Math.random()*720-360)+'deg');p.style.animation='bpn-coin '+(760+Math.random()*450)+'ms cubic-bezier(.2,.7,.3,1) forwards';(function(pp){setTimeout(function(){pp.remove();},1300);})(p);}}function conf(){var co=['#f5c542','#e8654f','#4b8ef0','#7fae6b','#b06bf0','#ffffff'];for(var i=0;i<28;i++){var p=mk('conf');p.style.background=co[i%co.length];p.style.left=cx+'px';p.style.top=(base-90)+'px';p.style.setProperty('--fx',((Math.random()-0.5)*280)+'px');p.style.setProperty('--fy',(70+Math.random()*190)+'px');p.style.setProperty('--fr',(Math.random()*720)+'deg');p.style.animation='bpn-conf '+(950+Math.random()*550)+'ms ease-in forwards';(function(pp){setTimeout(function(){pp.remove();},1550);})(p);}}function glow(){var g=mk('glow');g.style.left=cx+'px';g.style.top=(base-56)+'px';g.style.animation='bpn-glow 700ms ease-out forwards';setTimeout(function(){g.remove();},720);}_baTO.push(setTimeout(function(){dust(14);haptic(22);},430));_baTO.push(setTimeout(function(){glow();coins();conf();var t=$('bpnTitle');if(t)t.textContent=it.n+' Complete!';var st=$('bpnStars');if(st){var bs=st.children;for(var s=0;s<5;s++){(function(k){_baTO.push(setTimeout(function(){if(bs[k])bs[k].classList.add('on');sPop();},k*120));})(s);}}confetti(24);coinRain(8);haptic(34);host.classList.add('done');},1000));_baTO.push(setTimeout(closeBuildAnim,3000));var sk=$('bpnSkip');if(sk)sk.onclick=closeBuildAnim;host.onclick=function(){if(host.classList.contains('done'))closeBuildAnim();};}
   function closeBuildAnim(){var host=$('buildAnim');if(!host)return;_baTO.forEach(clearTimeout);_baTO=[];if(_baSpark){clearInterval(_baSpark);_baSpark=null;}host.classList.remove('show');setTimeout(function(){if(host)host.classList.remove('done');},400);}
-  const HUB_ITEMS=[{i:'📖',l:'How to Play',m:'faqModal'},{i:'🏘️',l:'Village',m:'villageModal',f:'renderVillageShop'},{i:'🎁',l:'Daily',m:'dailyModal',f:'renderDaily',k:'daily'},{i:'🎪',l:'Events',m:'eventModal',f:'renderEvents',k:'event'},{i:'🎯',l:'Challenges',m:'chalModal',f:'renderChallenges',k:'chal'},{i:'🎵',l:'Season Pass',m:'passModal',f:'renderPass',k:'pass'},{i:'🃏',l:'Cards',m:'relicModal',f:'renderCards',k:'relic'},{i:'🐾',l:'Pets',m:'petModal',f:'renderPets',k:'pet'},{i:'⚔️',l:'Rivals',m:'rosterModal',f:'renderRoster',k:'roster'},{i:'🛡️',l:'Defenses',m:'defModal',f:'renderDef',k:'def'},{i:'📺',l:'Free Spins',m:'adModal',f:'renderAds',k:'ad'},{i:'🎰',l:'Spin Shop',m:'shopModal',f:'renderShop'},{i:'💎',l:'Gems',m:'gemModal',f:'renderGems'},{i:'🗺️',l:'Map',m:'mapModal',f:'renderMap'},{i:'🎡',l:'Wheel',m:'wheelModal',f:'renderWheel',k:'wheel'},{i:'🎨',l:'Skins',m:'skinModal',f:'renderSkins',k:'skin'},{i:'🎟️',l:'Redeem Code',act:'redeem',need:'redeem'},{i:'📥',l:'Claim Item',m:'claimModal',f:'renderClaim',need:'redeem'},{i:'🧪',l:'Claim Realm Skip (test)',act:'claimrs',need:'diag'},{i:'☁️',l:'Cloud Save',act:'cloud',need:'cloud'},{i:'🏆',l:'Trophies',m:'trophyModal',f:'renderTrophies',k:'tro'},{i:'📊',l:'Leaderboard',soon:1},{i:'👫',l:'Friends',soon:1},{i:'📰',l:'News',soon:1}];
-  const HUB_FN={renderVillageShop:()=>renderVillageShop(),renderDaily:()=>renderDaily(),renderEvents:()=>renderEvents(),renderChallenges:()=>renderChallenges(),renderPass:()=>renderPass(),renderRelics:()=>renderRelics(),renderCards:()=>renderCards(),renderPets:()=>renderPets(),renderRoster:()=>renderRoster(),renderDef:()=>renderDef(),renderShop:()=>renderShop(),renderGems:()=>renderGems(),renderClaim:()=>renderClaim(),renderMap:()=>renderMap(),renderAds:()=>renderAds(),renderSkins:()=>renderSkins(),renderWheel:()=>renderWheel(),renderTree:()=>renderTree(),renderTrophies:()=>renderTrophies()};
+  const HUB_ITEMS=[{i:'📖',l:'How to Play',m:'faqModal'},{i:'🏘️',l:'Village',m:'villageModal',f:'renderVillageShop'},{i:'🎁',l:'Daily',m:'dailyModal',f:'renderDaily',k:'daily'},{i:'🎪',l:'Events',m:'eventModal',f:'renderEvents',k:'event'},{i:'🎯',l:'Challenges',m:'chalModal',f:'renderChallenges',k:'chal'},{i:'🎵',l:'Season Pass',m:'passModal',f:'renderPass',k:'pass'},{i:'🃏',l:'Cards',m:'relicModal',f:'renderCards',k:'relic'},{i:'🐾',l:'Pets',m:'petModal',f:'renderPets',k:'pet'},{i:'⚔️',l:'Rivals',m:'rosterModal',f:'renderRoster',k:'roster'},{i:'🛡️',l:'Defenses',m:'defModal',f:'renderDef',k:'def'},{i:'📺',l:'Free Spins',m:'adModal',f:'renderAds',k:'ad'},{i:'🎰',l:'Spin Shop',m:'shopModal',f:'renderShop'},{i:'💎',l:'Gems',m:'gemModal',f:'renderGems'},{i:'🗺️',l:'Map',m:'mapModal',f:'renderMap'},{i:'🎡',l:'Wheel',m:'wheelModal',f:'renderWheel',k:'wheel'},{i:'🎨',l:'Skins',m:'skinModal',f:'renderSkins',k:'skin'},{i:'🔑',l:'Enter Code',m:'codeModal',f:'renderCode',need:'redeem'},{i:'🎟️',l:'Redeem Code',act:'redeem',need:'redeem'},{i:'📥',l:'Claim Item',m:'claimModal',f:'renderClaim',need:'redeem'},{i:'🧪',l:'Claim Realm Skip (test)',act:'claimrs',need:'diag'},{i:'☁️',l:'Cloud Save',act:'cloud',need:'cloud'},{i:'🏆',l:'Trophies',m:'trophyModal',f:'renderTrophies',k:'tro'},{i:'📊',l:'Leaderboard',soon:1},{i:'👫',l:'Friends',soon:1},{i:'📰',l:'News',soon:1}];
+  const HUB_FN={renderVillageShop:()=>renderVillageShop(),renderDaily:()=>renderDaily(),renderEvents:()=>renderEvents(),renderChallenges:()=>renderChallenges(),renderPass:()=>renderPass(),renderRelics:()=>renderRelics(),renderCards:()=>renderCards(),renderPets:()=>renderPets(),renderRoster:()=>renderRoster(),renderDef:()=>renderDef(),renderShop:()=>renderShop(),renderGems:()=>renderGems(),renderClaim:()=>renderClaim(),renderCode:()=>renderCode(),renderMap:()=>renderMap(),renderAds:()=>renderAds(),renderSkins:()=>renderSkins(),renderWheel:()=>renderWheel(),renderTree:()=>renderTree(),renderTrophies:()=>renderTrophies()};
   function renderHub(){const g=$('hubGrid');g.innerHTML='';HUB_ITEMS.forEach(it=>{if(it.need==='redeem'&&!window.LH_REDEEM)return;if(it.need==='diag'&&!window.LH_DIAG)return;if(it.need==='cloud'&&!window.LH_CLOUD)return;const el=document.createElement('div');el.className='hubcell'+(it.soon?' soon':'');
     el.innerHTML='<i class="hd'+(it.k&&hubNotif[it.k]?' on':'')+'"></i><div class="hi">'+it.i+'</div><div class="hl">'+it.l+'</div>'+(it.soon?'<div class="soontag">soon</div>':'');
     if(!it.soon)el.onclick=()=>{$('hubModal').classList.remove('show');if(it.act==='redeem'){lhPost({t:'redeem'});return;}if(it.act==='restore'){lhPost({t:'restore'});return;}if(it.act==='claimrs'){lhPost({t:'buy',productId:'realm_skip'});return;}if(it.act==='cloud'){lhCloudSync();return;}openModal(it.m,HUB_FN[it.f]);};g.appendChild(el);});}
@@ -3523,6 +3531,37 @@ function save(){try{petBackup();}catch(e){}try{if(typeof secCheck==='function'){
         const bn=document.createElement('button');bn.className='gembtn';bn.textContent='💎 '+gp.cost;bn.disabled=gems<gp.cost;bn.onclick=()=>buyGem(gp.key);el.appendChild(bn);g.appendChild(el);});}
   // Promo items we can send codes for (not the tester-only realm_skip). Tapping one does a buy attempt:
   // if the code was redeemed Google answers "already owned" and the app then grants the item.
+
+  // ---- Own promo codes (server: Cloudflare Worker). Rewards are the same items as the shop.
+  var CODE_OK_REWARDS=['spins_small','spins_medium','spins_large','spins_mega','gems_small','gems_medium','gems_large','gems_mega','bank_break'];
+  function codeUsedMap(){try{return JSON.parse(localStorage.getItem('lh_codes_v1')||'{}')||{};}catch(e){return {};}}
+  function codeMarkUsed(c,r){try{var m=codeUsedMap();m[c]=r;localStorage.setItem('lh_codes_v1',JSON.stringify(m));}catch(e){}}
+  var codeBusy=false;
+  function codeSay(t,bad){var m=$('codeMsg');if(!m)return;m.textContent=t;m.style.color=bad?'#ff8a8a':'#9dffb0';}
+  function renderCode(){var i=$('codeInput');if(i)i.value='';codeBusy=false;codeSay('',false);var b=$('codeGo');if(b){b.disabled=false;b.textContent='Redeem';}}
+  function codeGoClick(){
+    if(codeBusy)return;var raw=($('codeInput').value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    if(raw.length<4){codeSay('Please type your code.',true);return;}
+    if(codeUsedMap()[raw]){codeSay('You already used this code on this device.',true);return;}
+    codeBusy=true;$('codeGo').disabled=true;$('codeGo').textContent='Checking...';codeSay('',false);
+    if(!lhPost({t:'code',code:raw})){codeBusy=false;$('codeGo').disabled=false;$('codeGo').textContent='Redeem';codeSay('Codes only work in the app.',true);}
+    window.__lhCodeRaw=raw;
+  }
+  window.__lhCode=function(r){try{
+    codeBusy=false;var b=$('codeGo');if(b){b.disabled=false;b.textContent='Redeem';}
+    var raw=window.__lhCodeRaw||'';
+    if(r&&r.ok&&CODE_OK_REWARDS.indexOf(r.reward)>=0){
+      if(codeUsedMap()[raw]){codeSay('You already used this code on this device.',true);return;}
+      codeMarkUsed(raw,r.reward);$('codeModal').classList.remove('show');
+      window.LH_onPurchase(r.reward,true,true);return;}
+    var e=r&&r.err,msg='Could not check the code. Check your connection and try again.';
+    if(e==='invalid')msg='That code is not valid. Check it and try again.';
+    else if(e==='expired')msg='That code has expired.';
+    else if(e==='used_up')msg='That code has already been used up.';
+    else if(e==='bad_request')msg='Please check the code and try again.';
+    codeSay(msg,true);
+  }catch(x){}};
+  (function(){var g=$('codeGo');if(g)g.onclick=codeGoClick;var i=$('codeInput');if(i)i.addEventListener('keydown',function(ev){if(ev.key==='Enter')codeGoClick();});})();
   function renderClaim(pick){const g=$('claimList');if(!g)return;g.innerHTML='';
     if(pick){
       // Step 2: confirm before the buy attempt, so nobody pays by accident.

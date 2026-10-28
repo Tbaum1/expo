@@ -75,6 +75,38 @@ async function getFirstRun() {
     return v;
   } catch (e) { return 0; }
 }
+
+// Own promo codes (Cloudflare Worker + D1). The game sends the typed code; we add a stable anonymous install id.
+const CODES_URL = 'https://lh-codes.anthony-tennenbaum.workers.dev/redeem';
+const INSTALL_ID_KEY = 'lh_install_id_v1';
+async function getInstallId() {
+  try {
+    let v = await AsyncStorage.getItem(INSTALL_ID_KEY);
+    if (!v) {
+      v = 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12) + Math.random().toString(36).slice(2, 8);
+      await AsyncStorage.setItem(INSTALL_ID_KEY, v);
+    }
+    return v;
+  } catch (e) { return 'tmp' + Math.random().toString(36).slice(2, 14); }
+}
+async function redeemOwnCode(code) {
+  let res = { ok: false, err: 'network' };
+  try {
+    const id = await getInstallId();
+    const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = ctl ? setTimeout(() => ctl.abort(), 15000) : null;
+    const r = await fetch(CODES_URL, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ code: String(code || '').slice(0, 60), id }),
+      signal: ctl ? ctl.signal : undefined,
+    });
+    if (timer) clearTimeout(timer);
+    const j = await r.json();
+    if (j && typeof j === 'object') res = j;
+  } catch (e) { res = { ok: false, err: 'network' }; }
+  return res;
+}
 async function getRedeemAt() { try { return parseInt(await AsyncStorage.getItem(REDEEM_AT_KEY), 10) || 0; } catch (e) { return 0; } }
 async function setRedeemAt(t) { try { await AsyncStorage.setItem(REDEEM_AT_KEY, String(t)); } catch (e) {} }
 function fmtSince(ms) { if (!ms) return 'n/a'; const m = Math.round((Date.now() - ms) / 60000); return m < 90 ? m + ' min' : (m / 60).toFixed(1) + ' h'; }
@@ -628,6 +660,10 @@ export default function App() {
         showRewarded();
       } else if (d.t === 'buy' && typeof d.productId === 'string') {
         buyProduct(d.productId);
+      } else if (d.t === 'code' && typeof d.code === 'string') {
+        redeemOwnCode(d.code).then((res) => {
+          inject('window.__lhCode&&window.__lhCode(' + JSON.stringify(res) + ')');
+        });
       } else if (d.t === 'redeem') {
         openRedeem();
       } else if (d.t === 'restore') {
