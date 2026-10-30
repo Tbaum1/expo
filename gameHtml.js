@@ -115,6 +115,40 @@ export const GAME_HTML = `<!DOCTYPE html>
   .xf-row b{font-family:'Lilita One';font-weight:400;font-size:17px;}
   .xf-row.tot{border-bottom:0;border-top:2px solid rgba(90,50,8,.55);margin-top:4px;padding-top:8px;font-size:16px;}
   .xf-note{margin-top:10px;font-size:13px;line-height:1.35;color:#5a3a12;}
+
+/* ---- card variants, season, names, showcase ---- */
+.cdArt{position:relative}
+.vfoil{box-shadow:0 0 0 2px #dfe7f5,0 0 10px rgba(220,235,255,.6)!important;border-color:#e6edf8!important}
+.vfoil:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.5) 45%,rgba(190,220,255,.3) 52%,transparent 66%);background-size:260% 100%;mix-blend-mode:screen;animation:vfSweep 3.4s linear infinite}
+@keyframes vfSweep{0%{background-position:130% 0}100%{background-position:-130% 0}}
+.vmu{border-color:var(--c)!important;box-shadow:0 0 12px var(--c)!important}
+.vmu:before{content:"";position:absolute;inset:0;z-index:1;background:var(--o);mix-blend-mode:color;opacity:.6;pointer-events:none}
+.vmu-moon{--c:#8fb8ff;--o:#3d6bff}.vmu-gild{--c:#ffd24d;--o:#ffb800}.vmu-glitch{--c:#ff4de0;--o:#ff2bd6}.vmu-ember{--c:#ff7a2e;--o:#ff5a00}.vmu-frost{--c:#7ef0ff;--o:#18c8ff}.vmu-verd{--c:#6be36b;--o:#22c55e}.vmu-shadow{--c:#9a6bff;--o:#4b2a9a}
+.vmu-glitch img{filter:contrast(1.1) drop-shadow(2px 0 0 rgba(0,255,255,.6)) drop-shadow(-2px 0 0 rgba(255,0,90,.6))}
+.vpris{border-color:transparent!important;padding:3px;background:conic-gradient(from 20deg,#ff5d5d,#ffd24d,#6be36b,#4dc9ff,#b46bff,#ff5d5d)!important;box-shadow:0 0 14px rgba(180,107,255,.7)!important}
+.vpris img{border-radius:6px}
+.vpris:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,rgba(255,0,120,.22),rgba(255,230,0,.18),rgba(0,255,200,.2),rgba(120,80,255,.25));mix-blend-mode:color-dodge}
+.cardTile.offseason{opacity:.5}
+.cardTile.offseason:after{content:"⏳";position:absolute;right:3px;top:2px;font-size:11px}
+.cdReal{font-size:11px;color:#a898d8;margin-top:-2px}
+.cdMeta{font-size:11px;font-weight:700;color:#c9b8ff;margin:3px 0 2px}
+.cdHist{font-size:10px;color:#9a8cc4;margin:2px 0 6px;line-height:1.35}
+.cdRow{display:flex;gap:6px;margin-top:6px}
+.cdMini{flex:1;background:#2a1d49;border:1px solid #4a3a73;color:#e8e0ff;border-radius:10px;padding:7px 2px;font-weight:800;font-size:12px;cursor:pointer}
+.cdMini.on{background:#f4c542;color:#2a1a00;border-color:#f4c542}
+.rvVar{font-size:9px;font-weight:800;color:#f4c542;margin-top:1px;line-height:1.2}
+.nmBox{background:#1b1030;border:2px solid #6a4fa0;border-radius:16px;padding:16px;width:min(300px,90vw);text-align:center}
+.nmT{color:#f5c542;font-weight:900;font-size:17px;margin-bottom:10px}
+.nmIn{width:100%;box-sizing:border-box;background:#0f0820;border:2px solid #4a3a73;color:#fff;border-radius:10px;padding:10px;font-size:17px;font-weight:700;text-align:center}
+.nmErr{color:#ff8a8a;font-size:12px;min-height:16px;margin:6px 0}
+.nmBtns{display:flex;gap:6px}.nmBtns .cdBtn{flex:1;margin:0;padding:9px 4px;font-size:13px}
+.rnEdit{display:inline-block;margin-left:4px;font-size:13px;opacity:.7;cursor:pointer;padding:0 3px}
+.shw{margin-top:11px}.shwT{font-size:11px;font-weight:800;color:#c9b8ff;text-align:left;margin-bottom:5px}
+.fndChip{background:#f4c542;color:#2a1a00;border-radius:8px;padding:1px 6px;font-size:9px;margin-left:5px}
+.shwRow{display:flex;gap:8px;justify-content:center}
+.shwCard{width:62px;aspect-ratio:3/4;border-radius:8px;border:2px solid #4a3a63;overflow:hidden;position:relative;background:#0f0820;display:flex;align-items:center;justify-content:center;color:#3a2d52;font-size:22px;font-weight:800;cursor:pointer}
+.shwCard img{width:100%;height:100%;object-fit:cover;display:block}
+.shwHint{font-size:9px;color:#8a7cb4;margin-top:4px}
 </style>
 <style>
   :root{--bg-0:#150a26;--bg-1:#241140;--gold:#ffce4d;--gold-deep:#f5a623;--teal:#2fd6c4;--rose:#ff6b9d;--ink:#0c0618;--cream:#fff6e0;}
@@ -256,6 +290,17 @@ export const GAME_HTML = `<!DOCTYPE html>
 
   .modal{position:absolute;inset:0;z-index:45;display:none;align-items:center;justify-content:center;background:rgba(8,3,18,.72);backdrop-filter:blur(3px);padding:14px;}
   .modal.show{display:flex;animation:fade .2s;}
+  .newsItem{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:13px;padding:10px 11px;margin-bottom:9px;text-align:left;}
+  .newsItem.fresh{border-color:var(--gold);background:rgba(255,215,110,.09);}
+  .newsTop{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap;}
+  .newsTag{font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:2px 7px;border-radius:8px;background:#5b3fb0;color:#fff;}
+  .newsTag.t-event{background:#c2410c;}.newsTag.t-update{background:#0f766e;}.newsTag.t-promo{background:#a16207;}.newsTag.t-soon{background:#4338ca;}.newsTag.t-notice{background:#9f1239;}
+  .newsNew{font-size:10px;font-weight:800;color:#1a0f30;background:var(--gold);padding:2px 6px;border-radius:8px;}
+  .newsDate{font-size:11px;opacity:.6;margin-left:auto;}
+  .newsTitle{font-family:'Lilita One';font-size:16px;color:var(--gold);line-height:1.2;margin-bottom:3px;}
+  .newsBody{font-size:13px;line-height:1.4;opacity:.92;white-space:pre-line;}
+  .newsEmpty{text-align:center;opacity:.7;font-size:13px;padding:16px 4px;}
+
   .sheet{background:linear-gradient(180deg,#33205c,#1a0f30);border:3px solid var(--gold-deep);border-radius:18px;padding:16px 14px;width:100%;max-width:370px;max-height:90dvh;overflow:auto;position:relative;animation:pingIn .3s cubic-bezier(.3,1.4,.5,1);}
   .sheet h2{font-family:'Lilita One';font-size:19px;color:var(--gold);text-align:center;}
   .sheet .lead{font-size:12px;opacity:.75;text-align:center;margin:3px 0 11px;}
@@ -1156,6 +1201,12 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   </div></div>
 
 
+  <div class="modal" id="newsModal"><div class="sheet">
+    <button class="x" data-close>✕</button><h2>📰 News</h2>
+    <p class="lead">Updates, events and announcements from the Loot Hollow team.</p>
+    <div id="newsList"></div>
+  </div></div>
+
   <div class="modal" id="trophyModal"><div class="sheet">
     <button class="x" data-close>✕</button><h2>🏆 Trophies</h2>
     <div class="proCard" id="proCard"></div>
@@ -1173,24 +1224,38 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
     <button class="x" data-close>✕</button><h2>📖 How to Play</h2>
     <p class="lead">A quick guide to Loot Hollow.</p>
     <div class="faq">
-      <div class="faqq">🎯 The goal</div><div class="faqa">Spin the slot to win coins, use them to build your village up to 5 ★ on every item, then move on to the next of <b data-wn>500</b> worlds so far &mdash; and more are on the way! Everything grows as you go.</div>
-      <div class="faqq">🎰 Spinning</div><div class="faqa">Tap SPIN to play one spin — each spin costs from your 🎰 spin balance. BET (×1, ×2, …) raises both the cost and the payout. AUTO keeps spinning hands-free until you stop it, run low, or your village hits 5★ and is ready to move on.</div>
-      <div class="faqq">🎡 The reels</div><div class="faqa">Match three symbols for a win. ⭐ stars pay out free spins, the 🔨 hammer lets you build your village, and raid and attack symbols let you take coins from rival lairs.</div>
-      <div class="faqq">⚡ Charge and 🔥 Frenzy</div><div class="faqa">Every spin fills the Charge bar above SPIN. When it is full, Frenzy kicks in and multiplies your wins for a streak of spins.</div>
+      <div class="faqq">🚀 Start here</div><div class="faqa">1) Tap SPIN to earn coins. 2) Open the 🏘️ Village Shop and spend coins on ★ stars. 3) Fill all 25 stars to unlock the next world. 4) Open chests for cards and pets. 5) Check Daily, the Wheel and Events in the ☰ Menu every day. Everything else on this page is optional reading.</div>
+      <div class="faqq">🎯 The goal</div><div class="faqa">Spin the slot to earn coins, use them to build your village up to 5 ★ on every item, then move on to the next world. The adventure keeps growing, with new worlds added all the time! Everything grows as you go.</div>
+      <div class="faqq">🎰 Spinning</div><div class="faqa">Tap SPIN to play one spin — each spin costs from your 🎰 spin balance. BET raises both the cost and the coin prizes by the same amount, so a bigger bet is bigger swings, not extra value. How high you can bet depends on your world and your spin balance, and with 5 or more spins you can always pick ×5. Charge, XP and event points grow more slowly than the bet, so ×1 is the efficient choice for those. AUTO keeps spinning hands-free until you stop it, run low, or your village hits 5★ and is ready to move on.</div>
+      <div class="faqq">🎡 The reels</div><div class="faqa">Match three symbols for a prize. ⭐ stars pay out free spins, the 🔨 hammer lets you build your village, and raid and attack symbols let you take coins from rival lairs.</div>
+      <div class="faqq">⚡ Charge and 🔥 Frenzy</div><div class="faqa">Every spin fills the Charge bar above SPIN. When it is full, Frenzy kicks in and your coin prizes pay +50% for a streak of spins.</div>
       <div class="faqq">🏗️ Village and ★ stars</div><div class="faqa">Open the Village Shop to spend coins upgrading each of the 5 items, up to 5 ★ each. More stars means a higher payout multiplier. Fill all 25 stars to complete the village and unlock the next world.</div>
       <div class="faqq">⭐ Fortune Score</div><div class="faqa">The star at the top center is your overall progress score, earned from worlds reached, village stars, card sets, and pets. Tap it any time to see it. It is your bragging number — the higher, the further you have come.</div>
-      <div class="faqq">💰 Currencies</div><div class="faqa">🪙 Coins build your village. 🎰 Spins play the slot. 💎 Gems are premium currency for spins, shields, and chests. 🛡️ Shields each block one incoming rival attack.</div>
-      <div class="faqq">🃏 Cards, sets & ✨ gold</div><div class="faqa">Collect cards by opening chests. Complete a full set for a big reward (and to unlock a Pet). Chests now favour cards you don't own yet, and only sell when they can still give you something new. ✨ GOLD cards are rare drops from Golden, Magical, and Gem chests — collect the gold version of every card in a set to claim its Gold reward (double spins & coins). Reach new worlds to unlock more sets.</div>
-      <div class="faqq">🐾 Pets & 🦴 treats</div><div class="faqa">Unlocked by completing card sets. Feed a pet 🦴 Treats to keep it awake — an awake pet gives a steady bonus such as extra coins. Energy tops up to 12 hours; when it's full the Feed button locks so you never waste treats.</div>
-      <div class="faqq">👥 Rivals and 🔥 Nemesis</div><div class="faqa">Open the Rivals list and STRIKE or RAID any rival for coins (costs spins). Keep hitting one to topple their lair for a spin reward; the toughest becomes your Nemesis — beat them in a duel for bonus dust and coins. Rivals strike back, so keep Shields and Defenses up.</div>
-      <div class="faqq">🧱 Defenses</div><div class="faqa">Place defenses on your lair to reduce or block incoming raids and attacks. Manage them from the Defenses menu.</div>
+      <div class="faqq">💰 Currencies</div><div class="faqa">🪙 Coins build your village. 🎰 Spins play the slot. 💎 Gems are premium currency for spins, shields, and chests. 🛡️ Shields each block one incoming rival attack. 🧪 Dust crafts missing cards and upgrades your cards. Duplicate cards turn into dust. 🦴 Treats feed your pets.</div>
+      <div class="faqq">🔢 Big numbers</div><div class="faqa">Large amounts are shortened: K is thousand, M is million, B is billion and T is trillion. For example 2.5M means 2,500,000.</div>
+      <div class="faqq">🃏 Cards, sets & ✨ gold</div><div class="faqa">Collect cards by opening chests — Wooden, Golden, Magical, or Gem. Cards come in region, special, seasonal and holiday albums. Complete a full set for a big reward (and to unlock a Pet). Equip cards in your loadout from the Cards screen to get their powers, like extra coins or raid protection, and spend 🧪 dust to upgrade their stars. Chests favour cards you don't own yet, and only sell when they can still give you something new. ✨ GOLD cards are rare drops from Golden, Magical, and Gem chests — collect the gold version of every card in a set to claim its Gold reward (double spins & coins). Reach new worlds to unlock more sets.</div>
+      <div class="faqq">🎄 Seasonal & holiday albums</div><div class="faqa">Seasonal and holiday albums (Halloween, Thanksgiving, Christmas and more) hold cards themed to that time of year. Keep an eye on Events and News for chances to collect them.</div>
+      <div class="faqq">📈 Collection Boost</div><div class="faqa">Completing card sets does not just pay out once - each completed set also permanently boosts your coin earnings. Check the Cards screen to see your current boost.</div>
+      <div class="faqq">🐾 Pets & 🦴 treats</div><div class="faqa">Unlocked by completing card sets and by milestones in later Realms. Only one pet is active at a time, and you choose it on the Pets screen. Feed your pet 🦴 Treats to keep it awake — an awake pet gives a steady bonus such as extra coins. Energy tops up to 12 hours; when it's full the Feed button locks so you never waste treats.</div>
+      <div class="faqq">👥 Rivals and 🔥 Nemesis</div><div class="faqa">Open the Rivals list and STRIKE or RAID any rival for coins (costs spins). Keep hitting one to topple their lair for a spin reward; the toughest becomes your Nemesis — beat them in a duel for bonus dust and coins. In a duel, pick a move each round: Dodge beats Smash, Read beats Feint, Pierce beats Guard. Win 2 of 3 rounds to topple them. Rivals strike back, so keep Shields and Defenses up. Each Realm brings a new set of rivals.</div>
+      <div class="faqq">🧱 Defenses</div><div class="faqa">Place defenses on your lair from the Defenses menu. 🪤 Snare Traps each have about a 22% chance to fully block a raid. 🧱 Barricades each cut coins lost to a raid by 25%. 🐕 Watch-Beasts each have about a 25% chance to claw back half of a raid. Their price grows with your building costs.</div>
+      <div class="faqq">👑 Realms, Wardens & Crowns</div><div class="faqa">Your adventure is split into Realms, each one a long run of worlds. At the end of a Realm a Warden waits for you in a duel: win 3 rounds before you lose 3 to claim the Realm Crown. No spins needed, and you can try again for free. The Crown opens the next Realm. When you cross, your coins carry over at the same value, but building costs and prizes reset to that Realm's scale, and you meet new rivals.</div>
       <div class="faqq">🎰 Spins refill over time</div><div class="faqa">Your spins slowly refill on their own — even while the game is closed — up to a cap, so there are always some waiting when you come back.</div>
-      <div class="faqq">📺 Free spins, 🎁 Daily, 🎡 Wheel, 📅 Events</div><div class="faqa">Top up faster: watch free-spin offers, claim a daily reward that grows each day, spin the daily Fortune Wheel for coins/spins/gems, and finish limited-time events for big payouts.</div>
+      <div class="faqq">📺 Free spins, 🎁 Daily & 🎡 Wheel</div><div class="faqa">Top up faster: watch free-spin offers, claim a daily reward that grows each day, and spin the daily Fortune Wheel for coins, spins or gems.</div>
+      <div class="faqq">📅 Events</div><div class="faqa">Open Events in the ☰ Menu. Every day brings a few limited-time events, with bigger ones on weekends and all week. Earn points by playing, then claim a reward at each step of the ladder before the timer runs out.</div>
+      <div class="faqq">🎯 Weekly challenges</div><div class="faqa">Three fresh goals every week, for spins, coins, dust and cards. Finish them for rewards.</div>
+      <div class="faqq">🎵 Season Pass</div><div class="faqa">Earn XP as you play. Every tier has a free reward, and Premium unlocks a second track. The pass resets each season.</div>
+      <div class="faqq">🏆 Trophies & titles</div><div class="faqa">Trophies track milestones like worlds cleared, spins, triples and frenzies, and some are hidden. Each tier you earn pays a reward and can unlock a title. Equip a title and see your stats on your player card — tap the 🦝 raccoon to open it.</div>
+      <div class="faqq">🦊 The fox</div><div class="faqa">Tap the fox on the main screen to open Rivals and your Nemesis.</div>
       <div class="faqq">🌳 Wishing Tree</div><div class="faqa">A little tree that grows coins while you are away. Tap the 🌳 button, then Collect when it is full. Water it to level it up for faster growth and a bigger bucket - it keeps growing even when the game is closed.</div>
       <div class="faqq">🦝 Raccoon Level</div><div class="faqa">Every spin levels up your raccoon. The higher its level, the bigger ALL your coin payouts (spins, raids, wheel, tree). Tap the 🦝 badge at the top to see your current boost.</div>
       <div class="faqq">🌟 Jackpot Upgrade</div><div class="faqa">On the daily 🎡 Wheel you can spend 💎 gems to upgrade the 🌟 Jackpot - each upgrade makes the jackpot payout bigger for when you land it.</div>
-      <div class="faqq">📈 Collection Boost</div><div class="faqa">Completing card sets does not just pay out once - each completed set also permanently boosts your coin earnings. Check the Cards screen to see your current boost.</div>
-      <div class="faqq">🗺️ Worlds</div><div class="faqa"><b data-wn>500</b> unique worlds across <b data-rn>50</b> regions so far, each with its own look, sounds, and a special rule — tap the world name on the reel to read it. We keep adding new worlds, so the adventure never ends!</div>
+      <div class="faqq">🎨 Village Skins</div><div class="faqa">Skins give your village buildings a new tint. They are cosmetic only. A few cost gems, and some you earn.</div>
+      <div class="faqq">🔑 Enter Code</div><div class="faqa">Got a promo code? Open the ☰ Menu, tap Enter Code, type it in and tap Redeem. A code gives the same items you can find in the shop, like spins or gems. Each code can be used once per device, and some have a limit on how many players can use them.</div>
+      <div class="faqq">📰 News</div><div class="faqa">Open News in the ☰ Menu for updates, events and announcements from the Loot Hollow team. A red dot shows when something new is posted.</div>
+      <div class="faqq">☁️ Cloud Save</div><div class="faqa">Tap Cloud Save in the ☰ Menu to back up your progress with Google Play Games. Once connected, your game is saved for you and restored if you reinstall or move to a new phone.</div>
+      <div class="faqq">🗺️ Worlds</div><div class="faqa">Unique worlds across many regions, each with its own look, sounds, and a special rule — tap the world name on the reel to read it. We keep adding new worlds, so the adventure never ends!</div>
+      <div class="faqq">💬 Need help?</div><div class="faqa">Found a bug or have an idea? Email support@pocketyeti.com and we will read it.</div>
     </div>
   </div></div>
 
@@ -1280,7 +1345,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   let coins=store.get('ll_coins',500),spins=store.get('ll_spins',50),shields=store.get('ll_shields',0);
   let treeLvl=store.get('ll_treeLvl',1),treeXP=store.get('ll_treeXP',0),treeBucket=store.get('ll_treeBucket',0),treeTs=store.get('ll_treeTs',Date.now()),treeWater=store.get('ll_treeWater',5),treeWaterDay=store.get('ll_treeWaterDay','');
   let racLvl=store.get('ll_racLvl',1),racXP=store.get('ll_racXP',0);
-  let troS=store.get('ll_troS',{}),troC=store.get('ll_troC',{}),proF=store.get('ll_proF',{});if(!troS||typeof troS!=='object')troS={};if(!troC||typeof troC!=='object')troC={};if(!proF||typeof proF!=='object')proF={};
+  let troS=store.get('ll_troS',{}),troC=store.get('ll_troC',{}),proF=store.get('ll_proF',{});if(!proF.since)proF.since=Date.now();if(!troS||typeof troS!=='object')troS={};if(!troC||typeof troC!=='object')troC={};if(!proF||typeof proF!=='object')proF={};
   let wheelJackLvl=store.get('ll_wheelJackLvl',0);
   let world=store.get('ll_world',0),tier=store.get('ll_tier',0),progress=store.get('ll_prog',0);
   let totBuild=store.get('ll_tb',0),totTier=store.get('ll_tt',0),pig=store.get('ll_pig',0);
@@ -1657,7 +1722,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function boostTick(){var d=locDay(Date.now());if(d!==boostD){boostD=d;boostN=0;}boostN++;}
   // Realm Crown: +3% coin wins (stacking, permanent) and +10 spin cap each.
   function crownMult(){return 1+0.03*crowns;}
-  function feedBank(a){if(a>0)earnSinceRaid+=a;pig=Math.min(pigCap(),pig+Math.round(a*0.25*(activePet==='bear'?1+0.3*petPow():1)));}
+  function feedBank(a){if(a>0)earnSinceRaid+=a;pig=Math.min(pigCap(),pig+Math.round(a*0.25*(activePet==='bear'?1+0.3*petPow():1)*((typeof CP==='function')?CP().bankMult:1)));}
   // Event coin rewards are paid x2 (EVT_COIN_MULT) so a ladder rung is worth a few minutes of play.
   const EVT_COIN_MULT=2;
   function evBonus(x){return Math.round(bonus(x)*EVT_COIN_MULT);}
@@ -1681,7 +1746,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function locDay(ms){var d=new Date(ms);return Math.floor((ms-d.getTimezoneOffset()*60000)/86400000);}
   function dailyAvailable(){return lastClaimMs===0||locDay(Date.now())>locDay(lastClaimMs);}
   function dailyNext(now){if(lastClaimMs===0)return {s:streak+1,fz:0};var gap=locDay(now)-locDay(lastClaimMs);if(gap<=1)return {s:streak+1,fz:0};var miss=gap-1;if(miss<=freezes)return {s:streak+1,fz:miss};return {s:1,fz:0};}
-  function maxBetIdx(){var ceil=world<80?4:world<160?5:world<230?6:7;var cap=spins*0.05,bi=0,i;for(i=0;i<BET_LEVELS.length;i++){if(BET_LEVELS[i]<=cap)bi=i;}return Math.max(0,Math.min(ceil,bi));}
+  function maxBetIdx(){var ceil=world<80?4:world<160?5:world<230?6:7;var cap=Math.max(spins*0.05,spins>=5?5:0),bi=0,i;for(i=0;i<BET_LEVELS.length;i++){if(BET_LEVELS[i]<=cap)bi=i;}return Math.max(0,Math.min(ceil,bi));}
   function bet(){betIdx=Math.min(betIdx,maxBetIdx());return BET_LEVELS[betIdx];}
   function setCompletable(s){return setActive(s)&&!setsDone[s.key]&&cardEmojis(s).every(function(r){return (relicsOwned[r]||0)>=1;});}
   const UNITS=(function(){var u=['K','M','B','T'];return u;})();
@@ -1689,7 +1754,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function fmt(n){n=Math.round(n);const a=Math.abs(n);if(a<1e5)return n.toLocaleString();const u=UNITS;let v=a,i=-1;while(v>=1000&&i<u.length-1){v/=1000;i++;}if(v>=1000)return n.toExponential(2);return (n<0?'-':'')+trimZ(v)+u[i];}
   function rating(){return world*40+totBuild*3+Object.keys(setsDone).length*40+Object.keys(goldSetsDone).length*60+petsOwned.length*15;}
   function spinCap(){return SPIN_CAP+8*world+10*crowns;}
-  function regenSpins(){const CAP=spinCap();if(spins>=CAP){regenAnchor=Date.now();return;}const elapsed=Date.now()-regenAnchor;const _rm=SPIN_REGEN_MS/(activePet==='owl'?1+0.2*petPow():1);const periods=Math.floor(elapsed/_rm);if(periods>0){spins=Math.min(CAP,spins+periods);regenAnchor+=periods*_rm;if(spins>=CAP)regenAnchor=Date.now();}}
+  function regenSpins(){const CAP=spinCap();if(spins>=CAP){regenAnchor=Date.now();return;}const elapsed=Date.now()-regenAnchor;const _rm=SPIN_REGEN_MS/((activePet==='owl'?1+0.2*petPow():1)*((typeof CP==='function')?CP().regenMult:1));const periods=Math.floor(elapsed/_rm);if(periods>0){spins=Math.min(CAP,spins+periods);regenAnchor+=periods*_rm;if(spins>=CAP)regenAnchor=Date.now();}}
 
   function worldRule(){return wd(world);}
   function rs(n){if(!rivalState[n])rivalState[n]={g:0,hp:25};return rivalState[n];}
@@ -1746,7 +1811,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
     if(changed)save();}
   function evtActive(k){return !!activeEvents.find(e=>e.key===k);}
   function chestMult(){return evtActive('cardsBoom')?1.5:1;}
-  function buildMult(){return evtActive('villageMania')?0.5:1;}
+  function buildMult(){return (evtActive('villageMania')?0.5:1)*(1-((typeof CP==='function')?CP().buildCut:0));}
   
   var CHALLENGE_POOL=[
     {id:'spin80',m:'spin',t:80,d:'Spin 80 times',rw:{spins:40}},
@@ -1868,7 +1933,55 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function completeReveal(rg,onDone,w){if(rg>=5&&!b2CompleteWanted(w)){onDone();return;}if(hasCompleteVid(rg)){playAnimVideo(rg>=5?b2CompleteVid(rg):VIDEO_BASE+'complete_r'+rg+'.mp4',onDone,onDone);}else{onDone();}}
   function playBuildAnim(idx){var items=worldItems();var it=items[idx];if(!it)return;var rg=vreg(),src=pieceSrc(rg,idx);var host=$('buildAnim');if(!host){host=document.createElement('div');host.id='buildAnim';document.body.appendChild(host);}host.className='bpn';host.classList.remove('show');host.classList.remove('done');host.innerHTML='<div class="bpn-plot"></div><div class="bpn-bwrap"><img class="bpn-img" alt="" src="'+src+'"></div><div class="bpn-stars" id="bpnStars"><b>★</b><b>★</b><b>★</b><b>★</b><b>★</b></div><div class="bpn-title" id="bpnTitle">Building '+it.n+'…</div><div class="bpn-fx" id="bpnFx"></div><button class="bpn-skip" id="bpnSkip">Tap to continue</button>';_baTO.forEach(clearTimeout);_baTO=[];if(_baSpark){clearInterval(_baSpark);_baSpark=null;}requestAnimationFrame(function(){host.classList.add('show');});sBig();haptic(14);var fx=$('bpnFx'),W=host.clientWidth||360,H=host.clientHeight||640,cx=W/2,base=H*0.56;function mk(cls){var p=document.createElement('div');p.className='p '+cls;fx.appendChild(p);return p;}function dust(n){for(var i=0;i<n;i++){var p=mk('dust');var a=Math.random()*6.283,dd=34+Math.random()*48;p.style.setProperty('--dx',(Math.cos(a)*dd)+'px');p.style.setProperty('--dy',(-Math.abs(Math.sin(a))*dd-8)+'px');p.style.left=cx+'px';p.style.top=base+'px';p.style.animation='bpn-dust '+(600+Math.random()*300)+'ms ease-out forwards';(function(pp){setTimeout(function(){pp.remove();},950);})(p);}}function coins(){for(var i=0;i<16;i++){var p=mk('coin');p.textContent='🪙';p.style.left=cx+'px';p.style.top=(base-40)+'px';var ang=-1.57+(Math.random()-0.5)*2.3,sp=80+Math.random()*100;p.style.setProperty('--cx',(Math.cos(ang)*sp)+'px');p.style.setProperty('--cy',(Math.sin(ang)*sp-24)+'px');p.style.setProperty('--cr',(Math.random()*720-360)+'deg');p.style.animation='bpn-coin '+(760+Math.random()*450)+'ms cubic-bezier(.2,.7,.3,1) forwards';(function(pp){setTimeout(function(){pp.remove();},1300);})(p);}}function conf(){var co=['#f5c542','#e8654f','#4b8ef0','#7fae6b','#b06bf0','#ffffff'];for(var i=0;i<28;i++){var p=mk('conf');p.style.background=co[i%co.length];p.style.left=cx+'px';p.style.top=(base-90)+'px';p.style.setProperty('--fx',((Math.random()-0.5)*280)+'px');p.style.setProperty('--fy',(70+Math.random()*190)+'px');p.style.setProperty('--fr',(Math.random()*720)+'deg');p.style.animation='bpn-conf '+(950+Math.random()*550)+'ms ease-in forwards';(function(pp){setTimeout(function(){pp.remove();},1550);})(p);}}function glow(){var g=mk('glow');g.style.left=cx+'px';g.style.top=(base-56)+'px';g.style.animation='bpn-glow 700ms ease-out forwards';setTimeout(function(){g.remove();},720);}_baTO.push(setTimeout(function(){dust(14);haptic(22);},430));_baTO.push(setTimeout(function(){glow();coins();conf();var t=$('bpnTitle');if(t)t.textContent=it.n+' Complete!';var st=$('bpnStars');if(st){var bs=st.children;for(var s=0;s<5;s++){(function(k){_baTO.push(setTimeout(function(){if(bs[k])bs[k].classList.add('on');sPop();},k*120));})(s);}}confetti(24);coinRain(8);haptic(34);host.classList.add('done');},1000));_baTO.push(setTimeout(closeBuildAnim,3000));var sk=$('bpnSkip');if(sk)sk.onclick=closeBuildAnim;host.onclick=function(){if(host.classList.contains('done'))closeBuildAnim();};}
   function closeBuildAnim(){var host=$('buildAnim');if(!host)return;_baTO.forEach(clearTimeout);_baTO=[];if(_baSpark){clearInterval(_baSpark);_baSpark=null;}host.classList.remove('show');setTimeout(function(){if(host)host.classList.remove('done');},400);}
-  const HUB_ITEMS=[{i:'📖',l:'How to Play',m:'faqModal'},{i:'🏘️',l:'Village',m:'villageModal',f:'renderVillageShop'},{i:'🎁',l:'Daily',m:'dailyModal',f:'renderDaily',k:'daily'},{i:'🎪',l:'Events',m:'eventModal',f:'renderEvents',k:'event'},{i:'🎯',l:'Challenges',m:'chalModal',f:'renderChallenges',k:'chal'},{i:'🎵',l:'Season Pass',m:'passModal',f:'renderPass',k:'pass'},{i:'🃏',l:'Cards',m:'relicModal',f:'renderCards',k:'relic'},{i:'🐾',l:'Pets',m:'petModal',f:'renderPets',k:'pet'},{i:'⚔️',l:'Rivals',m:'rosterModal',f:'renderRoster',k:'roster'},{i:'🛡️',l:'Defenses',m:'defModal',f:'renderDef',k:'def'},{i:'📺',l:'Free Spins',m:'adModal',f:'renderAds',k:'ad'},{i:'🎰',l:'Spin Shop',m:'shopModal',f:'renderShop'},{i:'💎',l:'Gems',m:'gemModal',f:'renderGems'},{i:'🗺️',l:'Map',m:'mapModal',f:'renderMap'},{i:'🎡',l:'Wheel',m:'wheelModal',f:'renderWheel',k:'wheel'},{i:'🎨',l:'Skins',m:'skinModal',f:'renderSkins',k:'skin'},{i:'🔑',l:'Enter Code',m:'codeModal',f:'renderCode',need:'redeem'},{i:'☁️',l:'Cloud Save',act:'cloud',need:'cloud'},{i:'🏆',l:'Trophies',m:'trophyModal',f:'renderTrophies',k:'tro'},{i:'📊',l:'Leaderboard',soon:1},{i:'👫',l:'Friends',soon:1},{i:'📰',l:'News',soon:1}];
+  // ---- News feed (remote news.json, cached for offline). Text only, no links.
+  var NEWS_URL='https://pocketyeti.com/loot-hollow/news.json';
+  var NEWS_FALLBACK=[{id:'welcome',date:'2026-10-29',tag:'notice',title:'Welcome to Loot Hollow',body:'Thanks for playing! News, events and updates will show up here. Questions or bugs? Email support@pocketyeti.com'}];
+  var newsItems=null;
+  function newsClean(x,n){return (''+(x==null?'':x)).replace(/[<>]/g,'').slice(0,n);}
+  function newsLoad(){
+    if(newsItems)return newsItems;
+    try{var c=JSON.parse(localStorage.getItem('lh_news_cache')||'null');if(c&&c.length){newsItems=c;return newsItems;}}catch(e){}
+    newsItems=NEWS_FALLBACK;return newsItems;
+  }
+  function newsSeen(){try{return JSON.parse(localStorage.getItem('lh_news_seen')||'[]')||[];}catch(e){return [];}}
+  function newsUnread(){try{var s=newsSeen();return newsLoad().some(function(it){return s.indexOf(it.id)<0;});}catch(e){return false;}}
+  function newsMarkSeen(){try{var ids=newsLoad().map(function(it){return it.id;});localStorage.setItem('lh_news_seen',JSON.stringify(ids.slice(0,60)));}catch(e){}}
+  function newsDateLabel(d){var p=(d||'').split('-');if(p.length!==3)return '';var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+p[1]-1];return mo&&+p[2]?mo+' '+(+p[2])+', '+p[0]:'';}
+  var NEWS_TAGS={event:'Event',update:'Update',promo:'Promo',soon:'Coming soon',notice:'Notice',prereg:'Pre-registration'};
+  function newsFetch(){
+    if(typeof fetch!=='function')return;
+    fetch(NEWS_URL,{cache:'no-store'}).then(function(r){return r&&r.ok?r.json():null;}).then(function(j){
+      var arr=j&&j.items;if(!arr||!arr.length)return;
+      var out=[];
+      for(var i=0;i<arr.length&&out.length<12;i++){var it=arr[i];if(!it||!it.id||!it.title)continue;
+        out.push({id:newsClean(it.id,40),date:newsClean(it.date,10),tag:newsClean(it.tag,12).toLowerCase(),title:newsClean(it.title,70),body:newsClean(it.body,500)});}
+      if(!out.length)return;
+      newsItems=out;try{localStorage.setItem('lh_news_cache',JSON.stringify(out));}catch(e){}
+      if(typeof render==='function')render();
+      var m=$('newsModal');if(m&&m.classList.contains('show'))newsDraw(true);
+    }).catch(function(){});
+  }
+  function newsDraw(keepFresh){
+    var box=$('newsList');if(!box)return;
+    var seen=newsSeen(),items=newsLoad();
+    if(!keepFresh)box.setAttribute('data-seen',JSON.stringify(seen));
+    var was=[];try{was=JSON.parse(box.getAttribute('data-seen')||'[]');}catch(e){}
+    box.innerHTML='';
+    if(!items.length){var e=document.createElement('div');e.className='newsEmpty';e.textContent='No news yet. Check back soon!';box.appendChild(e);return;}
+    items.forEach(function(it){
+      var fresh=was.indexOf(it.id)<0;
+      var d=document.createElement('div');d.className='newsItem'+(fresh?' fresh':'');
+      var top=document.createElement('div');top.className='newsTop';
+      var tg=document.createElement('span');tg.className='newsTag t-'+(NEWS_TAGS[it.tag]?it.tag:'update');tg.textContent=NEWS_TAGS[it.tag]||'News';top.appendChild(tg);
+      if(fresh){var nw=document.createElement('span');nw.className='newsNew';nw.textContent='NEW';top.appendChild(nw);}
+      var dt=document.createElement('span');dt.className='newsDate';dt.textContent=newsDateLabel(it.date);top.appendChild(dt);
+      var t=document.createElement('div');t.className='newsTitle';t.textContent=it.title;
+      var b=document.createElement('div');b.className='newsBody';b.textContent=it.body||'';
+      d.appendChild(top);d.appendChild(t);d.appendChild(b);box.appendChild(d);
+    });
+  }
+  function renderNews(){newsDraw(false);newsMarkSeen();try{render();}catch(e){}newsFetch();}
+  const HUB_ITEMS=[{i:'📖',l:'How to Play',m:'faqModal'},{i:'🏘️',l:'Village',m:'villageModal',f:'renderVillageShop'},{i:'🎁',l:'Daily',m:'dailyModal',f:'renderDaily',k:'daily'},{i:'🎪',l:'Events',m:'eventModal',f:'renderEvents',k:'event'},{i:'🎯',l:'Challenges',m:'chalModal',f:'renderChallenges',k:'chal'},{i:'🎵',l:'Season Pass',m:'passModal',f:'renderPass',k:'pass'},{i:'🃏',l:'Cards',m:'relicModal',f:'renderCards',k:'relic'},{i:'🐾',l:'Pets',m:'petModal',f:'renderPets',k:'pet'},{i:'⚔️',l:'Rivals',m:'rosterModal',f:'renderRoster',k:'roster'},{i:'🛡️',l:'Defenses',m:'defModal',f:'renderDef',k:'def'},{i:'📺',l:'Free Spins',m:'adModal',f:'renderAds',k:'ad'},{i:'🎰',l:'Spin Shop',m:'shopModal',f:'renderShop'},{i:'💎',l:'Gems',m:'gemModal',f:'renderGems'},{i:'🗺️',l:'Map',m:'mapModal',f:'renderMap'},{i:'🎡',l:'Wheel',m:'wheelModal',f:'renderWheel',k:'wheel'},{i:'🎨',l:'Skins',m:'skinModal',f:'renderSkins',k:'skin'},{i:'🔑',l:'Enter Code',m:'codeModal',f:'renderCode',need:'redeem'},{i:'☁️',l:'Cloud Save',act:'cloud',need:'cloud'},{i:'🏆',l:'Trophies',m:'trophyModal',f:'renderTrophies',k:'tro'},{i:'📊',l:'Leaderboard',soon:1},{i:'👫',l:'Friends',soon:1},{i:'📰',l:'News',m:'newsModal',f:'renderNews',k:'news'}];
   // ---- Own promo codes (server: Cloudflare Worker). Rewards are the same items as the shop.
   var CODE_OK_REWARDS=['spins_small','spins_medium','spins_large','spins_mega','gems_small','gems_medium','gems_large','gems_mega','bank_break'];
   function codeUsedMap(){try{return JSON.parse(localStorage.getItem('lh_codes_v1')||'{}')||{};}catch(e){return {};}}
@@ -1899,7 +2012,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
     codeSay(msg,true);
   }catch(x){}};
   (function(){var g=$('codeGo');if(g)g.onclick=codeGoClick;var i=$('codeInput');if(i)i.addEventListener('keydown',function(ev){if(ev.key==='Enter')codeGoClick();});})();
-  const HUB_FN={renderVillageShop:()=>renderVillageShop(),renderDaily:()=>renderDaily(),renderEvents:()=>renderEvents(),renderChallenges:()=>renderChallenges(),renderPass:()=>renderPass(),renderRelics:()=>renderRelics(),renderCards:()=>renderCards(),renderPets:()=>renderPets(),renderRoster:()=>renderRoster(),renderDef:()=>renderDef(),renderShop:()=>renderShop(),renderGems:()=>renderGems(),renderCode:()=>renderCode(),renderMap:()=>renderMap(),renderAds:()=>renderAds(),renderSkins:()=>renderSkins(),renderWheel:()=>renderWheel(),renderTree:()=>renderTree(),renderTrophies:()=>renderTrophies()};
+  const HUB_FN={renderNews:()=>renderNews(),renderVillageShop:()=>renderVillageShop(),renderDaily:()=>renderDaily(),renderEvents:()=>renderEvents(),renderChallenges:()=>renderChallenges(),renderPass:()=>renderPass(),renderRelics:()=>renderRelics(),renderCards:()=>renderCards(),renderPets:()=>renderPets(),renderRoster:()=>renderRoster(),renderDef:()=>renderDef(),renderShop:()=>renderShop(),renderGems:()=>renderGems(),renderCode:()=>renderCode(),renderMap:()=>renderMap(),renderAds:()=>renderAds(),renderSkins:()=>renderSkins(),renderWheel:()=>renderWheel(),renderTree:()=>renderTree(),renderTrophies:()=>renderTrophies()};
   function renderHub(){const g=$('hubGrid');g.innerHTML='';HUB_ITEMS.forEach(it=>{if(it.need==='redeem'&&!window.LH_CODES)return;if(it.need==='cloud'&&!window.LH_CLOUD)return;const el=document.createElement('div');el.className='hubcell'+(it.soon?' soon':'');
     el.innerHTML='<i class="hd'+(it.k&&hubNotif[it.k]?' on':'')+'"></i><div class="hi">'+it.i+'</div><div class="hl">'+it.l+'</div>'+(it.soon?'<div class="soontag">soon</div>':'');
     if(!it.soon)el.onclick=()=>{$('hubModal').classList.remove('show');if(it.act==='cloud'){lhCloudSync();return;}openModal(it.m,HUB_FN[it.f]);};g.appendChild(el);});}
@@ -1946,7 +2059,7 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
   function troTier(c){var v=c.v(),n=0;for(var i=0;i<c.t.length;i++){if(v>=c.t[i])n=i+1;}return n;}
   function troClaimable(){try{for(var i=0;i<TRO_CATS.length;i++){if(troTier(TRO_CATS[i])>(troC[TRO_CATS[i].k]||0))return true;}}catch(e){}return false;}
   function troTotals(){var got=0,all=TRO_CATS.length*5;for(var i=0;i<TRO_CATS.length;i++)got+=troTier(TRO_CATS[i]);return{got:got,all:all};}
-  function troTitles(){var a=[{id:'',n:'Newcomer',ok:true}];TRO_CATS.forEach(function(c){a.push({id:c.k,n:c.title,ok:troTier(c)>=5});});SEC_DEFS.forEach(function(d){if(secObj()[d.id])a.push({id:'s_'+d.id,n:d.t,ok:true});});wardenWon.forEach(function(r){a.push({id:'crown'+r,n:'Crown of '+REALM_NAMES[r],ok:true});});return a;}
+  function troTitles(){var a=[{id:'',n:'Newcomer',ok:true}];TRO_CATS.forEach(function(c){a.push({id:c.k,n:c.title,ok:troTier(c)>=5});});SEC_DEFS.forEach(function(d){if(secObj()[d.id])a.push({id:'s_'+d.id,n:d.t,ok:true});});if(lhFounder())a.push({id:'founder',n:'Founder',ok:true});wardenWon.forEach(function(r){a.push({id:'crown'+r,n:'Crown of '+REALM_NAMES[r],ok:true});});return a;}
   function troTitleName(){var id=proF.title||'';var t=troTitles().filter(function(x){return x.id===id&&x.ok;})[0];return t?t.n:'Newcomer';}
   function troClaim(k){var c=TRO_CATS.filter(function(x){return x.k===k;})[0];if(!c)return;var have=troC[k]||0,tr=troTier(c);if(tr<=have)return;var g=0;for(var i=have;i<tr;i++)g+=TRO_REW[i];troC[k]=tr;chalGrant({gems:g});sBig();confetti(14);popup(c.i,c.n+' — tier '+tr,'+'+g+' gems'+(tr>=5?(' · Title unlocked: '+c.title):''),'Nice!');save();render();renderTrophies();}
   function troEsc(x){return String(x).replace(/[<>&"]/g,'');}
@@ -1956,8 +2069,13 @@ button{-webkit-appearance:none;-moz-appearance:none;appearance:none;}
     var h='<div class="proTop"><div class="proAv">🦝</div><div class="proMain"><input class="proName" id="proName" maxlength="14" placeholder="Name your raccoon" value="'+troEsc(proF.name||'')+'"><span class="proTitleBtn" id="proTitleBtn">'+troEsc(troTitleName())+' ▾</span></div></div>';
     if(troTitleOpen){h+='<div class="proTitles">';ti.forEach(function(x){h+='<span class="'+(x.ok?((proF.title||'')===x.id?'on':''):'lock')+'" data-tid="'+(x.ok?x.id:'__lock')+'">'+(x.ok?'':'🔒 ')+troEsc(x.n)+'</span>';});h+='</div>';}
     var cards=Object.keys((cardState&&cardState.own)||{}).length;
+    var _sh=(proF.show||[]).filter(function(x){return cardOwned(cardState,x)>0;});
+    h+='<div class="shw"><div class="shwT">Showcase'+(lhFounder()?' <span class="fndChip">Founder</span>':'')+'</div><div class="shwRow">';
+    for(var _k=0;_k<3;_k++){var _id=_sh[_k];if(_id){var _cc2=cardById(_id);h+='<div class="shwCard'+cardVarClass(cardVarOfId(_id))+'" data-cid="'+_id+'" style="border-color:'+CARD_FRAME[_cc2.r]+'"><img src="'+_cc2.u+'" alt=""></div>';}else h+='<div class="shwCard empty">+</div>';}
+    h+='</div><div class="shwHint">Open a card and tap Showcase to pin it here.</div></div>';
     h+='<div class="proStats"><div><b>Lv '+racLvl+'</b>'+(racName()?troEsc(racName().slice(0,10)):'Raccoon')+'</div><div><b>'+(world+1)+'</b>World</div><div><b>⭐ '+fmt(rating())+'</b>Rating</div><div><b>'+tt.got+'/'+tt.all+'</b>Trophies</div><div><b>'+cards+'</b>Cards</div><div><b>'+(troS.dw||0)+'</b>Duels won</div></div>';
     pc.innerHTML=h;
+    pc.querySelectorAll('.shwCard[data-cid]').forEach(function(el){el.onclick=function(){cardOpenDetail(el.getAttribute('data-cid'));};});
     var nm=$('proName');if(nm){nm.oninput=function(){proF.name=nm.value.replace(/[<>&"]/g,'').slice(0,14);save();};}
     var tb=$('proTitleBtn');if(tb)tb.onclick=function(){troTitleOpen=!troTitleOpen;renderTrophies();};
     pc.querySelectorAll('[data-tid]').forEach(function(el){el.onclick=function(){var id=el.getAttribute('data-tid');if(id==='__lock')return;proF.title=id;save();renderTrophies();};});
@@ -2021,6 +2139,250 @@ var CARD_STARCAP=[3,4,5,5];
 var CARD_STARUP=[[30,60,120],[120,240,480,900],[500,1000,2000,3500,6000],[1500,3000,6000,11000,20000]];
 var CARD_CAPS={coin_all:0.60,raid_coins:0.80,jackpot_pay:0.50,block_raid:0.50,spin_free:40};
 
+/* ---- Legendary powers: every Legendary has a unique pair (main + small second power) ---- */
+var LEGPW={"Vex the Masked":["fx_nem",0.5,"raid_coins",0.28],"Rascal, the Legend":["fx_nem",0.5,"coin_all",0.16],"Heart of the Hollow":["fx_bank",0.4,"coin_all",0.16],"Aurora Peaks":["fx_dust",0.35,"jackpot_pay",0.18],"Fortune's Eye":["sig_fortunes_favor",0.05,"jackpot_pay",0.18],"The Sun Spirit":["sig_golden_hour",2.0,"jackpot_pay",0.18],"The Marsh Warden":["fx_hide",0.25,"fx_xp",0.18],"The Tide Sovereign":["fx_regen",0.05,"raid_coins",0.28],"The Sun Djinn":["spin_free",14,"jackpot_pay",0.18],"Ra, the Sun Pharaoh":["sig_golden_hour",2.0,"coin_all",0.16],"Ignis, the Ember Lord":["fx_frenzy",1.2,"raid_coins",0.28],"The Frost Monarch":["fx_hide",0.25,"coin_all",0.16],"Lumina, the Aurora Spirit":["fx_dust",0.35,"fx_charge",0.03],"The Golden Thunderbird":["fx_charge",0.06,"jackpot_pay",0.18],"The Neon Oracle":["fx_charge",0.06,"coin_all",0.16],"The Clockwork Titan":["fx_build",0.008,"raid_coins",0.28],"The Star Sovereign":["fx_build",0.008,"coin_all",0.16],"The Nebula Weaver":["spin_free",14,"fx_charge",0.03],"The Crystalline Queen":["fx_dust",0.35,"fx_bank",0.2],"The Mycelia Mother":["fx_xp",0.35,"spin_free",7],"Aether, the Sky Guardian":["fx_hide",0.25,"fx_regen",0.025],"The Tempest King":["fx_frenzy",1.2,"jackpot_pay",0.18],"The Savanna King":["fx_xp",0.35,"jackpot_pay",0.18],"The Verdant Sovereign":["fx_xp",0.35,"coin_all",0.16],"The Ashen Titan":["fx_hide",0.25,"raid_coins",0.28],"The Celestial Dragon":["sig_loot_magnet",1,"fx_charge",0.03],"Mossmother the Fen Guardian":["sig_second_wind",1,"fx_hide",0.12],"Emberwing the Ancient":["sig_golden_hour",2.0,"fx_frenzy",0.6],"Aurelius the Sun King":["sig_kings_tribute",0.02,"fx_bank",0.2],"Sylvara the Forest Queen":["fx_xp",0.35,"sig_fortunes_favor",0.025],"Barnaby the Pirate King":["fx_bank",0.4,"raid_coins",0.28],"Solmar the Tide King":["sig_fortunes_favor",0.05,"fx_regen",0.025],"Lumina the Lantern Spirit":["spin_free",14,"fx_regen",0.025],"Autumnus the Harvest Guardian":["fx_hide",0.25,"sig_fortunes_favor",0.025],"Mystica the Good Witch":["sig_fortunes_favor",0.05,"fx_dust",0.18],"Emberfall the Autumn Stag":["fx_frenzy",1.2,"coin_all",0.16],"Frostina the Snow Queen":["fx_dust",0.35,"coin_all",0.16],"Glacius the Frost Titan":["fx_hide",0.25,"jackpot_pay",0.18],"Amora the Heart Fairy":["fx_nem",0.5,"sig_fortunes_favor",0.025],"Flora the Spring Maiden":["fx_xp",0.35,"fx_bank",0.2],"Ostara the Dawn Rabbit":["fx_build",0.008,"sig_fortunes_favor",0.025],"Verdana the Meadow Spirit":["fx_regen",0.05,"coin_all",0.16],"Soleil the Summer Queen":["sig_golden_hour",2.0,"fx_charge",0.03],"The Pumpkin King":["sig_golden_hour",2.0,"raid_coins",0.28],"Kris the Gift-Giver":["sig_fortunes_favor",0.05,"spin_free",7],"The Golden Egg Guardian":["fx_bank",0.4,"sig_fortunes_favor",0.025],"Liberty the Eagle":["fx_frenzy",1.2,"fx_charge",0.03],"Tom the Grand Turkey":["fx_bank",0.4,"spin_free",7],"Cupid the Love Sprite":["fx_nem",0.5,"fx_xp",0.18],"Old Glory Eagle":["fx_hide",0.25,"fx_bank",0.2],"Aurora the New Year Spirit":["fx_build",0.008,"fx_regen",0.025]};
+function cardPowText(k,v){
+  var p=function(x){return Math.round(x*100);};
+  if(k==='coin_all')return '+'+p(v)+'% on all coin wins';
+  if(k==='jackpot_pay')return '+'+p(v)+'% jackpot payout';
+  if(k==='raid_coins')return '+'+p(v)+'% coins from raids';
+  if(k==='fx_frenzy')return '+'+Math.round(v)+' Frenzy spin'+(Math.round(v)>1?'s':'');
+  if(k==='fx_charge')return '+'+p(v)+'% faster Frenzy charge';
+  if(k==='fx_bank')return '+'+p(v)+'% faster Bank fill';
+  if(k==='fx_regen')return '+'+p(v)+'% faster spin refill';
+  if(k==='fx_xp')return '+'+p(v)+'% raccoon XP';
+  if(k==='fx_dust')return '+'+p(v)+'% dust from duplicates';
+  if(k==='fx_hide')return '-'+p(v)+'% coins lost to raids';
+  if(k==='fx_nem')return '+'+p(v)+'% Nemesis duel rewards';
+  if(k==='fx_build')return '-'+(Math.round(v*1000)/10)+'% village upgrade cost';
+  if(k==='spin_free')return '+'+Math.round(v)+',000 free spins per new world';
+  if(k==='sig_fortunes_favor')return "Fortune's Favor: +"+(Math.round(v*1000)/10)+'% to all chest rarity odds';
+  if(k==='sig_golden_hour')return 'Golden Hour: every 25th spin pays 2x';
+  if(k==='sig_loot_magnet')return 'Loot Magnet: +1 extra pile to dig on every raid';
+  if(k==='sig_second_wind')return 'Second Wind: +2 shields on every new world';
+  if(k==='sig_kings_tribute')return "King's Tribute: +2% coins per completed album";
+  return '';
+}
+function cardLegApply(){
+  for(var i=0;i<LHCARDS.length;i++){var c=LHCARDS[i];if(c.r!==3)continue;var d=LEGPW[c.n];if(!d)continue;
+    c.pk=d[0];c.pb=d[1];c.p2k=d[2];c.p2b=d[3];c.pc=5;c.pg=0.15;
+    c.pl=cardPowText(c.pk,c.pb)+' · '+cardPowText(c.p2k,c.p2b);}
+}
+cardLegApply();
+/* ---- Card variants, serials, stamps, seasons, history, nicknames ---- */
+var CARD_MUT=[['moon','Moonlit','#8fb8ff','#3d6bff'],['gild','Gilded','#ffd24d','#ffb800'],['glitch','Glitched','#ff4de0','#ff2bd6'],['ember','Ember','#ff7a2e','#ff5a00'],['frost','Frostbitten','#7ef0ff','#18c8ff'],['verd','Verdant','#6be36b','#22c55e'],['shadow','Shadow','#9a6bff','#4b2a9a']];
+function cardInLaunchWindow(){var t=Date.now();return t>=new Date(2026,10,26).getTime()&&t<new Date(2027,0,1).getTime();}
+function cardRollVariant(rng){var r=rng();if(r<0.001)return 'pris';if(r<0.006)return 'mu:'+CARD_MUT[Math.floor(rng()*CARD_MUT.length)][0];if(r<0.046)return 'foil';return '';}
+function cardMutInfo(v){if(v&&v.indexOf('mu:')===0){var k=v.slice(3);for(var i=0;i<CARD_MUT.length;i++){if(CARD_MUT[i][0]===k)return CARD_MUT[i];}}return null;}
+function cardVarName(v){if(!v)return '';if(v==='foil')return 'Foil';if(v==='pris')return 'Prismatic';var m=cardMutInfo(v);return m?m[1]:'';}
+function cardVarRank(v){return v==='pris'?3:(v&&v.indexOf('mu:')===0?2:(v==='foil'?1:0));}
+function cardVarBonusOf(v){return v==='pris'?0.10:(v&&v.indexOf('mu:')===0?0.05:0);}
+function cardVarClass(v){if(!v)return '';if(v==='foil')return ' vfoil';if(v==='pris')return ' vpris';if(v.indexOf('mu:')===0)return ' vmu vmu-'+v.slice(3);return '';}
+function cardBestVar(st,id){var a=st.vars&&st.vars[id];if(!a||!a.length)return null;var b=null;for(var i=0;i<a.length;i++){if(!b||cardVarRank(a[i].v)>cardVarRank(b.v))b=a[i];}return b;}
+function cardVarOfId(id){var b=cardBestVar(cardState,id);return b?b.v:'';}
+function cardHasStamp(st,id,k){var a=st.vars&&st.vars[id];if(!a)return false;for(var i=0;i<a.length;i++){if(a[i][k])return true;}return false;}
+function cardSerialOf(st,id){var b=cardBestVar(st,id);if(b&&b.v)return b.s;var h=st.hist&&st.hist[id];return h&&h.n?h.n:0;}
+function cardSerialText(n){var s=''+n;while(s.length<4)s='0'+s;return 'No. '+s;}
+function cardStampText(st,id){var o=[];var b=cardBestVar(st,id);if(b&&b.v)o.push(cardVarName(b.v));if(cardHasStamp(st,id,'le'))o.push('Launch Edition');if(cardHasStamp(st,id,'sp'))o.push('Second Printing');return o;}
+function cardNick(id){return (cardState.nick&&cardState.nick[id])?cardState.nick[id]:'';}
+function cardDisplayName(c){var n=cardNick(c.id);return n?n:c.n;}
+/* seasons: monthly sets (name starts YYYY-MM-) are live in their month each year; holiday sets in a fixed window each year */
+var CARD_HOL_WIN={halloween:[10,10,11,2],thanksgiving:[11,15,11,30],christmas:[12,10,12,31],'new-year':[12,26,1,8],valentines:[2,5,2,16],easter:[3,15,4,5],'july-4':[6,25,7,8],'veterans-day':[11,5,11,14]};
+function cardSeasonInfo(ak,now){
+  now=now||new Date();var y=now.getFullYear(),m=now.getMonth()+1,d=now.getDate();
+  if(ak&&ak.length>8&&ak.charAt(4)==='-'&&ak.charAt(7)==='-'){
+    var Y=parseInt(ak.slice(0,4),10),M=parseInt(ak.slice(5,7),10);
+    if(Y>0&&M>0){return {open:(y>Y||(y===Y&&m>=M))&&m===M,sp:y>Y,seasonal:true};}
+  }
+  var w=CARD_HOL_WIN[ak];
+  if(w){var key=m*100+d,a=w[0]*100+w[1],b=w[2]*100+w[3];var op=(a<=b)?(key>=a&&key<=b):(key>=a||key<=b);
+    var sy=y;if(a>b&&m<=w[2])sy=y-1;
+    return {open:op,sp:sy>2026,seasonal:true};}
+  return {open:true,sp:false,seasonal:false};
+}
+function cardSeasonName(ak){var w=CARD_HOL_WIN[ak];var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];if(w)return MN[w[0]-1]+' '+w[1]+' to '+MN[w[2]-1]+' '+w[3];if(ak&&ak.charAt(4)==='-'){return MN[parseInt(ak.slice(5,7),10)-1];}return '';}
+/* history */
+var CARD_VET=[1000,5000,20000,50000];
+function cardHistGet(id){if(!cardState.hist)cardState.hist={};var h=cardState.hist[id];if(!h)h=cardState.hist[id]={f:Date.now(),n:0,eq:0,jp:0,rb:0};return h;}
+function cardHistSpin(){var l=cardState.load||[];for(var i=0;i<l.length;i++){if(l[i]){var h=cardHistGet(l[i]);h.eq=(h.eq||0)+1;}}}
+function cardHistBump(k){var l=cardState.load||[];for(var i=0;i<l.length;i++){if(l[i]){var h=cardHistGet(l[i]);h[k]=(h[k]||0)+1;}}}
+function cardVetRank(id){var h=cardState.hist&&cardState.hist[id];var e=h?(h.eq||0):0,r=0;for(var i=0;i<CARD_VET.length;i++){if(e>=CARD_VET[i])r=i+1;}return r;}
+function cardVetName(r){return ['','Veteran I','Veteran II','Veteran III','Veteran IV'][r]||'';}
+function cardDateText(ts){var D=new Date(ts);var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return MN[D.getMonth()]+' '+D.getDate()+', '+D.getFullYear();}
+function cardGrant(st,id){                       /* returns 'new' | 'dust' | 'variant' */
+  if(!st.own)st.own={};
+  if(!st.vars)st.vars={};if(!st.hist)st.hist={};
+  st.pulls=(st.pulls||0)+1;
+  var c=cardById(id),vr=cardRollVariant(Math.random),le=cardInLaunchWindow();
+  var si=c?cardSeasonInfo(c.a):{open:true,sp:false};
+  var arr=st.vars[id]||(st.vars[id]=[]);
+  var hasLe=cardHasStamp(st,id,'le'),hasSp=cardHasStamp(st,id,'sp');
+  if(vr||(le&&!hasLe)||(si.sp&&!hasSp)){
+    var rec={v:vr,s:st.pulls,d:Date.now()};if(le)rec.le=1;if(si.sp)rec.sp=1;arr.push(rec);
+    if(arr.length>5){arr.sort(function(a,b){return (cardVarRank(b.v)*4+(b.le?2:0)+(b.sp?1:0))-(cardVarRank(a.v)*4+(a.le?2:0)+(a.sp?1:0));});arr.length=5;}
+  }
+  if(!st.hist[id])st.hist[id]={f:Date.now(),n:st.pulls,eq:0,jp:0,rb:0};
+  else if(!st.hist[id].n&&!st.own[id])st.hist[id].n=st.pulls;
+  st._last={v:vr,s:st.pulls,le:le?1:0,sp:si.sp?1:0};
+  if(st.own[id]){
+    if(vr)return 'variant';
+    st.dust=(st.dust||0)+Math.round(cardDustValue(cardById(id))*((typeof activePet!=='undefined'&&activePet==='squirrel'&&typeof petPow==='function')?1+0.25*petPow():1)*((typeof cardPow!=='undefined'&&cardPow&&cardPow.dustMult)?cardPow.dustMult:1));
+    return 'dust';
+  }
+  st.own[id]=1; if(st.hist[id])st.hist[id].n=st.hist[id].n||st.pulls; return 'new';
+}
+/* ---- Custom names (Nemesis / rivals, card nicknames) ---- */
+var LH_BAD=['fuck','shit','bitch','cunt','dick','cock','pussy','asshole','bastard','whore','slut','nigg','fag','retard','rape','nazi','hitler','kike','spic','chink','porn','anal','penis','vagina','tits','jizz','cum','sex','kkk','coon','tranny','dyke'];
+function lhNameNorm(s){var m={'0':'o','1':'i','3':'e','4':'a','5':'s','7':'t','@':'a','$':'s','!':'i'};var o='',i,ch;s=(''+s).toLowerCase();for(i=0;i<s.length;i++){ch=s.charAt(i);if(m[ch])ch=m[ch];if(ch>='a'&&ch<='z')o+=ch;}return o;}
+function lhCleanName(s){
+  s=(''+s).replace(/[^A-Za-z0-9 '-]/g,'');s=s.replace(/ +/g,' ');s=s.replace(/^ +/,'').replace(/ +$/,'');
+  return s.slice(0,14);
+}
+function lhNameCheck(s,ownDefault){
+  if(!s||s.length<2)return 'Pick a name with at least 2 characters.';
+  var n=lhNameNorm(s);for(var i=0;i<LH_BAD.length;i++){if(n.indexOf(LH_BAD[i])>=0)return 'That name is not allowed. Try another.';}
+  var low=s.toLowerCase();for(var j=0;j<RIVALS.length;j++){if(RIVALS[j].n!==ownDefault&&low.indexOf(RIVALS[j].n.toLowerCase())>=0)return 'Pick a name that is not another rival.';}
+  if(ownDefault&&low.indexOf(ownDefault.toLowerCase())>=0&&low!==ownDefault.toLowerCase())return 'Pick a different name.';
+  return '';
+}
+function lhNameModal(title,cur,deflt,onSave,onReset){
+  var d=$('nameModal');if(!d){d=document.createElement('div');d.id='nameModal';d.className='cardDetailWrap';document.body.appendChild(d);}
+  d.innerHTML='<div class="nmBox"><div class="nmT"></div><input id="nmIn" class="nmIn" maxlength="14" autocomplete="off"><div class="nmErr" id="nmErr"></div><div class="nmBtns"><button class="cdBtn primary" id="nmSave">Save</button><button class="cdBtn" id="nmReset">Reset</button><button class="cdBtn" id="nmCancel">Cancel</button></div></div>';
+  d.querySelector('.nmT').textContent=title;var inp=$('nmIn');inp.value=cur||'';inp.placeholder=deflt||'';
+  d.classList.add('show');
+  $('nmCancel').onclick=function(){d.classList.remove('show');};
+  $('nmReset').onclick=function(){d.classList.remove('show');if(onReset)onReset();};
+  $('nmSave').onclick=function(){var v=lhCleanName(inp.value);var er=lhNameCheck(v,deflt);if(er){$('nmErr').textContent=er;return;}d.classList.remove('show');onSave(v);};
+  setTimeout(function(){try{inp.focus();}catch(e){}},60);
+}
+function rvCustom(n){var s=rivalState&&rivalState[n];return (s&&s.cn)?s.cn:'';}
+function rvAnyCustom(){for(var i=0;i<RIVALS.length;i++){if(rvCustom(RIVALS[i].n))return true;}return false;}
+function rvIsLetter(ch){return /[A-Za-z]/.test(ch);}
+function rvReplaceName(t,a,b){
+  var out='',i=0,p;
+  while((p=t.indexOf(a,i))>=0){
+    var pv=p>0?t.charAt(p-1):' ',nx=t.charAt(p+a.length)||' ',nx5=t.substr(p+a.length,5);
+    if(!rvIsLetter(pv)&&!rvIsLetter(nx)&&nx5!==' the '){out+=t.slice(i,p)+b;}else{out+=t.slice(i,p+a.length);}
+    i=p+a.length;
+  }
+  return out+t.slice(i);
+}
+function rvSubText(t){
+  if(!t)return t;
+  for(var i=0;i<RIVALS.length;i++){var cn=rvCustom(RIVALS[i].n);if(cn&&t.indexOf(RIVALS[i].n)>=0)t=rvReplaceName(t,RIVALS[i].n,cn);}
+  return t;
+}
+var rvBusy=false;
+function rvSkip(el){return !el||!el.closest||el.closest('#relicModal,#cardDetail,#revealModal,#vaultModal,#nameModal,#faqModal,#trophyModal,#shareModal,input,textarea,script,style');}
+function rvScan(node){
+  if(!node)return;
+  if(node.nodeType===3){var el=node.parentElement;if(rvSkip(el))return;var v=node.nodeValue,nv=rvSubText(v);if(nv!==v)node.nodeValue=nv;return;}
+  if(node.nodeType!==1||rvSkip(node))return;
+  var w=document.createTreeWalker(node,4,null),t;
+  while((t=w.nextNode())){var e2=t.parentElement;if(rvSkip(e2))continue;var v2=t.nodeValue,n2=rvSubText(v2);if(n2!==v2)t.nodeValue=n2;}
+}
+function rvInit(){
+  if(typeof MutationObserver==='undefined'||!document.body)return;
+  var ob=new MutationObserver(function(ms){
+    if(rvBusy||!rvAnyCustom())return;rvBusy=true;
+    try{for(var i=0;i<ms.length;i++){var m=ms[i];if(m.type==='characterData')rvScan(m.target);else for(var j=0;j<m.addedNodes.length;j++)rvScan(m.addedNodes[j]);}}catch(e){}
+    rvBusy=false;
+  });
+  ob.observe(document.body,{childList:true,subtree:true,characterData:true});
+}
+function rvOpenRename(n){
+  var cur=rvCustom(n);
+  lhNameModal('Rename '+(cur||n),cur,n,function(v){rs(n).cn=v;save();rvScan(document.body);if(typeof renderNemesis==='function')renderNemesis();var r=$('rosterModal');if(r&&r.classList.contains('show')&&typeof renderRoster==='function')renderRoster();render&&render();},function(){if(rs(n).cn){delete rs(n).cn;save();}if(typeof renderNemesis==='function')renderNemesis();var r2=$('rosterModal');if(r2&&r2.classList.contains('show')&&typeof renderRoster==='function')renderRoster();});
+}
+function rvShown(n){return rvCustom(n)||n;}
+rvInit();
+/* ---- Sharing (native share sheet via the app, with a plain web fallback) ---- */
+var LH_PLAY_URL='https://play.google.com/store/apps/details?id=com.loothollow.app';
+function lhShareNative(text,dataUrl){
+  var sent=false;
+  try{if(window.ReactNativeWebView&&window.ReactNativeWebView.postMessage){window.ReactNativeWebView.postMessage(JSON.stringify({t:'share',text:text,img:dataUrl||''}));sent=true;}}catch(e){}
+  if(!sent){
+    try{if(typeof navigator!=='undefined'&&navigator.share){navigator.share({text:text,title:'Loot Hollow'}).catch(function(){});sent=true;}}catch(e2){}
+  }
+  if(!sent&&dataUrl){try{var a=document.createElement('a');a.href=dataUrl;a.download='loot-hollow-card.jpg';document.body.appendChild(a);a.click();a.parentNode.removeChild(a);sent=true;}catch(e3){}}
+  return sent;
+}
+function lhRR(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();}
+function lhFounder(){return !!(proF&&proF.since&&proF.since<new Date(2026,10,26).getTime());}
+function lhShareBase(cb){
+  var W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;var x=cv.getContext('2d');
+  var g=x.createRadialGradient(W/2,H*0.28,40,W/2,H*0.28,H*0.85);g.addColorStop(0,'#3b1f78');g.addColorStop(0.55,'#1a0d3a');g.addColorStop(1,'#0b0618');
+  x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.textAlign='center';x.fillStyle='#f4c542';x.font='800 46px Fredoka, Trebuchet MS, sans-serif';x.fillText('LOOT HOLLOW',W/2,84);
+  cb(cv,x,W,H);
+}
+function lhShareFoot(x,W,H,sub){
+  var gg=x.createLinearGradient(0,H-340,0,H);gg.addColorStop(0,'rgba(11,6,24,0)');gg.addColorStop(0.45,'#0b0618');gg.addColorStop(1,'#0b0618');x.fillStyle=gg;x.fillRect(0,H-340,W,340);
+  x.textAlign='center';x.fillStyle='#fff';x.font='700 40px Fredoka, Trebuchet MS, sans-serif';
+  var nm=(proF&&proF.name)?proF.name:'Raccoon';var tt=(typeof troTitleName==='function')?troTitleName():'';
+  x.fillText(nm+(tt?'  -  '+tt:''),W/2,H-178);
+  if(lhFounder()){x.fillStyle='#f4c542';x.font='700 26px Fredoka, Trebuchet MS, sans-serif';x.fillText('FOUNDER',W/2,H-140);}
+  lhRR(x,140,H-120,W-280,84,42);x.fillStyle='#f4c542';x.fill();
+  x.fillStyle='#2a1a00';x.font='800 36px Fredoka, Trebuchet MS, sans-serif';x.fillText(sub||'Play Loot Hollow on Google Play',W/2,H-66);
+}
+function lhDrawCardShare(id,cb){
+  var c=cardById(id);if(!c){cb(null);return;}
+  var bv=cardBestVar(cardState,id),v=bv?bv.v:'';
+  lhShareBase(function(cv,x,W,H){
+    var img=new Image();img.crossOrigin='anonymous';
+    img.onerror=function(){cb(null);};
+    img.onload=function(){
+      var cw=560,ch=766,px=(W-cw)/2,py=130;
+      var mu=cardMutInfo(v),fr=CARD_FRAME[c.r];
+      if(v==='foil')fr='#e6edf8';else if(mu)fr=mu[2];
+      x.save();x.shadowColor=mu?mu[2]:'rgba(244,197,66,0.6)';x.shadowBlur=mu||v==='pris'?60:30;
+      if(v==='pris'){var rg=x.createLinearGradient(px,py,px+cw,py+ch);var cs=['#ff5d5d','#ffd24d','#6be36b','#4dc9ff','#b46bff','#ff5d5d'];for(var i=0;i<cs.length;i++)rg.addColorStop(i/(cs.length-1),cs[i]);x.fillStyle=rg;}else x.fillStyle=fr;
+      lhRR(x,px-10,py-10,cw+20,ch+20,28);x.fill();x.restore();
+      x.save();lhRR(x,px,py,cw,ch,20);x.clip();
+      var ir=img.width/img.height,br=cw/ch,sw=img.width,sh=img.height,sx=0,sy=0;
+      if(ir>br){sw=img.height*br;sx=(img.width-sw)/2;}else{sh=img.width/br;sy=(img.height-sh)/2;}
+      x.drawImage(img,sx,sy,sw,sh,px,py,cw,ch);
+      if(mu){x.globalCompositeOperation='color';x.globalAlpha=0.6;x.fillStyle=mu[3];x.fillRect(px,py,cw,ch);x.globalAlpha=1;x.globalCompositeOperation='source-over';}
+      if(v==='foil'||v==='pris'){var sg=x.createLinearGradient(px,py,px+cw,py+ch);sg.addColorStop(0.3,'rgba(255,255,255,0)');sg.addColorStop(0.48,'rgba(255,255,255,0.45)');sg.addColorStop(0.6,'rgba(190,220,255,0.25)');sg.addColorStop(0.75,'rgba(255,255,255,0)');x.fillStyle=sg;x.fillRect(px,py,cw,ch);}
+      x.restore();
+      x.textAlign='center';x.fillStyle='#fff';x.font='800 54px Fredoka, Trebuchet MS, sans-serif';
+      var nm=cardDisplayName(c);x.fillText(nm.length>22?nm.slice(0,22):nm,W/2,py+ch+82);
+      x.font='700 32px Fredoka, Trebuchet MS, sans-serif';x.fillStyle='#f4c542';
+      var vn=cardVarName(v);x.fillText((vn?vn+'  -  ':'')+CARD_TIER_NAME[c.r],W/2,py+ch+128);
+      var ser=cardSerialOf(cardState,id);var stm=cardStampText(cardState,id).filter(function(s){return s!==vn;});
+      x.fillStyle='#c9b8ff';x.font='600 30px Fredoka, Trebuchet MS, sans-serif';
+      var line=(ser?cardSerialText(ser)+' in my collection':'');if(stm.length)line+=(line?'  -  ':'')+stm.join('  -  ');
+      if(line)x.fillText(line,W/2,py+ch+172);
+      lhShareFoot(x,W,H);
+      try{cb(cv.toDataURL('image/jpeg',0.9));}catch(e){cb(null);}
+    };
+    img.src=c.u;
+  });
+}
+function cardShare(id){
+  var c=cardById(id);if(!c||cardOwned(cardState,id)<1)return;
+  var bv=cardBestVar(cardState,id),vn=bv?cardVarName(bv.v):'';
+  var txt='I pulled '+(vn?vn+' ':'')+cardDisplayName(c)+' in Loot Hollow! '+LH_PLAY_URL;
+  var m=$('msg');if(m)m.textContent='Making your card image...';
+  lhDrawCardShare(id,function(data){lhShareNative(txt,data);});
+}
+function nemShare(){
+  var foe=nemFoe();if(!foe)return;var s=rs(foe.n);var owed=revenge.filter(function(v){return v.n===foe.n;}).reduce(function(a,v){return a+v.amt;},0);
+  var nm=rvShown(foe.n);var isNem=nemesisId===foe.n;
+  lhShareBase(function(cv,x,W,H){
+    x.textAlign='center';x.fillStyle='#c9b8ff';x.font='700 34px Fredoka, Trebuchet MS, sans-serif';x.fillText(isNem?'MY NEMESIS':'MY RIVAL',W/2,150);
+    x.font='260px sans-serif';x.fillStyle='#fff';x.fillText(foe.f,W/2,520);
+    x.font='800 96px Fredoka, Trebuchet MS, sans-serif';x.fillStyle='#fff';x.fillText(nm,W/2,680);
+    x.font='700 44px Fredoka, Trebuchet MS, sans-serif';x.fillStyle='#f4c542';
+    x.fillText(owed>0?('Owes me '+fmt(owed)+' coins'):'No debts yet',W/2,770);
+    x.font='600 38px Fredoka, Trebuchet MS, sans-serif';x.fillStyle='#c9b8ff';x.fillText('Grudge '+s.g+' / 10',W/2,840);
+    lhRR(x,240,880,600,26,13);x.fillStyle='rgba(255,255,255,0.12)';x.fill();
+    var pw=Math.max(0,Math.min(1,s.g/10))*600;if(pw>0){lhRR(x,240,880,pw,26,13);x.fillStyle='#ff6a3d';x.fill();}
+    lhShareFoot(x,W,H);
+    var data=null;try{data=cv.toDataURL('image/jpeg',0.9);}catch(e){}
+    lhShareNative((isNem?'My Nemesis ':'My rival ')+nm+(owed>0?' owes me '+fmt(owed)+' coins':'')+' in Loot Hollow! '+LH_PLAY_URL,data);
+  });
+}
 function cardById(id){ for(var i=0;i<LHCARDS.length;i++){ if(LHCARDS[i].id===id) return LHCARDS[i]; } return null; }
 function cardOwned(st,id){ return (st.own&&st.own[id])?st.own[id]:0; }
 function cardStars(st,id){ return (st.star&&st.star[id])?st.star[id]:0; }
@@ -2056,24 +2418,32 @@ function ownedTotal(st){ var n=0; for(var i=0;i<LHCARDS.length;i++){ if(cardOwne
 /* ---- power aggregation: sum equipped, per-key capped; album bonus + signatures outside caps ---- */
 function cardActivePowers(st){
   var agg={coin_all:0,raid_coins:0,jackpot_pay:0,block_raid:0,spin_free:0,rare_odds:0};
+  var fx={fx_frenzy:0,fx_charge:0,fx_bank:0,fx_regen:0,fx_xp:0,fx_dust:0,fx_hide:0,fx_nem:0,fx_build:0};
   var sig={goldenHour:false,lootMagnet:false,fortunesFavor:0,secondWind:false,kingsTribute:false};
   var load=st.load||[];
   var _cnt={coin_all:0,raid_coins:0,jackpot_pay:0,block_raid:0,rare_odds:0,leg:0};
   for(var i=0;i<load.length;i++){
     var id=load[i]; if(!id)continue; var c=cardById(id); if(!c)continue; if(cardOwned(st,id)<1)continue;
-    var v=cardPowerValue(c,cardStars(st,id));
-    if(_cnt[c.pk]!==undefined)_cnt[c.pk]++;if(c.r===3)_cnt.leg++;
-    if(c.pk==='coin_all')agg.coin_all+=v;
-    else if(c.pk==='raid_coins')agg.raid_coins+=v;
-    else if(c.pk==='jackpot_pay')agg.jackpot_pay+=v;
-    else if(c.pk==='block_raid')agg.block_raid+=v;
-    else if(c.pk==='spin_free')agg.spin_free+=v;
-    else if(c.pk==='rare_odds')agg.rare_odds+=v;
-    else if(c.pk==='sig_golden_hour')sig.goldenHour=true;
-    else if(c.pk==='sig_loot_magnet')sig.lootMagnet=true;
-    else if(c.pk==='sig_fortunes_favor')sig.fortunesFavor+=0.05;
-    else if(c.pk==='sig_second_wind')sig.secondWind=true;
-    else if(c.pk==='sig_kings_tribute')sig.kingsTribute=true;
+    var _st=cardStars(st,id);
+    var _bv=cardBestVar(st,id),_vb=cardVarBonusOf(_bv?_bv.v:'');
+    var _pw=[[c.pk,cardPowerValue(c,_st)*(1+_vb)]];if(c.p2k)_pw.push([c.p2k,c.p2b*(1+_st*c.pg)*(1+_vb)]);
+    if(c.r===3)_cnt.leg++;
+    for(var _pi=0;_pi<_pw.length;_pi++){
+      var _k=_pw[_pi][0],v=_pw[_pi][1];
+      if(_pi===0&&_cnt[_k]!==undefined)_cnt[_k]++;
+      if(_k==='coin_all')agg.coin_all+=v;
+      else if(_k==='raid_coins')agg.raid_coins+=v;
+      else if(_k==='jackpot_pay')agg.jackpot_pay+=v;
+      else if(_k==='block_raid')agg.block_raid+=v;
+      else if(_k==='spin_free')agg.spin_free+=v;
+      else if(_k==='rare_odds')agg.rare_odds+=v;
+      else if(fx[_k]!==undefined){if(v>fx[_k])fx[_k]=v;}
+      else if(_k==='sig_golden_hour')sig.goldenHour=true;
+      else if(_k==='sig_loot_magnet')sig.lootMagnet=true;
+      else if(_k==='sig_fortunes_favor')sig.fortunesFavor+=v;
+      else if(_k==='sig_second_wind')sig.secondWind=true;
+      else if(_k==='sig_kings_tribute')sig.kingsTribute=true;
+    }
   }
   /* ---- power synergies (equip combos; still clamped by caps below) ---- */
   var _syn=[];var _slots=cardSlots(world),_fill=0;for(var _si=0;_si<load.length;_si++){if(load[_si])_fill++;}
@@ -2090,6 +2460,7 @@ function cardActivePowers(st){
   agg.jackpot_pay=Math.min(agg.jackpot_pay,CARD_CAPS.jackpot_pay);
   agg.block_raid=Math.min(agg.block_raid,CARD_CAPS.block_raid);
   agg.spin_free=Math.min(agg.spin_free,CARD_CAPS.spin_free);
+  fx.fx_hide=Math.min(fx.fx_hide,0.45);fx.fx_build=Math.min(fx.fx_build,0.014);fx.fx_frenzy=Math.min(fx.fx_frenzy,2.1);fx.fx_charge=Math.min(fx.fx_charge,0.105);fx.fx_regen=Math.min(fx.fx_regen,0.0875);
   var albums=albumsComplete(st);
   var albumBonus=0.01*albums + (sig.kingsTribute?0.02*albums:0);   /* outside caps */
   return {
@@ -2099,6 +2470,7 @@ function cardActivePowers(st){
     blockChance:agg.block_raid,                  /* free raid block chance */
     spinFree:Math.round(agg.spin_free),          /* +spins on level-up */
     rareOdds:agg.rare_odds,                       /* +star/rare symbol weight */
+    frenzyAdd:Math.round(fx.fx_frenzy), chargeMult:1+fx.fx_charge, bankMult:1+fx.fx_bank, regenMult:1+fx.fx_regen, xpMult:1+fx.fx_xp, dustMult:1+fx.fx_dust, hideLoss:fx.fx_hide, nemMult:1+fx.fx_nem, buildCut:fx.fx_build,
     goldenHour:sig.goldenHour, lootMagnet:sig.lootMagnet,
     chestLuck:(sig.fortunesFavor||0)+(activePet==='mouse'?0.1*petPow():0), secondWind:sig.secondWind,
     albums:albums, synergies:_syn, coinBonusPct:Math.round((agg.coin_all+albumBonus)*100)
@@ -2106,12 +2478,7 @@ function cardActivePowers(st){
 }
 
 /* ---- acquiring / spending ---- */
-function cardGrant(st,id){                       /* returns 'new' | 'dust' */
-  if(!st.own)st.own={};
-  if(st.own[id]){ st.dust=(st.dust||0)+Math.round(cardDustValue(cardById(id))*((typeof activePet!=='undefined'&&activePet==='squirrel'&&typeof petPow==='function')?1+0.25*petPow():1)); return 'dust'; }
-  st.own[id]=1; return 'new';
-}
-function cardCanCraft(st,id){ var c=cardById(id); return c && cardOwned(st,id)<1 && (st.dust||0)>=cardCraftCost(c); }
+function cardCanCraft(st,id){ var c=cardById(id); return c && cardOwned(st,id)<1 && cardSeasonInfo(c.a).open && (st.dust||0)>=cardCraftCost(c); }
 function cardCraft(st,id){ if(!cardCanCraft(st,id))return false; var c=cardById(id); st.dust-=cardCraftCost(c); if(!st.own)st.own={}; st.own[id]=1; return true; }
 function cardCanUpgrade(st,id){ var c=cardById(id); if(!c||cardOwned(st,id)<1)return false; var s=cardStars(st,id); if(s>=cardStarCap(c))return false; return (st.dust||0)>=cardStarUpCost(c,s); }
 function cardUpgrade(st,id){ if(!cardCanUpgrade(st,id))return false; var c=cardById(id); var s=cardStars(st,id); st.dust-=cardStarUpCost(c,s); if(!st.star)st.star={}; st.star[id]=s+1; return true; }
@@ -2143,9 +2510,9 @@ function cardPickRarity(odds,rng){
 }
 function cardPoolByRarity(st,rarity,worldUnlockAll){
   /* worldUnlockAll: if true, all albums available (baked build unlocks by ownership progress) */
-  var pool=[];
-  for(var i=0;i<LHCARDS.length;i++){ if(LHCARDS[i].r===rarity)pool.push(LHCARDS[i]); }
-  return pool;
+  var pool=[],all=[];
+  for(var i=0;i<LHCARDS.length;i++){ if(LHCARDS[i].r===rarity){ all.push(LHCARDS[i]); if(cardSeasonInfo(LHCARDS[i].a).open)pool.push(LHCARDS[i]); } }
+  return pool.length?pool:all;
 }
 function cardOpenChest(st,tier,count,luck,rng){
   rng=rng||Math.random;
@@ -2161,7 +2528,7 @@ function cardOpenChest(st,tier,count,luck,rng){
     var pool=cardPoolByRarity(st,rar,true);
     var c=pool[Math.floor(rng()*pool.length)];
     var res=cardGrant(st,c.id);
-    got.push({id:c.id,name:c.n,rarity:rar,result:res});
+    got.push({id:c.id,name:c.n,rarity:rar,result:res,vr:st._last});
   }
   return got;
 }
@@ -2196,7 +2563,7 @@ function cardsLoadoutHTML(){
   for(var i=0;i<slots;i++){
     var id=load[i];
     if(id){ var c=cardById(id);
-      h+='<div class="ldSlot filled" data-cid="'+id+'" style="border-color:'+CARD_FRAME[c.r]+'"><img src="'+c.u+'" loading="lazy" alt=""><span>'+cardStarStr(cardState,id)+'</span></div>';
+      h+='<div class="ldSlot filled'+cardVarClass(cardVarOfId(id))+'" data-cid="'+id+'" style="border-color:'+CARD_FRAME[c.r]+'"><img src="'+c.u+'" loading="lazy" alt=""><span>'+cardStarStr(cardState,id)+'</span></div>';
     } else { h+='<div class="ldSlot empty">+</div>'; }
   }
   h+='</div>';
@@ -2212,7 +2579,8 @@ function cardsFilterHTML(){
 }
 function cardTileHTML(c){
   var owned=cardOwned(cardState,c.id)>0,fr=CARD_FRAME[c.r];
-  var h='<div class="cardTile r'+c.r+(owned?'':' locked')+'" data-cid="'+c.id+'" style="border-color:'+fr+'">';
+  var _off=(!owned&&!cardSeasonInfo(c.a).open);
+  var h='<div class="cardTile r'+c.r+(owned?cardVarClass(cardVarOfId(c.id)):' locked')+(_off?' offseason':'')+'" data-cid="'+c.id+'" style="border-color:'+fr+'">';
   if(owned){ h+='<img src="'+c.u+'" loading="lazy" alt="">';
     if(cardIsEquipped(cardState,c.id))h+='<div class="eqBadge">✓</div>';
     var ss=cardStarStr(cardState,c.id); if(ss)h+='<div class="tileStars">'+ss+'</div>';
@@ -2260,24 +2628,33 @@ function cardBind(sheet){
 function cardOpenDetail(id){
   var c=cardById(id); if(!c)return;
   var owned=cardOwned(cardState,id)>0,s=cardStars(cardState,id),cap=cardStarCap(c),eq=cardIsEquipped(cardState,id);
+  var bv=cardBestVar(cardState,id),bvv=bv?bv.v:'',si=cardSeasonInfo(c.a),hs=(cardState.hist&&cardState.hist[id])||null;
   var d=$('cardDetail'); if(!d){ d=document.createElement('div'); d.id='cardDetail'; d.className='cardDetailWrap'; document.body.appendChild(d); }
   var h='<div class="cdCard" id="cdCard">';
   h+='<button class="xBtn cdX" data-close="1">×</button>';
-  h+='<div class="cdArt" style="border-color:'+CARD_FRAME[c.r]+'">'+(owned?'<img src="'+c.u+'" alt="">':'<div class="lockArt big">?</div>')+'</div>';
-  h+='<div class="cdName">'+c.n+'</div><div class="cdRar" style="color:'+CARD_FRAME[c.r]+'">'+CARD_TIER_NAME[c.r]+'</div>';
+  h+='<div class="cdArt'+(owned?cardVarClass(bvv):'')+'" style="border-color:'+CARD_FRAME[c.r]+'">'+(owned?'<img src="'+c.u+'" alt="">':'<div class="lockArt big">?</div>')+'</div>';
+  h+='<div class="cdName">'+(owned?cardDisplayName(c):c.n)+'</div>'+((owned&&cardNick(id))?'<div class="cdReal">'+c.n+'</div>':'')+'<div class="cdRar" style="color:'+CARD_FRAME[c.r]+'">'+CARD_TIER_NAME[c.r]+'</div>';
+  if(owned){var _stm=cardStampText(cardState,id),_ser=cardSerialOf(cardState,id),_vr=cardVetRank(id);
+    var _ml=(_ser?cardSerialText(_ser):'');if(_stm.length)_ml+=(_ml?' · ':'')+_stm.join(' · ');if(_vr)_ml+=(_ml?' · ':'')+cardVetName(_vr);
+    if(_ml)h+='<div class="cdMeta">'+_ml+'</div>';}
   h+='<div class="cdStars">'+(cardStarStr(cardState,id)||'☆')+' <small>'+s+'/'+cap+'</small></div>';
-  h+='<div class="cdPow">'+c.pl+'</div><div class="cdBtns">';
+  h+='<div class="cdPow">'+c.pl+'</div>';
+  if(owned&&hs){var _hp=[];if(hs.eq)_hp.push('Equipped for '+fmt(hs.eq)+' spins');if(hs.jp)_hp.push(hs.jp+' jackpots');if(hs.rb)_hp.push(hs.rb+' raids blocked');if(hs.f)_hp.push('pulled '+cardDateText(hs.f));if(_hp.length)h+='<div class="cdHist">'+_hp.join(' · ')+'</div>';}
+  h+='<div class="cdBtns">';
   if(owned){
     var upCost=cardStarUpCost(c,s);
     if(eq)h+='<button class="cdBtn" data-act="unequip" data-cid="'+id+'">Unequip</button>';
     else  h+='<button class="cdBtn primary" data-act="equip" data-cid="'+id+'">Equip</button>';
     if(s<cap)h+='<button class="cdBtn'+((cardState.dust||0)>=upCost?' primary':' off')+'" data-act="upgrade" data-cid="'+id+'">Upgrade star ('+fmt(upCost)+' dust)</button>';
     else h+='<button class="cdBtn off">Max star</button>';
+    var _pinned=(proF.show||[]).indexOf(id)>=0;
+    h+='<div class="cdRow"><button class="cdMini" data-act="share" data-cid="'+id+'">Share</button><button class="cdMini" data-act="nick" data-cid="'+id+'">Nickname</button><button class="cdMini'+(_pinned?' on':'')+'" data-act="pin" data-cid="'+id+'">'+(_pinned?'Unpin':'Showcase')+'</button></div>';
     h+='</div><div class="cdDust">Duplicate value: '+cardDustValue(c)+' dust · You have '+fmt(cardState.dust||0)+' dust</div>';
   } else {
     var cc=cardCraftCost(c);
-    h+='<button class="cdBtn'+((cardState.dust||0)>=cc?' primary':' off')+'" data-act="craft" data-cid="'+id+'">Craft ('+fmt(cc)+' dust)</button></div>';
-    h+='<div class="cdDust">Not owned yet — craft it or pull from a chest. You have '+fmt(cardState.dust||0)+' dust.</div>';
+    if(!si.open)h+='<button class="cdBtn off">Out of season</button></div>';
+    else h+='<button class="cdBtn'+((cardState.dust||0)>=cc?' primary':' off')+'" data-act="craft" data-cid="'+id+'">Craft ('+fmt(cc)+' dust)</button></div>';
+    h+='<div class="cdDust">'+(!si.open?'Seasonal card — it can only be pulled or crafted in its season ('+cardSeasonName(c.a)+'). ':'Not owned yet — craft it or pull from a chest. ')+'You have '+fmt(cardState.dust||0)+' dust.</div>';
   }
   d.innerHTML=h+'</div>'; d.classList.add('show');
   d.onclick=function(e){
@@ -2290,6 +2667,9 @@ function cardOpenDetail(id){
 function cardCloseDetail(){ var d=$('cardDetail'); if(d)d.classList.remove('show'); }
 function cardDo(action,id){
   var ok=false;
+  if(action==='share'){cardShare(id);return;}
+  if(action==='pin'){var _s=proF.show||(proF.show=[]);var _i=_s.indexOf(id);if(_i>=0)_s.splice(_i,1);else{_s.push(id);if(_s.length>3)_s.shift();}save();cardOpenDetail(id);return;}
+  if(action==='nick'){var _cc=cardById(id);lhNameModal('Nickname for '+_cc.n,cardNick(id),'',function(v){if(!cardState.nick)cardState.nick={};cardState.nick[id]=v;save();cardOpenDetail(id);},function(){if(cardState.nick){delete cardState.nick[id];}save();cardOpenDetail(id);});return;}
   if(action==='equip')ok=cardEquip(cardState,id,world);
   else if(action==='unequip'){ cardUnequip(cardState,id); ok=true; }
   else if(action==='upgrade')ok=cardUpgrade(cardState,id);
@@ -2581,7 +2961,7 @@ function cardFetchRemote(){
       if(!arr||!arr.length)return;
       var adapted=cardAdaptRemote(arr);
       if(adapted.length<50)return;               /* sanity: ignore a broken/empty file */
-      LHCARDS=adapted; LHALBUMS=cardRebuildAlbums(adapted);
+      LHCARDS=adapted; cardLegApply(); LHALBUMS=cardRebuildAlbums(adapted);
       if(typeof cardsRefresh==='function')cardsRefresh();
       var host=(typeof $==='function')?$('relicModal'):null;
       if(host&&host.classList&&host.classList.contains('show')&&typeof renderCards==='function')renderCards();
@@ -2691,11 +3071,12 @@ function showChestReveal(got,title){
   var h='<div class="rvCard"><div class="rvTitle">'+(title||'Chest')+'</div><div class="rvGrid">';
   for(var i=0;i<got.length;i++){
     var g=got[i], c=cardById(g.id), fr=CARD_FRAME[g.rarity];
-    var _dup=(g.result==='dust');
-    h+='<div class="rvTile r'+g.rarity+'" style="border-color:'+(_dup?'#6b6480':fr)+';animation-delay:'+(i*0.12)+'s">';
+    var _dup=(g.result==='dust'),_gv=(g.vr&&g.vr.v)?g.vr.v:'';
+    h+='<div class="rvTile r'+g.rarity+cardVarClass(_gv)+'" style="border-color:'+(_dup?'#6b6480':fr)+';animation-delay:'+(i*0.12)+'s">';
     h+='<img src="'+(c?c.u:'')+'" loading="lazy" alt="" style="opacity:'+(_dup?'0.5':'1')+'">';
-    h+='<div class="rvBadge" style="background:'+(_dup?'#6b6480':fr)+'">'+(_dup?'DUPLICATE':(g.rarity>=2?CARD_TIER_NAME[g.rarity].toUpperCase():'NEW'))+'</div>';
+    h+='<div class="rvBadge" style="background:'+(_dup?'#6b6480':fr)+'">'+(_dup?'DUPLICATE':(g.result==='variant'?'VARIANT':(g.rarity>=2?CARD_TIER_NAME[g.rarity].toUpperCase():'NEW')))+'</div>';
     h+='<div class="rvName">'+(c?c.n:'')+'</div>';
+    if(_gv||(g.vr&&g.vr.le)){h+='<div class="rvVar">'+(cardVarName(_gv)||'')+(g.vr&&g.vr.le?((_gv?' · ':'')+'Launch Edition'):'')+(g.vr&&g.vr.s?' · '+cardSerialText(g.vr.s):'')+'</div>';}
     if(_dup){h+='<div class="rvDust" style="font-size:11px;font-weight:800;color:#c9a6ff;margin-top:2px">+'+(c?cardDustValue(c):0)+' 🧪 dust</div>';}
     h+='</div>';
   }
@@ -2733,8 +3114,8 @@ function save(){try{petBackup();}catch(e){}try{if(typeof secCheck==='function'){
     const cw=$('chargeWrap');if(cw){const fr=frenzy>0;cw.classList.toggle('frenzy',fr);$('chargeFill').style.width=(fr?100:Math.min(100,charge))+'%';$('chargeTxt').textContent=fr?('🔥 FRENZY ×'+frenzy):('⚡ Charge'+(boostLeft()>0?' · +50% coins ('+boostLeft()+')':''));}
     if(maxedWorld()){$('buildBtn').textContent='Move to New World →';$('buildBtn').disabled=false;$('buildSub').textContent='Complete! Pays '+fmt(payMult())+'× — move on';}
     else{$('buildBtn').textContent='🛒 Village Shop';$('buildBtn').disabled=false;$('buildSub').textContent='Village '+villageSum()+'/'+(ITEMS*STARS)+' · pays '+fmt(payMult())+'×';}
-    hubNotif={daily:dailyAvailable(),event:anyEvtClaimable(),relic:SETS.some(setCompletable)||SETS.some(goldComplete)||jokers.length>0,pet:(petsOwned.length>0&&!activePet)||(!!activePet&&!petAwakeActive()&&treats>0),roster:revenge.length>0||!!nemesisId,def:emptySlot()>=0&&coins>=DEFENSE_TYPES[0].cost&&defCount('snare')+defCount('barricade')+defCount('watch')===0,ad:adsRemaining()>0,wheel:wheelDay!==wheelToday(),tro:(typeof troClaimable==='function')&&troClaimable()};
-    $('hubDot').classList.toggle('on',hubNotif.daily||hubNotif.event||hubNotif.relic||hubNotif.pet||hubNotif.roster||hubNotif.def||hubNotif.ad||hubNotif.tro);
+    hubNotif={daily:dailyAvailable(),event:anyEvtClaimable(),relic:SETS.some(setCompletable)||SETS.some(goldComplete)||jokers.length>0,pet:(petsOwned.length>0&&!activePet)||(!!activePet&&!petAwakeActive()&&treats>0),roster:revenge.length>0||!!nemesisId,def:emptySlot()>=0&&coins>=DEFENSE_TYPES[0].cost&&defCount('snare')+defCount('barricade')+defCount('watch')===0,ad:adsRemaining()>0,wheel:wheelDay!==wheelToday(),tro:(typeof troClaimable==='function')&&troClaimable(),news:newsUnread()};
+    $('hubDot').classList.toggle('on',hubNotif.daily||hubNotif.event||hubNotif.relic||hubNotif.pet||hubNotif.roster||hubNotif.def||hubNotif.ad||hubNotif.tro||hubNotif.news);
     const wr=worldRule();$('marquee').textContent=(specialWorld?'✨ ':'')+wLabel(world)+' · '+wr.icon+' '+wr.name;
     const ce=$('mcrown');if(ce)ce.textContent=specialWorld?'✨':wr.icon;const ti=worldTint();const mc=document.querySelector('.machine');if(mc&&ti){mc.style.setProperty('--w1',ti[0]);mc.style.setProperty('--w2',ti[1]);}
     $('bhammer').classList.toggle('hide',maxedWorld());
@@ -3117,19 +3498,19 @@ function save(){try{petBackup();}catch(e){}try{if(typeof secCheck==='function'){
   $('buyYes').onclick=()=>{if(pendingAction){var _f=pendingAction;pendingAction=null;$('buyPop').classList.remove('show');_f();}else if(pendingGemPack){doBuyGemPack();}else{doBuyPack();}};
   $('buyNo').onclick=()=>{pendingBuy=null;pendingAction=null;$('buyPop').classList.remove('show');sTap();};
 
-  async function spin(){if(digState){if(digUnfinished())digAutoPick();closeDig();}const b=bet();if(busy||spins<b||overlayOpen())return;busy=true;spins-=b;boostTick();goldenNow=((typeof CP==='function')&&CP().goldenHour&&(++cardSpinCount%25===0));racGainXP(1);sSpin();haptic(8);save();render();$('msg').textContent='Spinning…';
+  async function spin(){if(digState){if(digUnfinished())digAutoPick();closeDig();}const b=bet();if(busy||spins<b||overlayOpen())return;busy=true;spins-=b;try{cardHistSpin();}catch(e){}boostTick();goldenNow=((typeof CP==='function')&&CP().goldenHour&&(++cardSpinCount%25===0));racGainXP(1);sSpin();haptic(8);save();render();$('msg').textContent='Spinning…';
     let a,bb,c;
     if(Math.random()<0.08){a=bb=c=weightedSym();}else{a=weightedSym();bb=weightedSym();c=weightedSym();if(a===bb&&bb===c)c=SYMS[(SYMS.indexOf(c)+1)%SYMS.length];}
     const antic=(a===bb&&bb!==c);
     await Promise.all([spinReel(0,a),spinReel(1,bb),spinReel(2,c,antic)]);
     resolve(a,bb,c);tickCharge();busy=false;render();}
-  function tickCharge(){if(frenzy>0)frenzy--;charge+=CHARGE_PER*(realmOf(world)===1?0.8:1);if(charge>=CHARGE_MAX&&frenzy<=0){charge=0;frenzy=FRENZY_SPINS+yetiBonus()+(realmOf(world)===1?3:0);tcnt('fz');sBig();coinRain(14);confetti(16);popup('🔥','Coin Frenzy!','Charged up — your next '+frenzy+' spins pay +50% coins!');}save();}
+  function tickCharge(){if(frenzy>0)frenzy--;charge+=CHARGE_PER*(realmOf(world)===1?0.8:1)*((typeof CP==='function')?CP().chargeMult:1);if(charge>=CHARGE_MAX&&frenzy<=0){charge=0;frenzy=FRENZY_SPINS+yetiBonus()+(realmOf(world)===1?3:0)+((typeof CP==='function')?CP().frenzyAdd:0);tcnt('fz');sBig();coinRain(14);confetti(16);popup('🔥','Coin Frenzy!','Charged up — your next '+frenzy+' spins pay +50% coins!');}save();}
   function flashWin(){[0,1,2].forEach(i=>$('r'+i).classList.add('win'));}
 
   function resolve(a,b,c){
     const triple=(a===b&&b===c),be=bet();
     addEvtProgress('points',Math.round((triple?12:4)*evtBetMult(be)));if(triple)addEvtProgress('triples',1);secSpin(triple);if(typeof chalBump==='function')chalBump('spin',1);if(typeof passAddXP==='function')passAddXP(2);
-    if(triple){flashWin();const s=a;
+    if(triple){try{cardHistBump('jp');}catch(e){}flashWin();const s=a;
       if(s==='🪙'){const w=gainCoins(250*be*CP().jackpotMult);coinRain(20);bigPop('🪙','Coin Jackpot!','+'+fmt(w)+' coins!');$('msg').textContent='Triple coins! +'+fmt(w);}
       else if(s==='💎'){const w=gainCoins(600*be*CP().jackpotMult);const gg=Math.round((2+(specialWorld?1:0))*(activePet==='bat'?1+0.5*petPow():1));gems+=gg;coinRain(26);bigPop('💎','Mega Gems!','+'+fmt(w)+' coins, +'+gg+'💎!');$('msg').textContent='Triple gems! +'+fmt(w)+' +'+gg+'💎';}
       else if(s==='⚒️'){attack(be);return;}
@@ -3146,7 +3527,7 @@ function save(){try{petBackup();}catch(e){}try{if(typeof secCheck==='function'){
     if(coins>Math.max(1,Math.round(buildCost()/buildMult()*0.0005))&&Math.random()<incChance){const nem=nemesisRival();const r=(nem&&Math.random()<0.5)?nem:pickRival();const isNem=nem&&r.n===nem.n;
       if(activePet==='tortoise'&&Math.random()<0.30*petPow()){sPop();tcnt('bl');$('msg').textContent=r.n+' tried to raid you — Shelby blocked it free!';}
       else if(snareBlocks()){sPop();tcnt('bl');$('msg').textContent=r.n+' hit your Snare Trap — raid blocked!';}
-      else if(cardRaidBlock()){sPop();tcnt('bl');$('msg').textContent=r.n+' raid blocked by your cards!';}else if(shields>0){shields--;sPop();tcnt('bl');$('msg').textContent=r.n+' raid BLOCKED! (−1 shield)';}
+      else if(cardRaidBlock()){try{cardHistBump('rb');}catch(e){}sPop();tcnt('bl');$('msg').textContent=r.n+' raid blocked by your cards!';}else if(shields>0){shields--;sPop();tcnt('bl');$('msg').textContent=r.n+' raid BLOCKED! (−1 shield)';}
       else{var rate=RAID_STASH_CAP*(isNem?1.3:1);var safeFloor=Math.max(100,Math.round(coins*SAFE_FRAC));var stealable=Math.max(0,coins-safeFloor);
         // A raid takes a cut of what you have earned since the last one, capped
         // by the old flat percentage of the stash so it is never harsher than
@@ -3154,7 +3535,7 @@ function save(){try{petBackup();}catch(e){}try{if(typeof secCheck==='function'){
         // tracks BET, so a patient 1x player was losing ~39% of everything they
         // earned deep in the game while a 10x player lost ~12% for the same
         // income. Now both pay about the same share.
-        var earned=Math.round(earnSinceRaid*RAID_TAKE*(isNem?1.3:1));let loss=Math.min(stealable,Math.max(Math.max(1,Math.round(buildCost()/buildMult()*0.0006)),Math.min(earned,Math.round(coins*rate))));loss=applyBarricade(loss);coins-=loss;earnSinceRaid=0;sHit();addGrudge(r.n,2);revenge.push({n:r.n,f:r.f,amt:loss});dx().lastL=loss;if(revenge.length>6)revenge.shift();
+        var earned=Math.round(earnSinceRaid*RAID_TAKE*(isNem?1.3:1));let loss=Math.min(stealable,Math.max(Math.max(1,Math.round(buildCost()/buildMult()*0.0006)),Math.min(earned,Math.round(coins*rate))));loss=applyBarricade(loss);loss=Math.round(loss*(1-((typeof CP==='function')?CP().hideLoss:0)));coins-=loss;earnSinceRaid=0;sHit();addGrudge(r.n,2);revenge.push({n:r.n,f:r.f,amt:loss});dx().lastL=loss;if(revenge.length>6)revenge.shift();
         let cb=watchCounter(loss),ctxt='';if(cb>0){coins+=cb;feedBank(cb);ctxt=' Your Watch-Beast clawed back '+fmt(cb)+'!';}
         popup('💥',(isNem?'Nemesis ':'')+r.n+' Raided You!','They skimmed '+loss.toLocaleString()+' coins (most of your stash is safe). Strike them back in Rivals to topple their lair and reclaim it!'+ctxt);$('msg').textContent=r.n+' stole '+loss+'!';}}
     save();render();
@@ -3169,7 +3550,7 @@ function save(){try{petBackup();}catch(e){}try{if(typeof secCheck==='function'){
     showFoe(target.f,target.n,be);
     const dmg=1+(wr.atkBonus||0)+(be>=3?1:0)+((activePet==='cinder'&&Math.random()<0.2*petPow())?1:0);s.hp=Math.max(0,s.hp-dmg);awardCoins(base);addGrudge(target.n,1);sBig();coinRain(14);
     if(s.hp<=0){s.hp=25;let m2=payMult();const bonus=Math.round(500*be*m2);
-      if(isNem){const st=duelStage(s.g);const rw=bonus+Math.round(0.4*st*buildCost()/buildMult()),sp=10*st;spins+=sp;var _rwg=awardCoins(rw);s.g=0;recomputeNemesis();
+      if(isNem){const st=duelStage(s.g);const rw=Math.round((bonus+Math.round(0.4*st*buildCost()/buildMult()))*((typeof CP==='function')?CP().nemMult:1)),sp=10*st;spins+=sp;var _rwg=awardCoins(rw);s.g=0;recomputeNemesis();
         popup('🏆','Nemesis Toppled!','You crushed '+target.n+"'s lair and won the "+duelName(st)+'! +'+fmt(rw)+' coins, +'+fmt(sp*1000)+' spins.');$('msg').textContent='Defeated nemesis '+target.n+'!';}
       else{var _bg=awardCoins(bonus);s.g=Math.max(0,s.g-2);recomputeNemesis();
         popup('💥','Lair Toppled!','You levelled '+target.n+"'s lair for a bonus +"+fmt(_bg)+' coins!');$('msg').textContent='Toppled '+target.n+'!';}}
@@ -3368,7 +3749,7 @@ function save(){try{petBackup();}catch(e){}try{if(typeof secCheck==='function'){
     $('unlockName').textContent=wr.icon+' '+wr.name;
     $('unlockDesc').textContent=wLabel(world)+(_unlockExtra||'')+(specialWorld?' · 2× coins, +50% spins, boosted pets':' · new theme, bigger payouts, higher bets');
     $('unlockModal').classList.add('show');confetti(40);sFanfare();haptic([0,40,30,60]);buildUpStage();}
-  function brag(){const txt='I just unlocked World '+(world+1)+' ('+worldRule().name+') in Loot Hollow! 🏰✨';if(typeof navigator!=='undefined'&&navigator.share){try{navigator.share({text:txt,title:'Loot Hollow'}).catch(()=>{});}catch(e){}}const b=$('bragBtn');if(b){const o=b.textContent;b.textContent='Shared! ✓';setTimeout(()=>{b.textContent=o;},1500);}sPop();}
+  function brag(){const txt='I just unlocked World '+(world+1)+' ('+worldRule().name+') in Loot Hollow! '+LH_PLAY_URL;lhShareNative(txt,null);const b=$('bragBtn');if(b){const o=b.textContent;b.textContent='Shared! ✓';setTimeout(()=>{b.textContent=o;},1500);}sPop();}
 
   function breakPig(demo){if(pig<=0)return;const got=pig;coins+=got;pig=0;sBig();coinRain(20);bigPop('🏦','Bank Cracked!','+'+fmt(got)+' coins!'+(demo?'  (Demo — no real charge.)':''));save();render();}
   function doBreakPig(){if(payReady()){lhPost({t:'buy',productId:'bank_break'});return;}breakPig(true);}
@@ -3390,7 +3771,7 @@ function save(){try{petBackup();}catch(e){}try{if(typeof secCheck==='function'){
   function racMult(){return 1+(racLvl-1)*0.02;}
   function racName(){try{var n=(proF&&proF.name?String(proF.name):'').replace(/^ +| +$/g,'');return n||'';}catch(e){return '';}}
   function racRender(){var e=$('racBadge');if(e){e.textContent='🦝 Lv '+racLvl;e.onclick=function(){var _rn=racName();popup('🦝',(_rn||'Raccoon')+' - Level '+racLvl,'Your coin earnings are boosted +'+Math.round((racMult()-1)*100)+'%. XP '+racXP+' / '+racNeed()+'. Every spin levels '+(_rn||'your raccoon')+' up - higher level, bigger coin payouts.','Got it');};}}
-  function racGainXP(n){racXP+=n;var up=false;while(racXP>=racNeed()){racXP-=racNeed();racLvl++;up=true;}racRender();save();if(up){var _rn=racName();popup('🦝',(_rn?_rn+' reached Level '+racLvl+'!':'Raccoon Level '+racLvl+'!'),(_rn?_rn+' leveled up! ':'Level up! ')+'Coin earnings now boosted +'+Math.round((racMult()-1)*100)+'%. Keep spinning to grow '+(_rn||'your raccoon')+'.','Nice!');}}
+  function racGainXP(n){n=Math.round(n*((typeof CP==='function')?CP().xpMult:1));racXP+=n;var up=false;while(racXP>=racNeed()){racXP-=racNeed();racLvl++;up=true;}racRender();save();if(up){var _rn=racName();popup('🦝',(_rn?_rn+' reached Level '+racLvl+'!':'Raccoon Level '+racLvl+'!'),(_rn?_rn+' leveled up! ':'Level up! ')+'Coin earnings now boosted +'+Math.round((racMult()-1)*100)+'%. Keep spinning to grow '+(_rn||'your raccoon')+'.','Nice!');}}
   function treeScale(x){return (typeof bonus==='function')?Math.floor(bonus(x)):Math.floor(x);}
   function treeRate(){return Math.round(17*Math.pow(1.12,treeLvl-1));}
   function treeCap(){return treeRate()*180;}
@@ -3534,9 +3915,9 @@ function save(){try{petBackup();}catch(e){}try{if(typeof secCheck==='function'){
     html='<div class="bsRes"><div class="bsResT">💨 Duel lost</div><div>'+dl.ok+' of 3 rounds won — you need 2 to topple.</div><div>Reclaimed so far: <b>'+fmt(dl.paid)+'</b> coins'+(owedOf(foe.n)>0?(' · <b>'+fmt(owedOf(foe.n))+'</b> still owed to you'):'')+'</div>'+(cr>0?'<div class="bsCr">⚔️ Counts as '+cr+' attack'+(cr>1?'s':'')+' for events</div>':'')+'</div>';
     s.dl=null;duelRes={html:html,log:dl.log,L:dl.L,paid:dl.paid};$('msg').textContent='Duel with '+foe.n+' lost — the debt stays owed.';save();render();renderBoss();
   }
-  function renderRoster(){const box=$('rosterList');box.innerHTML='';function rank(r){var s=rs(r.n);if(nemesisId===r.n)return 0;if(owedOf(r.n)>0)return 1;if(s.g>0)return 2;return 3;}var list=RIVALS.slice().sort(function(a,b){return rank(a)-rank(b);});var totOwed=revenge.reduce(function(a,v){return a+v.amt;},0),owedCount=RIVALS.filter(function(r){return owedOf(r.n)>0;}).length;var hd=document.createElement('div');hd.className='rosterHd';hd.innerHTML=totOwed>0?('<b>'+owedCount+'</b> rival'+(owedCount===1?'':'s')+' owe you <b style="color:var(--gold)">'+fmt(totOwed)+'</b> coins — STRIKE to claw it back.'):'No feuds yet. When a rival raids you, strike back here to topple their lair and reclaim your coins.';box.appendChild(hd);list.forEach(function(r){var s=rs(r.n),owed=owedOf(r.n),isNem=nemesisId===r.n,feud=isNem||owed>0||s.g>0;var el=document.createElement('div');el.className='rival '+(isNem?'nem':(owed>0?'revenge':'safe'));var tag;if(isNem)tag='<div class="stg">🔥 NEMESIS · '+duelName(duelStage(s.g))+'</div>';else if(owed>0)tag='<div class="tag" style="color:var(--rose)">😤 owes you '+fmt(owed)+'</div>';else tag='<div class="tag" style="opacity:.5">no feud</div>';el.innerHTML='<div class="face">'+rivalAvatar(r)+'</div><div class="rbody"><div class="rn">'+r.n+'</div>'+tag+'<div class="hpwrap"><i style="width:'+Math.min(100,s.g*10)+'%"></i></div></div>';if(feud){var bn=document.createElement('div');bn.className='nstk'+(spins<bet()?' lowsp':'');bn.setAttribute('role','button');bn.innerHTML='STRIKE<br><small>'+(owed>0?('reclaim '+fmt(owed)):('-'+fmt(bet()*1000)+' spins'))+'</small>';bn.onclick=function(){openBossDuel(r);};el.appendChild(bn);}else{var q=document.createElement('div');q.className='nstk quiet';q.innerHTML='—<small>no feud</small>';el.appendChild(q);}box.appendChild(el);});if(hallOfRivals.length){var hl=document.createElement('div');hl.className='rosterHd';hl.innerHTML='<b>🏛️ Hall of Rivals</b><br>'+hallOfRivals.map(function(h){return 'Realm '+REALM_ROMAN[h.r]+': '+h.names.join(', ')+' · Warden '+h.w;}).join('<br>');box.appendChild(hl);}}
+  function renderRoster(){const box=$('rosterList');box.innerHTML='';function rank(r){var s=rs(r.n);if(nemesisId===r.n)return 0;if(owedOf(r.n)>0)return 1;if(s.g>0)return 2;return 3;}var list=RIVALS.slice().sort(function(a,b){return rank(a)-rank(b);});var totOwed=revenge.reduce(function(a,v){return a+v.amt;},0),owedCount=RIVALS.filter(function(r){return owedOf(r.n)>0;}).length;var hd=document.createElement('div');hd.className='rosterHd';hd.innerHTML=totOwed>0?('<b>'+owedCount+'</b> rival'+(owedCount===1?'':'s')+' owe you <b style="color:var(--gold)">'+fmt(totOwed)+'</b> coins — STRIKE to claw it back.'):'No feuds yet. When a rival raids you, strike back here to topple their lair and reclaim your coins.';box.appendChild(hd);list.forEach(function(r){var s=rs(r.n),owed=owedOf(r.n),isNem=nemesisId===r.n,feud=isNem||owed>0||s.g>0;var el=document.createElement('div');el.className='rival '+(isNem?'nem':(owed>0?'revenge':'safe'));var tag;if(isNem)tag='<div class="stg">🔥 NEMESIS · '+duelName(duelStage(s.g))+'</div>';else if(owed>0)tag='<div class="tag" style="color:var(--rose)">😤 owes you '+fmt(owed)+'</div>';else tag='<div class="tag" style="opacity:.5">no feud</div>';el.innerHTML='<div class="face">'+rivalAvatar(r)+'</div><div class="rbody"><div class="rn">'+r.n+' <span class="rnEdit">✎</span></div>'+tag+'<div class="hpwrap"><i style="width:'+Math.min(100,s.g*10)+'%"></i></div></div>';{var _ed=el.querySelector('.rnEdit');if(_ed)_ed.onclick=function(ev){ev.stopPropagation();rvOpenRename(r.n);};}if(feud){var bn=document.createElement('div');bn.className='nstk'+(spins<bet()?' lowsp':'');bn.setAttribute('role','button');bn.innerHTML='STRIKE<br><small>'+(owed>0?('reclaim '+fmt(owed)):('-'+fmt(bet()*1000)+' spins'))+'</small>';bn.onclick=function(){openBossDuel(r);};el.appendChild(bn);}else{var q=document.createElement('div');q.className='nstk quiet';q.innerHTML='—<small>no feud</small>';el.appendChild(q);}box.appendChild(el);});if(hallOfRivals.length){var hl=document.createElement('div');hl.className='rosterHd';hl.innerHTML='<b>🏛️ Hall of Rivals</b><br>'+hallOfRivals.map(function(h){return 'Realm '+REALM_ROMAN[h.r]+': '+h.names.join(', ')+' · Warden '+h.w;}).join('<br>');box.appendChild(hl);}}
   function nemFoe(){let foe=nemesisRival();if(!foe){let bg=-1;RIVALS.forEach(r=>{const s=rs(r.n);if(s.g>bg){bg=s.g;foe=r;}});}return foe||RIVALS[0];}
-  function renderNemesis(){const host=$('nemHost');if(!host)return;const foe=nemFoe();const s=rs(foe.n);const isNem=nemesisId===foe.n;const st=duelStage(s.g);const owed=revenge.filter(v=>v.n===foe.n).reduce((a,v)=>a+v.amt,0);const label=isNem?('🔥 NEMESIS · '+duelName(st)):'Rival';const sub=(owed>0?('Owes you '+fmt(owed)+' · '):'')+'Grudge '+s.g+'/10 · STRIKE to duel';host.innerHTML='<div class="nembar"><span class="nf">'+foe.f+'</span><div class="nbody"><div class="nn">'+foe.n+' <b>'+label+'</b></div><div class="ns">'+sub+'</div><div class="hpwrap"><i style="width:'+Math.min(100,s.g*10)+'%"></i></div></div><div class="nstk" id="nemStrikeBtn" role="button">STRIKE<br><small>-'+fmt(bet()*1000)+' spins</small></div></div>';const btn=$('nemStrikeBtn');if(btn)btn.onclick=openBossDuel;const rb=$('nemRail');if(rb){rb.style.display=isNem?'':'none';const ic=rb.querySelector('.ri');if(ic&&isNem)ic.textContent=foe.f;}}
+  function renderNemesis(){const host=$('nemHost');if(!host)return;const foe=nemFoe();const s=rs(foe.n);const isNem=nemesisId===foe.n;const st=duelStage(s.g);const owed=revenge.filter(v=>v.n===foe.n).reduce((a,v)=>a+v.amt,0);const label=isNem?('🔥 NEMESIS · '+duelName(st)):'Rival';const sub=(owed>0?('Owes you '+fmt(owed)+' · '):'')+'Grudge '+s.g+'/10 · STRIKE to duel';host.innerHTML='<div class="nembar"><span class="nf">'+foe.f+'</span><div class="nbody"><div class="nn">'+foe.n+' <span class="rnEdit" id="nemEditBtn">✎</span><span class="rnEdit" id="nemShareBtn">⇪</span> <b>'+label+'</b></div><div class="ns">'+sub+'</div><div class="hpwrap"><i style="width:'+Math.min(100,s.g*10)+'%"></i></div></div><div class="nstk" id="nemStrikeBtn" role="button">STRIKE<br><small>-'+fmt(bet()*1000)+' spins</small></div></div>';const btn=$('nemStrikeBtn');if(btn)btn.onclick=openBossDuel;const _eb=$('nemEditBtn');if(_eb)_eb.onclick=function(ev){ev.stopPropagation();rvOpenRename(foe.n);};const _sb=$('nemShareBtn');if(_sb)_sb.onclick=function(ev){ev.stopPropagation();nemShare();};const rb=$('nemRail');if(rb){rb.style.display=isNem?'':'none';const ic=rb.querySelector('.ri');if(ic&&isNem)ic.textContent=foe.f;}}
   function nemStrike(foeArg){openBossDuel(foeArg);}
   function renderDef(){const slotBox=$('defSlots');slotBox.innerHTML='';defense.forEach(d=>{const el=document.createElement('div');el.className='slot'+(d?' filled':'');const t=d?DEFENSE_TYPES.find(x=>x.key===d):null;el.textContent=t?t.icon:'＋';slotBox.appendChild(el);});
       const shop=$('defShop');shop.innerHTML='';DEFENSE_TYPES.forEach(t=>{const have=defCount(t.key);const el=document.createElement('div');el.className='defcard';
@@ -3629,7 +4010,7 @@ function save(){try{petBackup();}catch(e){}try{if(typeof secCheck==='function'){
     $('muteBtn').textContent=muted?'🔇':'🔊';
     if(typeof syncEvents==='function')syncEvents();if(!store.get('ll_coinx100',false)){coins=Math.round(coins*100);pig=Math.round(pig*100);store.set('ll_coinx100',true);}if(!store.get('ll_rebase1',false)){try{var _os=100*Math.pow(1.0044,totBuild),_nf=econScale()/_os;coins=Math.round(coins*_nf);pig=Math.round(pig*_nf);earnSinceRaid=Math.round(earnSinceRaid*_nf);if(Array.isArray(revenge))revenge.forEach(function(v){if(v&&typeof v.amt==='number')v.amt=(v.amt>0?Math.max(1,Math.round(v.amt*_nf)):0);});try{var _x=dx();if(_x&&_x.lastL)_x.lastL=Math.round(_x.lastL*_nf);}catch(e){}store.set('ll_rebase1',true);save();}catch(e){}}if(typeof cardEnsureSeeds==='function')cardEnsureSeeds();if(typeof applySkin==='function')applySkin();try{fetch(VIDEO_BASE+'manifest.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){animManifest=j;}).catch(function(){});}catch(e){}recomputeNemesis();regenSpins();if(typeof evLoginTick==='function')evLoginTick();save();render();
     function placeRails(){var a=document.querySelector('.app'),mc=document.querySelector('.evtrow'),rl=$('railL'),rr=$('railR');if(!a||!mc||!rl||!rr)return;var t=Math.max(0,mc.getBoundingClientRect().top-a.getBoundingClientRect().top);rl.style.top=t+'px';rr.style.top=t+'px';}
-    placeRails();window.addEventListener('resize',placeRails);setTimeout(placeRails,400);setTimeout(placeRails,1200);setTimeout(function(){try{cardFetchRemote();}catch(e){}},1500);setTimeout(function(){try{evtFetchRemote();}catch(e){}},1600);
+    placeRails();window.addEventListener('resize',placeRails);setTimeout(placeRails,400);setTimeout(placeRails,1200);setTimeout(function(){try{cardFetchRemote();}catch(e){}},1500);setTimeout(function(){try{evtFetchRemote();}catch(e){}},1600);setTimeout(function(){try{newsFetch();}catch(e){}},1800);
     // iOS boots onto the Village so the builder is the first thing you see.
     // Platform-conditional ONLY (App.js sets the flag when Platform.OS==='ios') --
     // every iOS user gets this. Never condition on App Review: that is a hidden

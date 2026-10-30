@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   StyleSheet, View, StatusBar, Text, TouchableOpacity,
-  ActivityIndicator, Platform, AppState, Dimensions, Alert,
+  ActivityIndicator, Platform, AppState, Dimensions, Alert, Share,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -552,6 +552,8 @@ export default function App() {
         redeemOwnCode(d.code).then((res) => {
           inject('window.__lhCode&&window.__lhCode(' + JSON.stringify(res) + ')');
         });
+      } else if (d.t === 'share' && typeof d.text === 'string') {
+        Share.share({ message: d.text.slice(0, 500) }).catch(() => {});
       } else if (d.t === 'cloud_pull') {
         cloudPull();
       } else if (d.t === 'cloud_push' && typeof d.data === 'string') {
