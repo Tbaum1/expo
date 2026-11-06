@@ -651,7 +651,9 @@ export default function App() {
     (Purchases && RC_KEY.indexOf('PLACEHOLDER') === -1 ? "window.LH_PAY=true;" : "") +
     (AdMob && AdMob.RewardedAd ? "window.LH_ADS=true;" : "") +
     (Platform.OS === 'android' ? "window.LH_CODES=true;" : "") +
-    (Platform.OS === 'android' && LhCloud ? "window.LH_CLOUD=true;if(window.lhCloudInit)window.lhCloudInit();" : "");
+    (Platform.OS === 'android' && LhCloud ? "window.LH_CLOUD=true;if(window.lhCloudInit)window.lhCloudInit();" : "") +
+    // iOS only: the bundled shop copy says Google Play; Apple review needs the App Store wording.
+    (Platform.OS === 'ios' ? "window.LH_STORE_URL='https://apps.apple.com/app/id6786716882';window.LH_STORE_NAME='the App Store';try{var _l=document.querySelector('#shopModal .lead');if(_l)_l.textContent='Real-money purchases, processed securely through the App Store.';}catch(e){}" : "");
 
   return (
     <View style={styles.root}>

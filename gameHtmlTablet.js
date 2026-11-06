@@ -2303,7 +2303,8 @@ function rvOpenRename(n){
 function rvShown(n){return rvCustom(n)||n;}
 rvInit();
 /* ---- Sharing (native share sheet via the app, with a plain web fallback) ---- */
-var LH_PLAY_URL='https://play.google.com/store/apps/details?id=com.loothollow.app';
+var LH_PLAY_URL_DEFAULT='https://play.google.com/store/apps/details?id=com.loothollow.app';
+function lhStoreUrl(){return window.LH_STORE_URL||LH_PLAY_URL_DEFAULT;}
 function lhShareNative(text,dataUrl){
   var sent=false;
   try{if(window.ReactNativeWebView&&window.ReactNativeWebView.postMessage){window.ReactNativeWebView.postMessage(JSON.stringify({t:'share',text:text,img:dataUrl||''}));sent=true;}}catch(e){}
@@ -2329,7 +2330,7 @@ function lhShareFoot(x,W,H,sub){
   x.fillText(nm+(tt?'  -  '+tt:''),W/2,H-178);
   if(lhFounder()){x.fillStyle='#f4c542';x.font='700 26px Fredoka, Trebuchet MS, sans-serif';x.fillText('FOUNDER',W/2,H-140);}
   lhRR(x,140,H-120,W-280,84,42);x.fillStyle='#f4c542';x.fill();
-  x.fillStyle='#2a1a00';x.font='800 36px Fredoka, Trebuchet MS, sans-serif';x.fillText(sub||'Play Loot Hollow on Google Play',W/2,H-66);
+  x.fillStyle='#2a1a00';x.font='800 36px Fredoka, Trebuchet MS, sans-serif';x.fillText(sub||'Play Loot Hollow on '+(window.LH_STORE_NAME||'Google Play'),W/2,H-66);
 }
 function lhDrawCardShare(id,cb){
   var c=cardById(id);if(!c){cb(null);return;}
@@ -2368,7 +2369,7 @@ function lhDrawCardShare(id,cb){
 function cardShare(id){
   var c=cardById(id);if(!c||cardOwned(cardState,id)<1)return;
   var bv=cardBestVar(cardState,id),vn=bv?cardVarName(bv.v):'';
-  var txt='I pulled '+(vn?vn+' ':'')+cardDisplayName(c)+' in Loot Hollow! '+LH_PLAY_URL;
+  var txt='I pulled '+(vn?vn+' ':'')+cardDisplayName(c)+' in Loot Hollow! '+lhStoreUrl();
   var m=$('msg');if(m)m.textContent='Making your card image...';
   lhDrawCardShare(id,function(data){lhShareNative(txt,data);});
 }
@@ -2386,7 +2387,7 @@ function nemShare(){
     var pw=Math.max(0,Math.min(1,s.g/10))*600;if(pw>0){lhRR(x,240,880,pw,26,13);x.fillStyle='#ff6a3d';x.fill();}
     lhShareFoot(x,W,H);
     var data=null;try{data=cv.toDataURL('image/jpeg',0.9);}catch(e){}
-    lhShareNative((isNem?'My Nemesis ':'My rival ')+nm+(owed>0?' owes me '+fmt(owed)+' coins':'')+' in Loot Hollow! '+LH_PLAY_URL,data);
+    lhShareNative((isNem?'My Nemesis ':'My rival ')+nm+(owed>0?' owes me '+fmt(owed)+' coins':'')+' in Loot Hollow! '+lhStoreUrl(),data);
   });
 }
 function cardById(id){ for(var i=0;i<LHCARDS.length;i++){ if(LHCARDS[i].id===id) return LHCARDS[i]; } return null; }
@@ -3755,7 +3756,7 @@ function save(){try{petBackup();}catch(e){}try{if(typeof secCheck==='function'){
     $('unlockName').textContent=wr.icon+' '+wr.name;
     $('unlockDesc').textContent=wLabel(world)+(_unlockExtra||'')+(specialWorld?' · 2× coins, +50% spins, boosted pets':' · new theme, bigger payouts, higher bets');
     $('unlockModal').classList.add('show');confetti(40);sFanfare();haptic([0,40,30,60]);buildUpStage();}
-  function brag(){const txt='I just unlocked World '+(world+1)+' ('+worldRule().name+') in Loot Hollow! '+LH_PLAY_URL;lhShareNative(txt,null);const b=$('bragBtn');if(b){const o=b.textContent;b.textContent='Shared! ✓';setTimeout(()=>{b.textContent=o;},1500);}sPop();}
+  function brag(){const txt='I just unlocked World '+(world+1)+' ('+worldRule().name+') in Loot Hollow! '+lhStoreUrl();lhShareNative(txt,null);const b=$('bragBtn');if(b){const o=b.textContent;b.textContent='Shared! ✓';setTimeout(()=>{b.textContent=o;},1500);}sPop();}
 
   function breakPig(demo){if(pig<=0)return;const got=pig;coins+=got;pig=0;sBig();coinRain(20);bigPop('🏦','Bank Cracked!','+'+fmt(got)+' coins!'+(demo?'  (Demo — no real charge.)':''));save();render();}
   function doBreakPig(){if(payReady()){lhPost({t:'buy',productId:'bank_break'});return;}breakPig(true);}
