@@ -101,7 +101,7 @@ const RC_ANDROID_KEY = 'goog_HruBjSADPBeuocKnIurdWmMibrR';
 // RevenueCat public SDK key (iOS, app "Loot Hollow (App Store)"). Starts with appl_.
 // While it still contains PLACEHOLDER, iOS runs with purchases OFF (the Codemagic
 // iOS workflow refuses to build with the placeholder, so it can never ship).
-const RC_IOS_KEY = 'appl_PLACEHOLDER';
+const RC_IOS_KEY = 'appl_QIVfOuRxHxYlaeqPoJtoGqReFDt';
 const RC_KEY = Platform.OS === 'ios' ? RC_IOS_KEY : RC_ANDROID_KEY;
 const STORE_NAME = Platform.OS === 'ios' ? 'the App Store' : 'Google Play';
 
@@ -672,7 +672,7 @@ export default function App() {
         bounces={false}
         containerStyle={styles.web}
         androidLayerType="hardware"
-        injectedJavaScript={`(function(){try{document.documentElement.style.setProperty('--sbtop',(${StatusBar.currentHeight || 0})+'px');}catch(e){}try{${nativeFlags}${Platform.OS === 'ios' ? "window.LH_BOOT_VILLAGE=true;" : ''}}catch(e){}})();true;`}
+        injectedJavaScript={`(function(){${Platform.OS === 'android' ? "try{document.documentElement.style.setProperty('--sbtop',(" + (StatusBar.currentHeight || 0) + ")+'px');}catch(e){}" : ''}try{${nativeFlags}${Platform.OS === 'ios' ? "window.LH_BOOT_VILLAGE=true;" : ''}}catch(e){}})();true;`}
       />
     </View>
   );
