@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   StyleSheet, View, StatusBar, Text, TouchableOpacity,
-  ActivityIndicator, Platform, AppState, Dimensions, Alert, Share,
+  ActivityIndicator, Platform, AppState, Dimensions, Alert, Share, Linking,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -554,6 +554,9 @@ export default function App() {
         });
       } else if (d.t === 'share' && typeof d.text === 'string') {
         Share.share({ message: d.text.slice(0, 500) }).catch(() => {});
+      } else if (d.t === 'link' && typeof d.url === 'string') {
+        // Only our own community links may be opened from the game.
+        if (/^https:\/\/(discord\.gg|discord\.com)\//i.test(d.url)) Linking.openURL(d.url).catch(() => {});
       } else if (d.t === 'cloud_pull') {
         cloudPull();
       } else if (d.t === 'cloud_push' && typeof d.data === 'string') {
